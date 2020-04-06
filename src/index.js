@@ -8,8 +8,9 @@ import { applyMiddleware, createStore, compose } from 'redux'
 import ReduxThunk from 'redux-thunk';
 import initialState from "./capi/initialState";
 import { widgetsAPI } from "./capi";
+import { getStateFromURL} from "./config/urlParameters";
 
-const store = createStore(reducer, initialState, applyMiddleware(ReduxThunk))
+const store = createStore(reducer, getStateFromURL() || initialState, applyMiddleware(ReduxThunk))
 widgetsAPI.mount(store);
 
 ReactDOM.render(

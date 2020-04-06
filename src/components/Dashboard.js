@@ -4,6 +4,7 @@ import { widgetConfig } from '../config/widgets';
 import {Row, Col} from 'react-bootstrap';
 import {last} from "../data/timeseries";
 import { Gear, PlusCircleFill } from 'react-bootstrap-icons';
+import {writeStateToURL} from "../config/urlParameters";
 
 export const Dashboard = () => {
     const {widgetRows, widgets} = widgetsAPI({});
@@ -19,6 +20,7 @@ export const Dashboard = () => {
 const WidgetRow = ({row})=> {
     const {widgetCols} = widgetsAPI({row: row});
     const md = [0, 12, 6, 4][widgetCols.length];
+    writeStateToURL(widgetsAPI.getState());
     return (
         <Row xl={2} lg={2} md={2} sm={1} xs={1}>
             {

@@ -102,11 +102,12 @@ export const importData = async () => {
 async function readCSVFile(filePrefix) {
     const location = window.location;
     let url;
-    //if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+        url = location.protocol + location.host + "/" + filePrefix + "_test.csv";
+    } else {
+        //url = process.env.PUBLIC_URL + "/" + filePrefix + ".csv";
         url = location.protocol + location.host + "/" + filePrefix + ".csv";
-    //} else {
-    //    url = process.env.PUBLIC_URL + "/" + filePrefix + ".csv";
-    //}
+    }
     console.log(url);
     const getBuffer = bent('string');
     csvFiles[filePrefix] = await getBuffer(url);
