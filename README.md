@@ -1,6 +1,6 @@
 # Configurable Dashboard the uses John Hopkins University data
 
-To see deployment go to https://tinyurl.com/jhusamdb
+To see deployment go to https://www.cdash19.com
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
