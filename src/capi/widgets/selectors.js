@@ -16,6 +16,25 @@ export default {
             return matrix
         }
     ],
+    widgetMatrixSpan: [
+        (select, {widgets}) => select(widgets),
+        (widgets) => {
+            const matrix = [];
+            widgets.map( w => {
+                for (var row = 0; row < w.rowSpan; ++row)
+                    for (var col = 0; col < w.colSpan; ++row)
+                matrix[w.row] = matrix[w.row] || [];
+                matrix[w.row][w.col] = w;
+            });
+
+            for (let ix = 0; ix < matrix.length; ++ix)
+                if (typeof matrix[ix] === 'undefined')
+                    matrix[ix] = [];
+
+            return matrix
+        }
+    ],
+
     widgetRows: (state, {widgetMatrix}) => widgetMatrix,
     widgetCols: (state, {widgetMatrix, row}) => widgetMatrix[row],
     widget: [
@@ -25,5 +44,5 @@ export default {
 
     widgetBeingConfiguredId: state => state.widgetBeingConfiguredId,
     isConfiguring: (state, {id}) => state.widgetBeingConfiguredId === id,
-    anyConfiguring:  (state) => state.widgetBeingConfiguredId === -1,
+    anyConfiguring:  (state) => state.widgetBeingConfiguredId !== -1,
 }

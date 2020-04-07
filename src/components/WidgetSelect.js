@@ -5,6 +5,7 @@ import {widgetConfig, widgetNames} from "../config/widgets";
 import {Dropdown, DropdownButton, Row, Col, Container, Button} from "react-bootstrap";
 import { Trash, Check, CaretLeftFill, CaretRightFill, CaretDownFill, CaretUpFill } from 'react-bootstrap-icons';
 import {scale} from "../config/widgets";
+import {writeStateToURL} from "../config/urlParameters";
 
 export default ({id}) => {
     const {doneEditing, deleteWidget} = widgetsAPI({id: id});
@@ -52,7 +53,7 @@ const PositionButton = ({id, arrow}) => {
 const SelectType = ({id}) => {
     const {widget, setWidgetData} = widgetsAPI({id: id});
     return (
-        <Dropdown>
+        <Dropdown className="pull-right">
             <Dropdown.Toggle
                 style={{border: 0, backgroundColor: "transparent", color: "#202020", fontSize: 12 * scale, padding: 4}}
                 size={scale > 1 ? "lg" : "sm"}

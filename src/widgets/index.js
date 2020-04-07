@@ -1,3 +1,6 @@
 import  {BarGraph} from './BarGraph';
 import  {LineGraph} from './LineGraph';
-export {BarGraph, LineGraph};
+import {TableByCountry} from './TableByCountry'
+import {DataPointsForCountry} from "./DataPointsForCountry";
+
+export {BarGraph, LineGraph, TableByCountry, DataPointsForCountry};

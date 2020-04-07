@@ -61,7 +61,6 @@ function processCountries () {
             cases: cases * 1,
             casesPerM: cases * 1000000 / population,
             caseMortality: deaths / cases,
-            populationMortality: population ? deaths * 1000000 / population : - 1,
             casesOverTime: caseSeries,
             deathsOverTime: deathSeries,
             newCasesOverTime: newCaseSeries,

@@ -5,6 +5,12 @@ export default {
         if (countryHash[newCountry])
             addVerifiedCountryToWidget(newCountry);
     },
+    addSingleCountryToWidget: ({addVerifiedCountryToWidget, deleteCountryFromWidget, widget}) => (newCountry) => {
+        if (countryHash[newCountry]) {
+            widget.countries.map( country => deleteCountryFromWidget(country) );
+            addVerifiedCountryToWidget(newCountry);
+        }
+    },
 
     newWidget: ({widgetMatrix, addWidgetToMatrix}) => () => {
         const row = widgetMatrix.find( row => {

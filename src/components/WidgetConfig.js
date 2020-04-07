@@ -1,12 +1,13 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Row, Col, Button, Dropdown, DropdownButton, Container} from 'react-bootstrap';
-import {widgetsAPI} from "../capi";
 import {widgetConfig} from "../config/widgets";
+import {widgetsAPI} from "../capi";
+import {writeStateToURL} from "../config/urlParameters";
 
 export default ({id}) => {
     const {widget} = widgetsAPI({id: id});
     const config = widgetConfig[widget.type];
+
     return (
         <div>
             {config.config.map((config, ix) =>
@@ -19,6 +20,8 @@ export default ({id}) => {
 const WidgetConfigElement = ({id, config}) => {
     const {widget} = widgetsAPI({id: id});
     return (
-        <config.component {...config.props} id={id} />
+        <div style={{backgroundColor: "#f4f4f4", padding: 8, marginBottom: 2}}>
+        <config.component {...config.props} widgetConfig={widgetConfig[widget.type]} id={id} />
+        </div>
     );
 }

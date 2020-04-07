@@ -14,6 +14,7 @@ export function writeStateToURL(state) {
         history.pushState(null, '', '?config=' + param);
     } else
         console.log("URL would be too long " + param.length);
+    console.log(JSON.stringify(state))
     console.log("writeStateToURL took " + ((new Date()).getTime() - date.getTime()) + "ms; " + "length " + param.length);
 }
 
@@ -27,11 +28,20 @@ export function getStateFromURL() {
             typeof state.nextWidgetId === 'undefined' ||
             !(state.widgets instanceof Array))
             throw ("missing properties")
-        else
-            return state;
+        else {
+            console.log(JSON.stringify(state))
+            return upgrade(state);
+        }
     } catch (e) {
         alert('Hmm there is a problem with config= in this URL ' + e.toString());
     }
+}
+function upgrade(state) {
+    if (!state.schemaVersion) {
+        state.schemaVersion = 1;
+        state.widgets = state.widgets.map( widget => ({...widget, props: []}))
+    }
+    return state;
 }
 
 function compressState (state) {

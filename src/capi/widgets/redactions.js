@@ -41,6 +41,27 @@ export default {
             }
         }
     }),
+    addPropToWidget: (prop) => ({
+        widgets: {
+            where: (state, item, ix, {id}) => item.id === id,
+            select: {
+                props: {
+                    append: () => prop
+                }
+            }
+        }
+    }),
+    deletePropFromWidget: (prop) => ({
+        widgets: {
+            where: (state, item, ix, {id}) => item.id === id,
+            select: {
+                props: {
+                    where: (state, item) => item === prop,
+                    delete: true
+                }
+            }
+        }
+    }),
 
     setWidgetData: (widgetData, specificId) => ({
         widgets: {

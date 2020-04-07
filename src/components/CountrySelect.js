@@ -11,7 +11,6 @@ import {scale} from "../config/widgets";
 
 export default ({id, countries, max}) => {
     const {widget, addCountryToWidget, deleteCountryFromWidget} = widgetsAPI({id: id});
-    const config = widgetConfig[widget.type];
     const {selectedCountry, selectCountry} = useState(null);
     const [addingCounties, setAddingCountries] = useState(false);
     return (
@@ -58,7 +57,7 @@ const CountryDropDown = ({countries, onSelect}) => (
 const SelectedCountry = ({country, onDelete, ix}) => (
 
     <Col md={4} xs={4} lg={4} style={{padding: 0, lineHeight: 1.2 * scale}}>
-        <XCircleFill size={16 * scale} color={colors[ix]} onClick={() => onDelete(country)} />
+        <XCircleFill size={14 * scale} color={colors[ix]} onClick={() => onDelete(country)} />
         &nbsp;
         <span style={{fontSize: 10 * scale}}>{country}</span>
     </Col>
