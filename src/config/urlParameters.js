@@ -1,6 +1,9 @@
+import {upgrade} from "../capi/initialState";
 let dictionaryHash = {};
 let dictionaryArray = [];
+
 export function writeStateToURL(state) {
+    //return;
     let date = new Date();
     const param = compressState(state);
     if (JSON.stringify(state) !== JSON.stringify(uncompressState(param))) {
@@ -19,6 +22,7 @@ export function writeStateToURL(state) {
 }
 
 export function getStateFromURL() {
+    //return undefined;
     const config  = (new URLSearchParams(document.location.search)).get("config");
     if (!config)
         return undefined
@@ -27,7 +31,7 @@ export function getStateFromURL() {
         if (typeof state.widgetBeingConfiguredId === 'undefined' ||
             typeof state.nextWidgetId === 'undefined' ||
             !(state.widgets instanceof Array))
-            throw ("missing properties")
+                throw ("missing properties")
         else {
             console.log(JSON.stringify(state))
             return upgrade(state);
@@ -36,13 +40,7 @@ export function getStateFromURL() {
         alert('Hmm there is a problem with config= in this URL ' + e.toString());
     }
 }
-function upgrade(state) {
-    if (!state.schemaVersion) {
-        state.schemaVersion = 1;
-        state.widgets = state.widgets.map( widget => ({...widget, props: []}))
-    }
-    return state;
-}
+
 
 function compressState (state) {
     const replacedState = JSON.parse(JSON.stringify(state, replacer));

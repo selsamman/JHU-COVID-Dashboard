@@ -57,7 +57,7 @@ const CountryDropDown = ({countries, onSelect}) => (
 const SelectedCountry = ({country, onDelete, ix}) => (
 
     <Col md={4} xs={4} lg={4} style={{padding: 0, lineHeight: 1.2 * scale}}>
-        <XCircleFill size={14 * scale} color={colors[ix]} onClick={() => onDelete(country)} />
+        <XCircleFill size={11 * scale} color={colors[ix]} onClick={() => onDelete(country)} />
         &nbsp;
         <span style={{fontSize: 10 * scale}}>{country}</span>
     </Col>

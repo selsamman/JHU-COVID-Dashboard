@@ -4,14 +4,11 @@ import {Row, Col} from 'react-bootstrap';
 import WidgetConfig from "../components/WidgetConfig";
 import {scale} from "../config/widgets";
 export const DataPointsForCountry = ({config, widgetComponentConfig, id}) => {
-    const {widget, isConfiguring, editWidget} = widgetsAPI({id: id});
+    const {widget, anyConfiguring, isConfiguring, editWidget} = widgetsAPI({id: id});
 
     const props = config.dataPoints;
     return (
-        <div onClickCapture={()=>{!isConfiguring && editWidget()}}>
-            {isConfiguring  &&
-                <WidgetConfig id={id}/>
-            }
+        <div >
             {!isConfiguring &&
                 <Row>
                     <Col style={{fontSize: 18 * scale, textAlign: "center"}}>
@@ -19,7 +16,7 @@ export const DataPointsForCountry = ({config, widgetComponentConfig, id}) => {
                     </Col>
                 </Row>
             }
-            <Row>
+            <Row style={{paddingLeft: 20 * scale, paddingRight: 20 * scale}}>
                 {widget.props.map((prop, ix) => (
                     <Col key={prop} style={{backgroundColor: "#f0f0f0", margin: 4, padding: 4}}>
                         <DataPoint

@@ -4,12 +4,11 @@ import {widgetsAPI} from "../capi";
 import {Table} from 'react-bootstrap';
 import WidgetConfig from "../components/WidgetConfig";
 export const TableByCountry = ({config, widgetComponentConfig, id}) => {
-    const {widget, isConfiguring, editWidget} = widgetsAPI({id: id});
+    const {widget, isConfiguring, anyConfiguring, editWidget} = widgetsAPI({id: id});
 
     const props = config.dataPoints;
     return (
-        <div onClickCapture={()=>{!isConfiguring && editWidget()}}>
-            {isConfiguring  && <WidgetConfig id={id} />}
+        <div onClickCapture={()=>{!anyConfiguring && editWidget()}}>
             <Table  striped bordered hover size={isConfiguring ? "sm" : "lg"}>
                 <thead>
                     <tr>

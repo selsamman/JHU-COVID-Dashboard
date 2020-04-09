@@ -2,15 +2,16 @@ import React, {useState} from 'react';
 import './App.css';
 import {importData} from './data/timeseries';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './config/custom.css';
 import {Container, Spinner, Row, Col, Table} from 'react-bootstrap';
 import {Dashboard} from "./components/Dashboard";
 
-function App() {
+function App({currentBreakpoint}) {
   const [loadingState, setLoadingState] = useState("loading");
   importData().then( (state) => setLoadingState(state));
   return (
-      <Container fluid="md">
-          <Row>
+      <Container >
+          <Row style={{marginTop: 48}}>
               {loadingState === 'loading' &&
                   <Col>
                       <Row>
@@ -22,9 +23,10 @@ function App() {
                       </Row>
                   </Col>
               }
-              {loadingState === 'loaded' && <Dashboard />}
+              {loadingState === 'loaded' && <Dashboard mode={currentBreakpoint}/>}
               {loadingState === 'error'&& <span>Data could not be loaded </span>}
           </Row>
+
       </Container>
   );
 }

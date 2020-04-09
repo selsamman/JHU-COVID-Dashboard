@@ -1,34 +1,52 @@
 import React from 'react';
 import { widgetsAPI } from "../capi";
 import {scale, widgetConfig} from '../config/widgets';
-import {Row, Col} from 'react-bootstrap';
-import {last} from "../data/timeseries";
-import {Check, Gear, PlusCircleFill} from 'react-bootstrap-icons';
-import {writeStateToURL} from "../config/urlParameters";
+import {Row, Col, Table} from 'react-bootstrap';
 
-export const Dashboard = () => {
+import WidgetConfig from "./WidgetConfig";
+
+
+export const Dashboard = ({mode}) => {
     const {widgetRows, widgets} = widgetsAPI({});
-
-    return (
-        <Col>
-            <Row><Col><Header/></Col></Row>
-            {widgetRows.map((widgetRow, row) => <WidgetRow key={row} row={row} />)}
-            {false && <Row><Col>{JSON.stringify(widgets)}</Col></Row>}
-        </Col>
-    )
+    console.log("Render Dashboard " + JSON.stringify(widgetsAPI.getState()));
+    if (mode === 'table')
+        return (
+            <Col>
+                <Row><Col>
+                    <Table borderless>
+                        <tbody>
+                            {widgetRows.map((widgetRow, row) =>
+                                <WidgetTableRow key={row} row={row} />
+                            )}
+                        </tbody>
+                    </Table>
+                </Col></Row>
+             </Col>
+        )
+    else
+        return (
+            <Col>
+                    {widgetRows.map((widgetRow, row) =>
+                        <WidgetRow key={row} row={row} />
+                    )}
+                  {false && <Row><Col>{JSON.stringify(widgets)}</Col></Row>}
+            </Col>
+        )
 }
 
 const WidgetRow = ({row})=> {
     const {widgetCols} = widgetsAPI({row: row});
     return (
-        <Row xl={2} lg={2} md={2} sm={1} xs={1}>
+        <Row xl={2} lg={2} md={1} sm={1} xs={1}>
             {
                 widgetCols.map((widget, ix) => {
                     const config =  widgetConfig[widget.type];
                     const WidgetComponent = config.component;
                     return (
                         <Col key={ix}>
-                            <WidgetComponent config={config} key={widget.id} id={widget.id} ix={ix}/>
+                            <WidgetConfig id={widget.id}>
+                                <WidgetComponent config={config} key={widget.id} id={widget.id} ix={ix}/>
+                             </WidgetConfig>
                         </Col>
                     )
                 })
@@ -36,37 +54,28 @@ const WidgetRow = ({row})=> {
         </Row>
     )
 }
-
-const Header = () => {
-    const {widgets, editWidget, newWidget, anyConfiguring, doneEditing} = widgetsAPI({});
-    writeStateToURL(widgetsAPI.getState());
+const WidgetTableRow = ({row})=> {
+    const {widgetCols, anyConfiguring, editWidget} = widgetsAPI({row: row});
     return (
-        <Row style={{height: 40, borderBottom: "1px solid #e0e0e0", marginBottom: 20,marginTop: 10}}>
-            <Col xs={6}>
-                {anyConfiguring
-                    ? <span>Click on any widget to edit</span>
-                    : <span style={{fontSize: 20}}>Configurable Dashboard for JHU Data</span>
+        <tr >
+            {
+                widgetCols.map((widget, ix) => {
+                    const config =  widgetConfig[widget.type];
+                    const WidgetComponent = config.component;
+                    return (
+                        <td key={ix} rowSpan={widget.rows} colSpan={widget.cols} width={(widget.cols * 100 / 12) + "%"}
+                            onClickCapture={()=>{anyConfiguring && editWidget(widget.id)}}
+                            style={{borderWidth: anyConfiguring ? 1: 0, borderStyle: "dotted", borderColor:  "#808080"}}
+                        >
+                            <WidgetConfig id={widget.id}>
+                                <WidgetComponent config={config} key={widget.id} id={widget.id} ix={ix}/>
+                            </WidgetConfig>
+                        </td>
+                    )
                 }
-            </Col>
-            <Col xs={4}>
-                {anyConfiguring &&
-                    <span>Data as of {last}</span>}
-            </Col>
-            <Col xs={2}>
-                {!anyConfiguring &&
-                    <PlusCircleFill size={30} onClick={newWidget} color="#22ac63" />
-                }
-                &nbsp;
-                {!anyConfiguring &&
-                    <Gear size={30} onClick={()=>{editWidget(widgets[0].id)}} />
-                }
-                {anyConfiguring &&
-                    <Check size={30} onClick={doneEditing} />
-                }
-
-            </Col>
-        </Row>
-    );
+            )}
+        </tr>
+    )
 }
 
 

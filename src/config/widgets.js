@@ -40,6 +40,7 @@ export const widgetConfig = {
     NewDeathsOverTime: LineGraphByCountry("New Deaths",'newDeathsOverTime'),
     NewCasesPerPopulationOverTime: LineGraphByCountry( "New Cases per 1M People",'newCasesPerPopulationOverTime'),
     NewDeathsPerPopulationOverTime: LineGraphByCountry("New Deaths per 1M People",'newDeathsPerPopulationOverTime'),
+    Blank: {name: "Blank Space", component: Widgets.BlankWidget, config: [{component: WidgetSelect, props: {}}]}
 }
 function TableByCountry (name, props)  {
     return {
@@ -93,14 +94,8 @@ function LineGraphByCountry (name, prop) {
         parentProps: (userConfig, isConfiguring, editWidget) => ({
             domainPadding: 20,
             theme: VictoryTheme.material,
-            padding: {left: 30, top: isConfiguring? 8 : 60, right: 0, bottom: 40},
-            height: isConfiguring ? 184 : 250,
-            events: [{
-                target: "parent",
-                eventHandlers: {
-                    onClick: () => {editWidget();return []}
-                }
-            }]
+            padding: {left: 50, top: isConfiguring? 8 : 60, right: 0, bottom: 40},
+            height: isConfiguring ? 167 : 250,
         }),
         labelProps: (userConfig) => ({
             title: name,

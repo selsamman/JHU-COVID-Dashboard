@@ -1,22 +1,25 @@
 export default {
 
-    addWidgetToMatrix: (row, col) => ({
+    addWidgetToMatrix: (row, col, rows, cols, type) => ({
         nextWidgetId: {
             set: state => state.nextWidgetId + 1
         },
         widgets: {
             append: (state) => ({
                 id: state.nextWidgetId,
-                type: "CasesPerPopulationOverTime",
+                type: type || "Blank",
                 countries: ["Ireland", "United States"],
+                props: ["deathsPerM"],
                 row: row,
-                col: col
+                col: col,
+                cols: cols || 6,
+                rows: rows || 1,
             })
         },
     }),
-    deleteWidgetFromMatrix: () => ({
+    deleteWidgetFromMatrix: (xid) => ({
         widgets: {
-            where: (state, item, ix, {id}) => item.id === id,
+            where: (state, item, ix, {id}) => item.id === (xid || id),
             delete: true,
         }
      }),
@@ -65,7 +68,7 @@ export default {
 
     setWidgetData: (widgetData, specificId) => ({
         widgets: {
-            where: (state, item, ix, {id}) => item.id === id,
+            where: (state, item, ix, {id}) => item.id === (specificId || id),
             assign: () => widgetData
         }
     }),
@@ -77,15 +80,26 @@ export default {
         }
     }),
 
-    editWidget: (xid) => ({
+    setWidgetBeingEdited: (id) => ({
         widgetBeingConfiguredId: {
-            set: (state, item, {id}) => xid || id,
+            set: () => id,
         }
     }),
 
     doneEditing: () => ({
-        widgetBeingConfiguredId: {
-            set: () => -1,
+        editMode: {
+            set: () => "none",
+        }
+    }),
+
+    setDataMode: () => ({
+        editMode: {
+            set: (state) => "data"
+        }
+    }),
+    setLayoutMode: () => ({
+        editMode: {
+            set: (state) => "layout"
         }
     })
 }
