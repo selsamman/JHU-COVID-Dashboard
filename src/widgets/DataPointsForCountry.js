@@ -37,7 +37,7 @@ const DataPoint = ({description, data, scale}) => (
         <div style={{fontSize: 9 * scale, textAlign: 'center', color: "#404040", textTransform: "uppercase", fontWeight: 'bold'}} >
             {description[0]}
         </div>
-        <div style={{fontSize: 20 * scale, textAlign: 'center', color: "#000000"}} >
+        <div style={{fontSize: 16 * scale, textAlign: 'center', color: "#000000"}} >
             {numberWithCommas(data)}
         </div>
         <div style={{fontSize: 7 * scale, textAlign: 'center', color: "#404040"}} >

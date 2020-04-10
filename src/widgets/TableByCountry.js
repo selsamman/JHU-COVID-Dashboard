@@ -9,7 +9,7 @@ export const TableByCountry = ({config, scale, id}) => {
 
     return (
         <div onClickCapture={()=>{!anyConfiguring && editWidget()}}>
-            <Table  striped bordered hover size={isConfiguring ? "sm" : "lg"}>
+            <Table  striped bordered hover size="sm">
                 <thead>
                     <tr>
                         <th style={{fontSize: 14 * scale, textAlign: 'left', fontWeight: 'bold', paddingBottom: 10 * scale}}>

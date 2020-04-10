@@ -16,7 +16,7 @@ export const Dashboard = ({mode}) => {
     if (mode === 'table')
         return (
             <Col>
-                <Row><Col><DashboardHeader /></Col></Row>
+
                 <Row><Col>
                     <Table borderless>
                         <tbody>

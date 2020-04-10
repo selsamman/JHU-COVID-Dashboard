@@ -4,24 +4,25 @@ import {widgetConfig} from "../config/widgets";
 import {Row, Col, Table} from 'react-bootstrap';
 import {widgetsAPI} from "../capi";
 import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronBarDown, ChevronBarUp, CaretDownFill, CaretUpFill} from "react-bootstrap-icons";
-const debug = true;
+const debug = false;
 
 export default ({id, children, scale}) => {
     const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring} = widgetsAPI({id: id});
     const config = widgetConfig[widget.type];
 
-
     return (
         <div>
             {debug && anyConfiguring && <DebugInfo widget={widget} />}
-
+            {isConfiguringLayout &&
+                <div style={{backgroundColor: "#f4f4f4", padding: 2 * scale, paddingBottom: 4 * scale,
+                    marginBottom: 4 * scale, borderRadius: 4 * scale}}>
+                    <WidgetConfigSize id={id} scale={scale}/>
+                </div>
+            }
             {isConfiguringData && (widget.cols > 2) && config.config.map((config, ix) =>
                 <WidgetConfigElement config={config} id={id} key={ix} scale={scale}/>
             )}
              {children}
-            {isConfiguringLayout &&
-                <WidgetConfigSize id={id} scale={scale}/>
-            }
         </div>
     );
 };
@@ -29,7 +30,7 @@ export default ({id, children, scale}) => {
 const WidgetConfigElement = ({id, config, scale}) => {
     const {widget} = widgetsAPI({id: id});
     return (
-        <div style={{backgroundColor: "#f4f4f4", padding: 8, marginBottom: 4, borderRadius: 6}}>
+        <div style={{backgroundColor: "#f4f4f4", padding: 8, marginBottom: 4, borderRadius: 4}}>
             <config.component {...config.props} widgetConfig={widgetConfig[widget.type]} id={id} scale={scale} />
         </div>
     );
@@ -42,7 +43,7 @@ const WidgetConfigSize = ({id, scale}) => {
              canMoveWidgetLeft, canMoveWidgetRight, moveWidgetLeft,  moveWidgetRight,
              canMoveWidgetDown, canMoveWidgetUp, moveWidgetDown, moveWidgetUp, widget} =  widgetsAPI({id: id});
     return (
-    <Row style={{padding: 0, height: 16 * scale}}>
+    <Row style={{padding: 0, height: 24 * scale}}>
         <Col xs={2} className="d-flex justify-content-start">
             <MoveTool iconComponent={CaretLeftFill} enabled={canMoveWidgetLeft} click={moveWidgetLeft} scale={scale} />
             <MoveTool iconComponent={CaretUpFill} enabled={canMoveWidgetUp} click={moveWidgetUp} scale={scale} />
@@ -70,7 +71,7 @@ const MoveTool = ({enabled, iconComponent, click, scale}) => {
     const component = {iconComponent};
     return (
         <span>
-            <component.iconComponent color={enabled ? "#000000" : "#e0e0e0"} onClick={() => enabled && click()} size={16 * scale} />
+            <component.iconComponent color={enabled ? "#000000" : "#b0b0b0"} onClick={() => enabled && click()} size={16 * scale} />
         </span>
     )
 }

@@ -16,19 +16,24 @@ export const DashboardHeader = () => {
             <Navbar.Brand>COVID-19 Configurable Dashboard</Navbar.Brand>
             <Navbar.Toggle/>
             <Navbar.Collapse className="justify-content-end">
-                <Navbar.Text>
-                    <span style={{fontSize: 14}}>JHU data as of {dateRange.last}</span>&nbsp;&nbsp;
-                    <IconWrapperHeader><PlusCircleFill size={24} onClick={newWidget}/></IconWrapperHeader>
-                    {(!anyConfiguring || anyConfiguringLayout) &&
+                { anyConfiguring &&
+                    <Navbar.Text>
+                        <IconWrapperHeader><PlusCircleFill size={24} onClick={newWidget}/></IconWrapperHeader>
+                        {anyConfiguringLayout &&
                         <IconWrapperHeader><Gear size={20} onClick={()=>{setDataMode();editWidget()}} /></IconWrapperHeader>
-                    }
-                    {(!anyConfiguring || anyConfiguringData) &&
+                        }
+                        {anyConfiguringData &&
                         <IconWrapperHeader><Grid3x3 size={20} onClick={()=>{setLayoutMode();editWidget()}} /></IconWrapperHeader>
-                    }
-                    {anyConfiguring &&
+                        }
                         <IconWrapperHeader><Check size={20} onClick={doneEditing} /></IconWrapperHeader>
-                    }
-                </Navbar.Text>
+                    </Navbar.Text>
+                }
+                {!anyConfiguring &&
+                    <Navbar.Text>
+                        <span style={{fontSize: 14}}>JHU data as of {dateRange.last}</span>&nbsp;&nbsp;
+                        <IconWrapperHeader><Gear size={20} onClick={()=>{setDataMode();editWidget()}} /></IconWrapperHeader>
+                    </Navbar.Text>
+                 }
             </Navbar.Collapse>
         </Navbar>
     );

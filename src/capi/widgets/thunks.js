@@ -82,11 +82,12 @@ export default {
         setWidgetData({cols: widget.cols - 1});
         const dest = widgets.find(w =>
             w.row === widget.row && // Same row
+            w.rows === widget.rows &&
             w.col === widget.col + widget.cols) // Next column
         if (dest)
             setWidgetData({col: dest.col - 1, cols: dest.cols + 1}, dest.id)
         else
-            addWidgetToMatrix(widget.row, widget.col + widget.cols, widget.rows, 1);
+            addWidgetToMatrix(widget.row, widget.col + widget.cols - 1, widget.rows, 1);
     },
     expandWidgetWidth: ({widget, deleteWidgetFromMatrix, setWidgetData, widgetRightBlankOrContractableNeighbor : dest}) => () => {
         setWidgetData({cols: widget.cols + 1});
