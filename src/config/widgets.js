@@ -6,13 +6,23 @@ import CountrySelect from "../components/CountrySelect";
 import WidgetSelect from "../components/WidgetSelect";
 import PropsSelect from "../components/PropsSelect";
 import SingleCountrySelect from "../components/SingleCountrySelect";
-import {DataPointsForCountry} from "../widgets/DataPointsForCountry";
 
-export const scale = 1.5;
-
-
+const dataPoints = {
+    deaths: "Deaths total",
+    deathsPerM: "Deaths per 1M",
+    cases: "Cases total",
+    casesPerM: "Cases per 1M",
+    //caseMortality: "Deaths per Case",
+}
+const dataPointsDisplay = {
+    deaths: ["Deaths", "Total"],
+    deathsPerM: ["Deaths", "per 1M People"],
+    cases: ["Cases", "Total"],
+    casesPerM: ["Cases", "per 1M People"],
+};
 
 export const widgetConfig = {
+    /*
     CasesByCountry: {
         name: "Cases By Country",
         component: Widgets.BarGraph,
@@ -30,6 +40,8 @@ export const widgetConfig = {
         }),
         config: [{source: "countries", max: 10, prop: "countries"}]
     },
+
+     */
     DataByCountry: TableByCountry("Data Table by Country"),
     DataForCountry: DataForCountry("Individual Data Points"),
     CasesOverTime: LineGraphByCountry( "Total Cases", 'casesOverTime'),
@@ -48,21 +60,16 @@ function TableByCountry (name, props)  {
         component: Widgets.TableByCountry,
         config: [
             {component: WidgetSelect, props: {}},
-            {component: CountrySelect, props: {countries: countries, max: 6}},
-            {component: PropsSelect, props: {max: 2}}
+            {component: CountrySelect, props: {countries: countries, max: 20}},
+            {component: PropsSelect, props: {max: 4}}
         ],
-        dataPoints: {
-            deaths: "Total Deaths",
-            deathsPerM: "Deaths per 1M People",
-            cases: "Total Cases",
-            casesPerM: "Cases per 1M People",
-        //caseMortality: "Deaths per Case",
-    },
-    tableProps:  (userConfig, countrySelection, prop, ix, isConfiguring) => ({
-        data: Math.round(country
-            .find(c => c.name === countrySelection)[prop]),
-        style: {}
-    })
+        dataPoints: dataPoints,
+        dataPointsDisplay: dataPointsDisplay,
+        tableProps:  (userConfig, countrySelection, prop, ix, isConfiguring) => ({
+            data: Math.round(country
+                .find(c => c.name === countrySelection)[prop]),
+            style: {}
+        })
     }
 }
 function DataForCountry(name, props)  {
@@ -74,13 +81,8 @@ function DataForCountry(name, props)  {
             {component: SingleCountrySelect, props: {countries: countries}},
             {component: PropsSelect, props: {max: 4}}
         ],
-        dataPoints: {
-            deaths: "Total Deaths",
-            deathsPerM: "Deaths per 1M People",
-            cases: "Total Cases",
-            casesPerM: "Cases per 1M People",
-            //caseMortality: "Deaths per Case",
-        },
+        dataPoints: dataPoints,
+        dataPointsDisplay: dataPointsDisplay,
         tableProps:  (userConfig, countrySelection, prop, ix, isConfiguring) => ({
             data: Math.round(country
                 .find(c => c.name === countrySelection)[prop]),

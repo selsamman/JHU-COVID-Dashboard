@@ -18,3 +18,10 @@ span.COVID_Icon_Wrapper_Toolbar_Disabled {
     padding: 2px;
     border-radius: 8px;
 }
+@media only screen and (max-width: 600px) {
+    .VictoryContainer {
+        user-select: auto !important;
+        pointer-events: auto !important;
+        touch-action: auto !important;
+    }
+}

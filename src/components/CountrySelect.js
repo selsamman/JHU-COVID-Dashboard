@@ -7,9 +7,8 @@ import {Typeahead} from "react-bootstrap-typeahead";
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import {colors} from "../config/colors";
 import { XCircleFill, PlusCircleFill } from 'react-bootstrap-icons';
-import {scale} from "../config/widgets";
 
-export default ({id, countries, max}) => {
+export default ({id, countries, max, scale}) => {
     const {widget, addCountryToWidget, deleteCountryFromWidget} = widgetsAPI({id: id});
     const {selectedCountry, selectCountry} = useState(null);
     const [addingCounties, setAddingCountries] = useState(false);
@@ -27,6 +26,7 @@ export default ({id, countries, max}) => {
                         <Row>
                             <Col>
                                 <CountryDropDown
+                                    scale={scale}
                                     countries={countries}
                                     onSelect={(selectedCountry) => {
                                         addCountryToWidget(selectedCountry[0]);
@@ -37,7 +37,7 @@ export default ({id, countries, max}) => {
                     {!addingCounties &&
                         <Row style={{padding: 0}}>
                             {widget.countries.map( (c, ix) =>
-                                <SelectedCountry key={ix} ix={ix} country={c} onDelete={deleteCountryFromWidget} />)}
+                                <SelectedCountry key={ix} ix={ix} country={c} onDelete={deleteCountryFromWidget} scale={scale}/>)}
                         </Row>}
                     </Col>
             </Row>
@@ -47,14 +47,14 @@ export default ({id, countries, max}) => {
 
 const CountryDropDown = ({countries, onSelect}) => (
     <Typeahead
-        size={scale === 1 ? "small" : "large"}
+        bsSize="small"
         id="country"
         placeholder="Enter Country to add"
         onChange={onSelect}
         options={countries} />
 );
 
-const SelectedCountry = ({country, onDelete, ix}) => (
+const SelectedCountry = ({country, onDelete, ix, scale}) => (
 
     <Col md={4} xs={4} lg={4} style={{padding: 0, lineHeight: 1.2 * scale}}>
         <XCircleFill size={11 * scale} color={colors[ix]} onClick={() => onDelete(country)} />

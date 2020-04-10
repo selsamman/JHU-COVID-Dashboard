@@ -4,8 +4,7 @@ import bent from 'bent';
 
 export const props = {};
 export let dates;
-export let first;
-export let last;
+export const dateRange = {};
 let deaths = [];
 let cases = [];
 
@@ -113,16 +112,16 @@ async function readCSVFile(filePrefix) {
     //console.log(csvFiles[filePrefix]);
 }
 function processCSVFiles() {
-    cases = csvFiles.cases.split("\n").slice(1);
-    deaths = csvFiles.deaths.split("\n").slice(1);
+    cases = csvFiles.cases.split("\n").slice(1).filter(l => !!l);
+    deaths = csvFiles.deaths.split("\n").slice(1).filter(l => !!l)
     if (cases.length !== deaths.length)
         throw("seriously?");
 
     cases[0].split(",").map((prop, ix) => {props[prop] = ix});
     //console.log(JSON.stringify(props));
     dates = Object.getOwnPropertyNames(props).filter((p)=>p.match(/\d*\/\d*\/\d*/));
-    first = dates[0];
-    last = dates[dates.length - 1];
+    dateRange.first = dates[0];
+    dateRange.last = dates[dates.length - 1];
     let sumsProvinces = {};
     let sumWorld = {};
     let countriesWithTotals = {};
@@ -130,7 +129,7 @@ function processCSVFiles() {
         .map((line,ix)=> sumProvinces(mergeDeaths(line.split(","), ix)))
         .concat(totalsFromProvinces())
         .filter( line => !line[props['Province/State']])
-        .sort((a, b) => b[props[last]] - a[props[last]]);
+        .sort((a, b) => b[props[dateRange.last]] - a[props[dateRange.last]]);
 
     processCountries();
     country.map( c => {countryHash[c.name] = true; countries.push(c.name);return c.name} );

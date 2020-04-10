@@ -38,43 +38,65 @@ export default {
     anyConfiguringLayout: (state, {id}) => state.editMode === "layout",
     anyConfiguringData: (state, {id}) => state.editMode === "data",
 
-    canMoveWidgetLeft: (state, {widgetLeftNeighbor}) => typeof widgetLeftNeighbor !== 'undefined',
+    canMoveWidgetLeft: (state, {widgetLeftNeighbor}) => !!widgetLeftNeighbor ,
     widgetLeftNeighbor: [
         (select, {widget, widgets}) => select(widget, widgets),
         (widget, widgets) => widgets.filter(w =>
             w.col === widget.col - widget.cols && w.row <= widget.row).sort((a,b)=> a.col - b.col)[0]
     ],
-    canMoveWidgetRight: (state, {widgetRightNeighbor}) => typeof widgetRightNeighbor !== 'undefined',
+    canMoveWidgetRight: (state, {widgetRightNeighbor}) => !!widgetRightNeighbor,
     widgetRightNeighbor: [
         (select, {widget, widgets}) => select(widget, widgets),
-        (widget, widgets) => widgets.filter(w => w.col === widget.col + widget.cols && w.row <= widget.row).sort((a,b)=> a.col - b.col)[0]
+        (widget, widgets) => widgets.filter(w =>
+            w.col === widget.col + widget.cols && // Must start horizontally where this widget leaves off
+            w.row <= widget.row) // And in a lower row
+            .sort((a,b)=> a.col - b.col)[0]
     ],
-    canMoveWidgetUp: (state, {widgetUpperNeighbor}) => typeof widgetUpperNeighbor !== 'undefined',
+    canMoveWidgetUp: (state, {widgetUpperNeighbor}) => !!widgetUpperNeighbor,
     widgetUpperNeighbor: [
         (select, {widget, widgets}) => select(widget, widgets),
         (widget, widgets) => widgets.filter(w => widget.row === w.row + w.rows && w.col === widget.col).sort((a,b)=> a.row - b.row)[0]
     ],
-    canMoveWidgetDown: (state, {widgetLowerNeighbor}) => typeof widgetLowerNeighbor !== 'undefined',
+
+    canMoveWidgetDown: (state, {widgetLowerNeighbor}) => !!widgetLowerNeighbor,
+
     widgetLowerNeighbor: [
         (select, {widget, widgets}) => select(widget, widgets),
-        (widget, widgets) => widgets.filter(w => w.row === (widget.row + widget.rows) && w.col === widget.col).sort((a,b)=> a.row - b.row)[0]
+        (widget, widgets) => widgets.filter(w =>
+            w.row === (widget.row + widget.rows) && // Must start horizontally where this widget leaves off
+            w.col === widget.col)
+            .sort((a,b)=> a.row - b.row)[0]
     ],
+
     canContractWidgetHeight: [
         (select, {widget}) => select(widget),
         (widget) => widget.rows > 1
     ],
-    canExpandWidgetHeight: [
+
+    canExpandWidgetHeight: (state, {widgetLowerBlankOrContractableNeighbor}) => !! widgetLowerBlankOrContractableNeighbor,
+
+    widgetLowerBlankOrContractableNeighbor: [
         (select, {widget, widgets}) => select(widget, widgets),
-        (widget, widgets) => widgets.find(w => // Look down from here for blank row in same column to gobble up
-            w.type === 'Blank' && w.col === widget.col && w.cols === widget.cols && w.row >= (widget.row + widget.rows))
+        (widget, widgets) => widgets.find(w =>
+            (w.type === 'Blank' || w.rows > 1) && // Blank or contractable
+            w.col === widget.col && // starting in the same column
+            w.cols === widget.cols && // Same width
+            w.row === (widget.row + widget.rows)) // Next row
     ],
+
     canContractWidgetWidth: [
         (select, {widget}) => select(widget),
         (widget) => widget.cols > 3
     ],
-    canExpandWidgetWidth: [
-        (select, {widget, widgets}) => select(widget, widgets),
-        (widget, widgets) => true
+
+    widgetRightBlankOrContractableNeighbor: [
+            (select, {widget, widgets}) => select(widget, widgets),
+            (widget, widgets) => widgets.find(w => // Look right from here blank row in same column to gobble up
+                (w.type === 'Blank' || w.cols > 1) && // Blank or contractable
+                w.row === widget.row &&
+                w.rows === widget.rows &&
+                w.col === widget.col + widget.cols)
     ],
+    canExpandWidgetWidth: (state, {widgetRightBlankOrContractableNeighbor}) => !!widgetRightBlankOrContractableNeighbor
 
 }

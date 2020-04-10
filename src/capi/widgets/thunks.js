@@ -70,32 +70,30 @@ export default {
     contractWidgetHeight: ({id, addWidgetToMatrix, widget, setWidgetData, widgetMatrix}) => () => {
         setWidgetData({rows: widget.rows - 1});
         addWidgetToMatrix(widget.row + widget.rows - 1, widget.col, 1, widget.cols);
-        console.log(`contracted ${widget.id}`);
     },
-    expandWidgetHeight: ({id, widgets, widgetMatrix, widget, setWidgetData, deleteWidgetFromMatrix, addWidgetToMatrix, nextRow}) => () => {
+    expandWidgetHeight: ({widget, setWidgetData, deleteWidgetFromMatrix, widgetLowerBlankOrContractableNeighbor : dest}) => () => {
         setWidgetData({rows: widget.rows + 1})
-        const dest = widgets.filter(w => // Look down from here blank row in same column to gobble up
-            w.type === 'Blank' && w.col === widget.col && w.cols === widget.cols && w.row >= (widget.row + widget.rows))
-            .sort((a,b)=> a.row - b.row)[0]; // and take the first
-        if (dest)
-                deleteWidgetFromMatrix(dest.id);
-         console.log(`expanded ${widget.id}`);
+        if (dest.rows > 1)
+            setWidgetData({rows: dest.rows - 1, row: dest.row + 1}, dest.id)
+        else
+            deleteWidgetFromMatrix(dest.id);
     },
     contractWidgetWidth: ({id, addWidgetToMatrix, widget, widgets, setWidgetData}) => () => {
         setWidgetData({cols: widget.cols - 1});
-        const dest = widgets.find(w => w.type === 'Blank' && w.row === widget.row && w.rows === widget.rows)
+        const dest = widgets.find(w =>
+            w.row === widget.row && // Same row
+            w.col === widget.col + widget.cols) // Next column
         if (dest)
             setWidgetData({col: dest.col - 1, cols: dest.cols + 1}, dest.id)
         else
             addWidgetToMatrix(widget.row, widget.col + widget.cols, widget.rows, 1);
     },
-    expandWidgetWidth: ({id, widgetMatrix, widget, widgets, setWidgetData, deleteWidgetFromMatrix}) => () => {
+    expandWidgetWidth: ({widget, deleteWidgetFromMatrix, setWidgetData, widgetRightBlankOrContractableNeighbor : dest}) => () => {
         setWidgetData({cols: widget.cols + 1});
-        const dest = widgets.find(w => w.type === 'Blank' && w.row === widget.row && w.rows === widget.rows)
         if (dest.cols > 1)
-            setWidgetData({col: dest.col + 1, cols: dest.cols - 1}, dest.id)
+            setWidgetData({cols: dest.cols - 1, col: dest.col + 1}, dest.id)
         else
             deleteWidgetFromMatrix(dest.id);
-        console.log(`expanded ${widget.id} ${dest.cols === 1 ? "deleting " + dest.id : "by adding row"}`);
+
     }
 }

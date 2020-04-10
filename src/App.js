@@ -10,7 +10,7 @@ function App({currentBreakpoint}) {
   const [loadingState, setLoadingState] = useState("loading");
   importData().then( (state) => setLoadingState(state));
   return (
-      <Container >
+      <Container>
           <Row style={{marginTop: 48}}>
               {loadingState === 'loading' &&
                   <Col>

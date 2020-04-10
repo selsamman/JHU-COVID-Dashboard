@@ -7,15 +7,15 @@ import {Typeahead} from "react-bootstrap-typeahead";
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import {colors} from "../config/colors";
 import { XCircleFill, PlusCircleFill } from 'react-bootstrap-icons';
-import {scale} from "../config/widgets";
 
-export default ({id, countries, max}) => {
+export default ({id, countries, max, scale}) => {
     const {widget, addCountryToWidget, addSingleCountryToWidget} = widgetsAPI({id: id});
     return (
         <div>
             <Row>
                  <Col>
                     <CountryDropDown
+                        scale={scale}
                         countries={countries}
                         country={widget.countries[0]}
                         onSelect={(selectedCountry) => {
@@ -27,9 +27,9 @@ export default ({id, countries, max}) => {
     );
 };
 
-const CountryDropDown = ({countries, onSelect, country}) => (
+const CountryDropDown = ({countries, onSelect, country, scale}) => (
     <Typeahead
-        size={scale === 1 ? "small" : "large"}
+        bsSize="small"
         id="country"
         placeholder={country}
         onChange={onSelect}
