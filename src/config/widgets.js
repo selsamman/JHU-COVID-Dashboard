@@ -1,6 +1,6 @@
 import * as Widgets from '../widgets';
 import { VictoryTheme } from 'victory'
-import { country, dates, countries} from "../data/timeseries";
+import { dataSet } from "../data/timeseries";
 import { colors} from "./colors";
 import CountrySelect from "../components/CountrySelect";
 import WidgetSelect from "../components/WidgetSelect";
@@ -31,7 +31,7 @@ export const widgetConfig = {
             theme: VictoryTheme.material,
         }),
         childProps: userConfig => ({
-            data: country
+            data: dataSet.country
                 .filter(c => userConfig.countries.includes(c.name))
                 .map(country => ({country: country.name, cases: country.casesPerM}))
                 .sort((a,b) => b.cases - a.cases),
@@ -60,13 +60,13 @@ function TableByCountry (name, props)  {
         component: Widgets.TableByCountry,
         config: [
             {component: WidgetSelect, props: {}},
-            {component: CountrySelect, props: {countries: countries, max: 20}},
+            {component: CountrySelect, props: {countries: dataSet.countries, max: 20}},
             {component: PropsSelect, props: {max: 4}}
         ],
         dataPoints: dataPoints,
         dataPointsDisplay: dataPointsDisplay,
         tableProps:  (userConfig, countrySelection, prop, ix, isConfiguring) => ({
-            data: Math.round(country
+            data: Math.round(dataSet.country
                 .find(c => c.name === countrySelection)[prop]),
             style: {}
         })
@@ -78,13 +78,13 @@ function DataForCountry(name, props)  {
         component: Widgets.DataPointsForCountry,
         config: [
             {component: WidgetSelect, props: {}},
-            {component: SingleCountrySelect, props: {countries: countries}},
+            {component: SingleCountrySelect, props: {countries: dataSet.countries}},
             {component: PropsSelect, props: {max: 4}}
         ],
         dataPoints: dataPoints,
         dataPointsDisplay: dataPointsDisplay,
         tableProps:  (userConfig, countrySelection, prop, ix, isConfiguring) => ({
-            data: Math.round(country
+            data: Math.round(dataSet.country
                 .find(c => c.name === countrySelection)[prop]),
             style: {}
         })
@@ -112,13 +112,13 @@ function LineGraphByCountry (name, prop) {
         component: Widgets.LineGraph,
         config: [
             {component: WidgetSelect, props: {}},
-            {component: CountrySelect, props: {countries: countries, max: 6}},
+            {component: CountrySelect, props: {countries: dataSet.countries, max: 6}},
         ],
         childProps: (userConfig, countrySelection, ix, isConfiguring) => ({
-            data: country
+            data: dataSet.country
                 .find(c => c.name === countrySelection)[prop]
-                .map((c, ix) => ({x: dates[ix].replace(/\/20/,'').replace(/\//, '-'), y: c}))
-                .slice(dates.length - 30),
+                .map((c, ix) => ({x: dataSet.dates[ix].replace(/\/20/,'').replace(/\//, '-'), y: c}))
+                .slice(dataSet.dates.length - 30),
             style: {data: {stroke: colors[ix]}, tickLabels: {angle: 45}},
         }),
     }

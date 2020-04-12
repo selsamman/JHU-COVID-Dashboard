@@ -12,7 +12,7 @@ function App({currentBreakpoint}) {
   importData().then( (state) => setLoadingState(state));
   return (
       <Container>
-          <DashboardHeader />
+          {loadingState === 'loaded' && <DashboardHeader />}
           <Row style={{marginTop: 48}}>
               {loadingState === 'loading' &&
                   <Col>

@@ -1,11 +1,12 @@
 import {widgetsAPI} from "../capi";
 import {writeStateToURL} from "../config/urlParameters";
 import {Col, Navbar, Row, Container} from "react-bootstrap";
-import {dateRange} from "../data/timeseries";
+import { dataSet} from "../data/timeseries";
 import {Check, Gear, PlusCircleFill, Grid3x3} from "react-bootstrap-icons";
 import React from "react";
 import ReactBreakpoints from "react-breakpoints";
 import {IconWrapperHeader} from "./IconWrapper";
+
 
 export const DashboardHeader = () => {
     const {widgets, editWidget, newWidget, anyConfiguring, doneEditing, anyConfiguringLayout, anyConfiguringData, isConfiguringData, setLayoutMode, setDataMode} = widgetsAPI({});
@@ -13,7 +14,7 @@ export const DashboardHeader = () => {
     console.log("widget count needed to re");
     return (
         <Navbar fixed="top" bg="dark" variant="dark" style={{height: 40}}>
-            <Navbar.Brand>COVID-19 Configurable Dashboard</Navbar.Brand>
+            <Navbar.Brand>COVID-19 Dashboard</Navbar.Brand>
             <Navbar.Toggle/>
             <Navbar.Collapse className="justify-content-end">
                 { anyConfiguring &&
@@ -30,7 +31,7 @@ export const DashboardHeader = () => {
                 }
                 {!anyConfiguring &&
                     <Navbar.Text>
-                        <span style={{fontSize: 14}}>JHU data as of {dateRange.last}</span>&nbsp;&nbsp;
+                        <span style={{fontSize: 14}}>JHU data as of {dataSet.dateRange.last}</span>&nbsp;&nbsp;
                         <IconWrapperHeader><Gear size={20} onClick={()=>{setDataMode();editWidget()}} /></IconWrapperHeader>
                     </Navbar.Text>
                  }

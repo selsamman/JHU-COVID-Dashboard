@@ -1,5 +1,4 @@
-import {countryHash} from "../../data/timeseries";
-import {widgetsAPI} from "../index";
+import {dataSet} from "../../data/timeseries";
 
 export default {
     editWidget: ({id, widgets, setWidgetBeingEdited, widgetBeingConfiguredId}) => (xid) => {
@@ -14,11 +13,11 @@ export default {
     },
 
     addCountryToWidget: ({addVerifiedCountryToWidget}) => (newCountry) => {
-        if (countryHash[newCountry])
+        if (dataSet.countryHash[newCountry])
             addVerifiedCountryToWidget(newCountry);
     },
     addSingleCountryToWidget: ({addVerifiedCountryToWidget, deleteCountryFromWidget, widget}) => (newCountry) => {
-        if (countryHash[newCountry]) {
+        if (dataSet.countryHash[newCountry]) {
             widget.countries.map( country => deleteCountryFromWidget(country) );
             addVerifiedCountryToWidget(newCountry);
         }
