@@ -1,6 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {widgetConfig} from "../config/widgets";
+import {widgetConfig, isWidgetValid} from "../config/widgets";
 import {Row, Col, Table} from 'react-bootstrap';
 import {widgetsAPI} from "../capi";
 import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronBarDown, ChevronBarUp, CaretDownFill, CaretUpFill} from "react-bootstrap-icons";
@@ -11,7 +11,7 @@ export default ({id, children, scale}) => {
     const config = widgetConfig[widget.type];
 
     return (
-        <div>
+        <React.Fragment>
             {debug && anyConfiguring && <DebugInfo widget={widget} />}
             {isConfiguringLayout &&
                 <div style={{backgroundColor: "#f4f4f4", padding: 2 * scale, paddingBottom: 4 * scale,
@@ -22,8 +22,8 @@ export default ({id, children, scale}) => {
             {isConfiguringData && (widget.cols > 2) && config.config.map((config, ix) =>
                 <WidgetConfigElement config={config} id={id} key={ix} scale={scale}/>
             )}
-             {children}
-        </div>
+             {isWidgetValid(widget) && children}
+        </React.Fragment>
     );
 };
 

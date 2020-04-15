@@ -1,8 +1,8 @@
 import React from 'react';
 import {widgetsAPI} from "../capi";
-
 import {Table} from 'react-bootstrap';
-import WidgetConfig from "../components/WidgetConfig";
+import {substituteCountry, dataSet} from "../data/timeseries";
+
 export const TableByCountry = ({config, scale, id}) => {
     const {widget, isConfiguring, anyConfiguring, editWidget} = widgetsAPI({id: id});
     const props = config.dataPointsDisplay;
@@ -23,12 +23,14 @@ export const TableByCountry = ({config, scale, id}) => {
                     </tr>
                 </thead>
                 <tbody>
-                    {widget.countries.map( country => (
-                        <tr key={country}>
-                            <td>{country}</td>
-                            {Object.getOwnPropertyNames(props).filter(p => widget.props.includes(p)).map((prop, ix) => (
+                    {getSortedCountries(widget, props, config)
+                        .map( country => (
+                        <tr key={substituteCountry(country)}>
+                            <td>{substituteCountry(country)}</td>
+                            {Object.getOwnPropertyNames(props).filter(p => widget.props.includes(p)).map(prop => (
                                     <td key={prop} style={{fontSize: 12 * scale, textAlign: 'right'}}>
-                                        {numberWithCommas(config.tableProps(widget, country, prop, ix, isConfiguring).data)}
+                                        {numberWithCommas(config.tableProps(widget,
+                                            substituteCountry(country), prop, ).data)}
                                     </td>
                             ))}
                         </tr>
@@ -37,6 +39,15 @@ export const TableByCountry = ({config, scale, id}) => {
             </Table>
         </div>
     );
+}
+const getSortedCountries = (widget, props, config) => {
+    const prop = Object.getOwnPropertyNames(props).filter(p => widget.props.includes(p))[0];
+    return widget.countries
+        .filter(c => dataSet.country[substituteCountry(c)])
+        .sort((c1, c2) =>
+        config.tableProps(widget, substituteCountry(c2), prop).data -
+        config.tableProps(widget, substituteCountry(c1), prop).data
+    )
 }
 const DataPoint = ({description, scale}) => (
     <div >

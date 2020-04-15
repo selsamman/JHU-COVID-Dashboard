@@ -8,7 +8,7 @@ export const BlankWidget = ({config, id, scale}) => {
 
     const props = config.dataPoints;
     return (
-        <div >
+        <React.Fragment >
             {!isConfiguring &&
                 <Row>
                     <Col style={{fontSize: 18 * scale, textAlign: "center"}}>
@@ -16,6 +16,6 @@ export const BlankWidget = ({config, id, scale}) => {
                     </Col>
                 </Row>
             }
-         </div>
+         </React.Fragment>
     );
 }

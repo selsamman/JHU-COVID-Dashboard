@@ -33,9 +33,9 @@ export default {
             }
         }
     }),
-    deleteCountryFromWidget: (country) => ({
+    deleteCountryFromWidget: (country, xid) => ({
         widgets: {
-            where: (state, item, ix, {id}) => item.id === id,
+            where: (state, item, ix, {id}) => item.id === (xid || id),
             select: {
                 countries: {
                     where: (state, item) => item === country,

@@ -1,15 +1,17 @@
 import React, {useState} from 'react';
 import './App.css';
-import {importData} from './data/timeseries';
+import {importJHUData as importData} from './data/timeseries';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './config/custom.css';
 import {Container, Spinner, Row, Col, Table, Navbar} from 'react-bootstrap';
 import {Dashboard} from "./components/Dashboard";
 import {DashboardHeader} from "./components/DashboardHeader";
+import {widgetsAPI} from "./capi";
 
 function App({currentBreakpoint}) {
   const [loadingState, setLoadingState] = useState("loading");
-  importData().then( (state) => setLoadingState(state));
+
+  importData(widgetsAPI({})).then( (state) => setLoadingState(state));
   return (
       <Container>
           {loadingState === 'loaded' && <DashboardHeader />}

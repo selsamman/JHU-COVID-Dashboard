@@ -13,11 +13,18 @@ export function writeStateToURL(state) {
         return;
     }
     if (param.length < 2048) {
+        let geo = {
+            long:(new URLSearchParams(document.location.search)).get("long"),
+            lat: (new URLSearchParams(document.location.search)).get("lat")
+        }
         //eslint-disable-next-line
-        history.pushState(null, '', '?config=' + param);
+        history.pushState(null, '', '?config=' + param +
+            (geo.long && geo.lat ? `&lat=${geo.lat}&long=${geo.long}` : ""));
     } else
         console.log("URL would be too long " + param.length);
-    console.log(JSON.stringify(state))
+    console.log("----------------------------------------- initialState -------------------------------------");
+    console.log(JSON.stringify(state), null, 2);
+    console.log("--------------------------------------------------------------------------------------------");
     console.log("writeStateToURL took " + ((new Date()).getTime() - date.getTime()) + "ms; " + "length " + param.length);
 }
 

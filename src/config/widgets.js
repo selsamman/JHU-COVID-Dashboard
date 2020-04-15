@@ -1,16 +1,19 @@
 import * as Widgets from '../widgets';
 import { VictoryTheme } from 'victory'
-import { dataSet } from "../data/timeseries";
+import { dataSet, substituteCountry } from "../data/timeseries";
 import { colors} from "./colors";
 import CountrySelect from "../components/CountrySelect";
 import WidgetSelect from "../components/WidgetSelect";
 import PropsSelect from "../components/PropsSelect";
 import SingleCountrySelect from "../components/SingleCountrySelect";
 
+export function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
 const dataPoints = {
     deaths: "Deaths total",
-    deathsPerM: "Deaths per 1M",
     cases: "Cases total",
+    deathsPerM: "Deaths per 1M",
     casesPerM: "Cases per 1M",
     //caseMortality: "Deaths per Case",
 }
@@ -65,9 +68,8 @@ function TableByCountry (name, props)  {
         ],
         dataPoints: dataPoints,
         dataPointsDisplay: dataPointsDisplay,
-        tableProps:  (userConfig, countrySelection, prop, ix, isConfiguring) => ({
-            data: Math.round(dataSet.country
-                .find(c => c.name === countrySelection)[prop]),
+        tableProps:  (userConfig, countrySelection, prop) => ({
+            data: Math.round(dataSet.country[substituteCountry(countrySelection)][prop]),
             style: {}
         })
     }
@@ -83,21 +85,40 @@ function DataForCountry(name, props)  {
         ],
         dataPoints: dataPoints,
         dataPointsDisplay: dataPointsDisplay,
-        tableProps:  (userConfig, countrySelection, prop, ix, isConfiguring) => ({
-            data: Math.round(dataSet.country
-                .find(c => c.name === countrySelection)[prop]),
+        tableProps:  (userConfig, countrySelection, prop) => {
+            if (!dataSet.country[substituteCountry(countrySelection)])
+                console.log(countrySelection + "----" + JSON.stringify(userConfig));
+         return {
+            data: Math.round(dataSet.country[substituteCountry(countrySelection)][prop]),
             style: {}
-        })
+        }}
     }
 }
+
 function LineGraphByCountry (name, prop) {
+    function getPadding(base, perDigit, userConfig) {
+        const maxValue = userConfig.countries.filter(c => dataSet.country[substituteCountry(c)]).reduce((a, c) =>
+            Math.max(a, dataSet.country[substituteCountry(c)][prop].reduce((a, p) =>
+                Math.max(a, Math.floor(p)))));
+        const maxDigits = numberWithCommas(maxValue).length;
+        const padding = base + maxDigits * perDigit;
+        console.log(prop + " maxValue: " + maxValue + "padding increment: " + padding + " prop:" + prop + "countries:" + userConfig.countries);
+
+        return padding;
+    }
     return {
         name: name,
-        parentProps: (userConfig, isConfiguring, editWidget) => ({
+        parentProps: (userConfig, isConfiguring, scale) => ({
             domainPadding: 20,
             theme: VictoryTheme.material,
-            padding: {left: 50, top: isConfiguring? 8 : 60, right: 0, bottom: 40},
-            height: isConfiguring ? 167 : 250,
+            padding: {
+                left: getPadding(10, 9, userConfig) * scale,
+                top: isConfiguring? 8 : 60 * scale,
+                right: 0,
+                bottom: 40 * scale
+            },
+            height: isConfiguring ? 167 * scale: 250 * scale,
+            samples: 4,
         }),
         labelProps: (userConfig) => ({
             title: name,
@@ -106,7 +127,9 @@ function LineGraphByCountry (name, prop) {
             padding: {bottom: 20},
             centerTitle: true,
             itemsPerRow: 3,
-            data: userConfig.countries.map( (c, ix) => ({name: c, symbol: {fill: colors[ix]}})),
+            data: userConfig.countries.
+                filter(c => dataSet.country[substituteCountry(c)])
+                .map( (c, ix) => ({name: substituteCountry(c), symbol: {fill: colors[ix]}})),
             orientation: "horizontal",
         }),
         component: Widgets.LineGraph,
@@ -114,13 +137,24 @@ function LineGraphByCountry (name, prop) {
             {component: WidgetSelect, props: {}},
             {component: CountrySelect, props: {countries: dataSet.countries, max: 6}},
         ],
-        childProps: (userConfig, countrySelection, ix, isConfiguring) => ({
-            data: dataSet.country
-                .find(c => c.name === countrySelection)[prop]
+        childProps: (userConfig, countrySelection, ix, isConfiguring) => {
+            return{
+                samples: 4,
+            data: dataSet.country[substituteCountry(countrySelection)][prop]
                 .map((c, ix) => ({x: dataSet.dates[ix].replace(/\/20/,'').replace(/\//, '-'), y: c}))
                 .slice(dataSet.dates.length - 30),
             style: {data: {stroke: colors[ix]}, tickLabels: {angle: 45}},
-        }),
+        }},
     }
 };
+
+export function isWidgetValid(widget) {
+    let isValid = false;
+    return widget.countries.map( country => {
+        if (typeof dataSet.country[substituteCountry(country)] !== 'undefined')
+            isValid = true;
+    })
+    return isValid;
+}
+
 export const widgetNames = Object.getOwnPropertyNames(widgetConfig);

@@ -1,7 +1,8 @@
 import React from 'react';
 import {widgetsAPI} from "../capi";
 import {Row, Col} from 'react-bootstrap';
-import WidgetConfig from "../components/WidgetConfig";
+import {dataSet} from "../data/timeseries";
+import {substituteCountry} from "../data/timeseries";
 
 export const DataPointsForCountry = ({config, widgetComponentConfig, id, scale}) => {
     const {widget, anyConfiguring, isConfiguring, editWidget} = widgetsAPI({id: id});
@@ -9,22 +10,22 @@ export const DataPointsForCountry = ({config, widgetComponentConfig, id, scale})
     //const props = config.dataPoints;
     const displayProps = config.dataPointsDisplay;
     return (
-        <div >
+        <div>
             {!isConfiguring &&
                 <Row>
-                    <Col style={{fontSize: 18 * scale, textAlign: "center"}}>
-                        {widget.countries[0]}
+                    <Col style={{fontSize: 20 * scale, textAlign: "center"}}>
+                        {substituteCountry(widget.countries[0])}
                     </Col>
                 </Row>
             }
-            <Row style={{paddingLeft: 20 * scale, paddingRight: 20 * scale}}>
-                {widget.props.map((prop, ix) => (
+            <Row style={{paddingLeft: 5 * scale, paddingRight: 5 * scale}}>
+                {widget.countries[0] && widget.props.map((prop, ix) => (
                     <Col key={prop} style={{backgroundColor: "#f0f0f0", margin: 4, padding: 4}}>
                         <DataPoint
                             scale={1.4}
                             key={prop}
                             description={displayProps[prop]}
-                            data={config.tableProps(widget, widget.countries[0], prop, ix, isConfiguring).data}
+                            data={config.tableProps(widget, substituteCountry(widget.countries[0]), prop, ix, isConfiguring).data}
                         />
                     </Col>
                 ))}
@@ -40,7 +41,7 @@ const DataPoint = ({description, data, scale}) => (
         <div style={{fontSize: 16 * scale, textAlign: 'center', color: "#000000"}} >
             {numberWithCommas(data)}
         </div>
-        <div style={{fontSize: 7 * scale, textAlign: 'center', color: "#404040"}} >
+        <div style={{fontSize: 8 * scale, textAlign: 'center', color: "#404040"}} >
             {description[1]}
         </div>
     </div>

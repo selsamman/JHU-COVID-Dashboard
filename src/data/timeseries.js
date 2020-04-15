@@ -1,14 +1,9 @@
-
 import populationByCountry from "./population";
 import bent from 'bent';
-
-//const props = {};
-//export let dates;
-//export const dateRange = {};
-
-
+import {widgetsAPI} from "../capi";
 export const dataSet = {
-    countries: []
+    countries: [],
+    countrySubstitution: [],
 }
 
 const countryCorrections = {
@@ -95,7 +90,82 @@ export const importData = async () => {
             return importState;
     }
 }
-export const importJHUData = async () => {
+export const importJHUData = async (api) => {
+    let file;
+
+    switch (importState) {
+
+        case "none":
+            try {
+                importState = "loading";
+                file = await readJSFile("jhu");
+            } catch (e) {
+                console.log("error loading data" + e + e.stack);
+                importState = "error";
+                return importState
+            };
+            importState = processJHUFile(file, api);
+            const rawLocation = await getLocation();
+            if (rawLocation) {
+                console.log(JSON.stringify(rawLocation))
+                const location = {
+                    country: rawLocation.countryName,
+                    state: rawLocation.principalSubdivision,
+                }
+                rawLocation.localityInfo.administrative.map(o => {
+                    if (o.name.match(/county/i))
+                        location.county = o.name.replace(/ county/i, '') + ', ' + rawLocation.principalSubdivision;
+                });
+                adjustDataSetForLocation(location);
+            } else {
+                adjustDataSetForLocation({country: "United States"});
+            }
+
+            return importState
+        default:
+            return importState;
+    }
+    async function getLocation() {
+
+        let geo = {
+            long:(new URLSearchParams(document.location.search)).get("long"),
+            lat: (new URLSearchParams(document.location.search)).get("lat")
+        }
+        if ((!geo.lat || !geo.long) && navigator.geolocation) {
+            let waitForPosition = new Promise(resolve => {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    geo.long = position.coords.longitude;
+                    geo.lat = position.coords.latitude;
+                    resolve(true);
+                });
+            });
+            await waitForPosition;
+        }
+        if (geo.lat && geo.long) {
+            const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?` +
+                        `latitude=${geo.lat}&longitude=${geo.long}&localityLanguage=en`;
+            const getBuffer = bent('string');
+            const location = JSON.parse(await getBuffer(url));
+
+            return location;
+        }
+        return null;
+    }
+}
+
+async function readJSFile(filePrefix) {
+    const location = window.location;
+    let url;
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
+        url = location.protocol + location.host + "/" + filePrefix + "_test.js";
+    } else {
+        //url = process.env.PUBLIC_URL + "/" + filePrefix + ".csv";
+        url = location.protocol + location.host + "/" + filePrefix + ".js";
+    }
+    console.log(url);
+    const getBuffer = bent('string');
+    return await getBuffer(url);
+    //console.log(csvFiles[filePrefix]);
 }
 async function readCSVFile(filePrefix) {
     const location = window.location;
@@ -115,7 +185,7 @@ function processCSVFiles() {
     let deaths = [];
     let cases = [];
     let props = {};
-    dataSet.countryHash = {};
+    dataSet.country = {};
     dataSet.country = [];
     cases = csvFiles.cases.split("\n").slice(1).filter(l => !!l);
     deaths = csvFiles.deaths.split("\n").slice(1).filter(l => !!l)
@@ -139,7 +209,7 @@ function processCSVFiles() {
         .sort((a, b) => b[props[dataSet.dateRange.last]] - a[props[dataSet.dateRange.last]]);
 
     processCountries(data, props);
-    dataSet.country.map( c => {dataSet.countryHash[c.name] = true; dataSet.countries.push(c.name);return c.name} );
+    dataSet.country.map( c => {dataSet.country[c.name] = true; dataSet.countries.push(c.name);return c.name} );
 
     function mergeDeaths(line, ix) {
         const deathLine = deaths[ix + 1].split(",");
@@ -170,5 +240,111 @@ function processCSVFiles() {
         return additionalLines;
     }
 
+}
+function processJHUFile(file, api) {
+    const state = widgetsAPI.getState();
+    const {deleteCountryFromWidget, setWidgetData} = api;
+    const json = JSON.parse(file.substr(file.indexOf("{")));
+    dataSet.country = json.data;
+    dataSet.dates = json.dates;
+    dataSet.dateRange = {
+        first: dataSet.dates[0],
+        last: dataSet.dates[dataSet.dates.length - 1]
+    }
+    processJHUCountries(dataSet);
+    Object.getOwnPropertyNames(dataSet.country).map(c => dataSet.countries.push(c));
+
+    let status = "loaded";
+    for (let w in state.widgets) {
+        const widget = state.widgets[w];
+        let countryCount = widget.countries.length;
+        widget.countries.map(c => {
+            if (dataSet.country[substituteCountry(c)])
+                widget.props.map(p => {
+                    if (typeof dataSet.country[c][p] === 'undefined') {
+                        console.log(`In widget ${w} ${p} not found`);
+                        status = "error";
+                    }
+                })
+            else {
+                console.log(`In widget ${w} ${c} not found`);
+                //deleteCountryFromWidget(c, widget.id);
+                //--countryCount
+                //alert(c + " is no longer in the JHU database.  Maybe the name changed - try adding it again");
+            }
+        })
+    }
+    return status;
+}
+function processJHUCountries (dataSet) {
+    dataSet.country["The Whole World"] = dataSet.country["Total"];
+    delete dataSet.country["Total"];
+    for (let countryName in  dataSet.country) {
+
+        const country = dataSet.country[countryName];
+
+        const cases = country.cases[country.cases.length - 1];
+        const deaths = country.deaths[country.deaths.length - 1];
+
+        const casePerPopulationSeries = country.cases.map( c => c * 1000000 / country.population);
+        const deathPerPopulationSeries = country.deaths.map( c => c * 1000000 / country.population);
+
+        const newCaseSeries = country.cases.map((c, ix) => ix === 0 ? 0 : c - country.cases[ix -1]);
+        const newDeathSeries = country.deaths.map((c, ix) => ix === 0 ? 0 : c - country.deaths[ix -1]);
+
+        const newCasePerPopulationSeries = newCaseSeries.map( c => c * 1000000 / country.population);
+        const newDeathPerPopulationSeries = newDeathSeries.map( c => c * 1000000 / country.population);
+
+        dataSet.country[countryName] = {
+            name: countryName,
+            deaths: deaths,
+            deathsPerM: deaths * 1000000 / country.population,
+            cases: cases,
+            casesPerM: cases * 1000000 / country.population,
+            caseMortality: deaths / country.cases,
+            casesOverTime: country.cases,
+            deathsOverTime: country.deaths,
+            newCasesOverTime: newCaseSeries,
+            newDeathsOverTime: newDeathSeries,
+            newCasesPerPopulationOverTime: newCasePerPopulationSeries,
+            newDeathsPerPopulationOverTime: newDeathPerPopulationSeries,
+            casesPerPopulationOverTime: casePerPopulationSeries,
+            deathsPerPopulationOverTime: deathPerPopulationSeries,
+        };
+    };
+}
+function adjustDataSetForLocation(location) {
+    const countrySub = {
+        "Taiwan Province of China" : "Taiwan",
+        "United States of America" : "United States",
+        "United States Virgin Islands" : "Virgin Islands",
+        "Bolivia (Plurinational State of)" : "Bolivia",
+        "Iran (Islamic Republic of)" : "Iran",
+        "Republic of Korea" : "South Korea",
+        "Republic of Moldova": "Moldova",
+        "Russian Federation" : "Russia",
+        "United Republic of Tanzania": "Tanzania",
+        "Venezuela (Bolivarian Republic of)": "Venezuela",
+        "Syrian Arab Republic": "Syria",
+        "Lao People's Democratic Republic": "Laos"
+    }
+    console.log("Adjusting for location " + JSON.stringify(location));
+    location.country = countrySub[location.country] || location.country;
+
+    if (location.county && dataSet.country[location.county]) {
+        dataSet.countrySubstitution["My County"] = location.county;
+        dataSet.countries.push("My County");
+    }
+    if (location.state && dataSet.country[location.state]) {
+        dataSet.countrySubstitution["My State"] = location.state;
+        dataSet.countries.push("My State");
+    }
+    if (location.country && dataSet.country[location.country]) {
+        dataSet.countrySubstitution["My Country"] = location.country;
+        dataSet.countries.push("My Country");
+    }
+}
+export function substituteCountry(country) {
+    return dataSet.countrySubstitution[country] || country;
 }
 
