@@ -1,4 +1,4 @@
-# Configurable Dashboard the uses John Hopkins University data
+# Configurable Dashboard the uses Johns Hopkins University data posted to github - https://github.com/CSSEGISandData
 
 To see deployment go to https://www.cdash19.com
 
