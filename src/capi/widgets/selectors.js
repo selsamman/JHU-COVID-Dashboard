@@ -2,6 +2,9 @@ import {widgetsAPI} from "../index";
 
 export default {
     widgets: state => state.widgets,
+
+    nextWidgetId: state => state.nextWidgetId,
+
     widgetMatrix: [
         (select, {widgets}) => select(widgets),
         (widgets) => {
@@ -28,15 +31,6 @@ export default {
         (select, {widgets, id}) => select(widgets, id),
         (widgets, id) => widgets.find(w => (w.id === id))
     ],
-    nextWidgetId: state => state.nextWidgetId,
-    widgetBeingConfiguredId: state => state.widgetBeingConfiguredId,
-    editMode: state => state.editMode,
-    isConfiguring: (state, {id}) => state.widgetBeingConfiguredId === id && state.editMode !== "none",
-    isConfiguringLayout: (state, {id}) => state.widgetBeingConfiguredId === id && state.editMode === "layout",
-    isConfiguringData: (state, {id}) => state.widgetBeingConfiguredId === id && state.editMode === "data",
-    anyConfiguring:  (state) => state.editMode !== "none",
-    anyConfiguringLayout: (state, {id}) => state.editMode === "layout",
-    anyConfiguringData: (state, {id}) => state.editMode === "data",
 
     canMoveWidgetLeft: (state, {widgetLeftNeighbor}) => !!widgetLeftNeighbor ,
     widgetLeftNeighbor: [

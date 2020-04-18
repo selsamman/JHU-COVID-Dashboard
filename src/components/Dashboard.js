@@ -18,7 +18,7 @@ export const Dashboard = ({mode}) => {
             <Col>
 
                 <Row><Col>
-                    <Table borderless style={{width: '100%'}}>
+                    <Table borderless style={{tableLayout: "fixed", width: '100%'}}>
                         <colgroup>
                             <col width="8.33333333%"></col>
                             <col width="8.33333333%"></col>

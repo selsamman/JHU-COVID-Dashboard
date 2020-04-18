@@ -12,9 +12,10 @@ import { getStateFromURL} from "./config/urlParameters";
 import ReactBreakpoints, {withBreakpoints} from "react-breakpoints";
 import {Col, Navbar, Row, Container} from "react-bootstrap";
 import {DashboardHeader} from "./components/DashboardHeader";
+import {getInitialState} from "./config/localstorage";
 
 //trace.log = t => console.log(t);
-const store = createStore(reducer, getStateFromURL() || initialState, applyMiddleware(ReduxThunk))
+const store = createStore(reducer, getInitialState(initialState), applyMiddleware(ReduxThunk))
 widgetsAPI.mount(store);
 const AppWithBreakPoints = withBreakpoints(App);
 

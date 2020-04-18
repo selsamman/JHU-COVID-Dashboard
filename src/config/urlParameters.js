@@ -2,60 +2,52 @@ import {upgrade} from "../capi/initialState";
 let dictionaryHash = {};
 let dictionaryArray = [];
 
-export function writeStateToURL(state) {
-    //return;
-    let date = new Date();
-    const param = compressState(state);
-    if (JSON.stringify(state) !== JSON.stringify(uncompressState(param))) {
+export function getURL(state) {
+
+    const configParam = compressState(state);
+    if (JSON.stringify(state) !== JSON.stringify(uncompressState(configParam))) {
         console.log("Error reviving state");
         console.log("original=" + JSON.stringify(state));
-        console.log("revived=" +JSON.stringify(uncompressState(param)));
+        console.log("revived=" +JSON.stringify(uncompressState(configParam)));
         return;
     }
-    if (param.length < 2048) {
-        let geo = {
-            long:(new URLSearchParams(document.location.search)).get("long"),
-            lat: (new URLSearchParams(document.location.search)).get("lat")
-        }
-        //eslint-disable-next-line
-        history.pushState(null, '', '?config=' + param +
-            (geo.long && geo.lat ? `&lat=${geo.lat}&long=${geo.long}` : ""));
-    } else
-        console.log("URL would be too long " + param.length);
-    console.log("----------------------------------------- initialState -------------------------------------");
-    console.log(JSON.stringify(state), null, 2);
-    console.log("--------------------------------------------------------------------------------------------");
-    console.log("writeStateToURL took " + ((new Date()).getTime() - date.getTime()) + "ms; " + "length " + param.length);
+    const url = window.location.origin + "?dash=" + configParam;
+    const urlSize = url.length;
+    const percentOver = Math.ceil((urlSize - 2048) * 100 / 2048);
+    if (urlSize > 2048) {
+        alert(`This URL is ${percentOver}% too large. Dashboard is too complex`);
+    }
+    return url;
 }
+export function getDashboardFromURL() {
 
-export function getStateFromURL() {
-    //return undefined;
-    const config  = (new URLSearchParams(document.location.search)).get("config");
+    const config  = (new URLSearchParams(document.location.search)).get("dash");
     if (!config)
         return undefined
     try {
         const state = uncompressState(config);
-        if (typeof state.widgetBeingConfiguredId === 'undefined' ||
-            typeof state.nextWidgetId === 'undefined' ||
-            !(state.widgets instanceof Array))
+        if (!(state.widgets instanceof Array))
                 throw ("missing properties")
         else {
             console.log(JSON.stringify(state))
             return upgrade(state);
         }
+        return state;
     } catch (e) {
         alert('Hmm there is a problem with config= in this URL ' + e.toString());
+        return null;
     }
+
 }
 
 
-function compressState (state) {
+export function compressState (state) {
     const replacedState = JSON.parse(JSON.stringify(state, replacer));
     //eslint-disable-next-line
     return btoa(CJSON.stringify({dict: dictionaryHash, data: replacedState}));
 
 }
-function uncompressState(stateString) {
+export function uncompressState(stateString) {
     //eslint-disable-next-line
     const uncompressedState = CJSON.parse(atob(stateString));
     dictionaryArray = [];

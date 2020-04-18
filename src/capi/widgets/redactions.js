@@ -1,3 +1,5 @@
+import {initialWidget} from "../initialState";
+
 export default {
 
     addWidgetToMatrix: (row, col, rows, cols, type) => ({
@@ -6,10 +8,9 @@ export default {
         },
         widgets: {
             append: (state) => ({
+                ...initialWidget,
                 id: state.nextWidgetId,
                 type: type || "Blank",
-                countries: ["Ireland", "United States"],
-                props: ["deathsPerM"],
                 row: row,
                 col: col,
                 cols: cols || 6,
@@ -80,26 +81,9 @@ export default {
         }
     }),
 
-    setWidgetBeingEdited: (id) => ({
-        widgetBeingConfiguredId: {
-            set: () => id,
+    setDashboardName: (name) => ({
+        dashboardName: {
+            set: state => name
         }
     }),
-
-    doneEditing: () => ({
-        editMode: {
-            set: () => "none",
-        }
-    }),
-
-    setDataMode: () => ({
-        editMode: {
-            set: (state) => "data"
-        }
-    }),
-    setLayoutMode: () => ({
-        editMode: {
-            set: (state) => "layout"
-        }
-    })
 }

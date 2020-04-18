@@ -1,5 +1,5 @@
 import React from 'react';
-import {Col, Navbar, Row} from "react-bootstrap";
+import {Tooltip, OverlayTrigger} from "react-bootstrap";
 
 export const IconWrapperToolbar = (props) =>
     <span className="COVID_Icon_Wrapper" >
@@ -7,9 +7,29 @@ export const IconWrapperToolbar = (props) =>
     </span>
 
 export const IconWrapperHeader = (props) =>
-    <span className="COVID_Icon_Wrapper_Header" >
-        {React.cloneElement(props.children, { color: "white"})}
-    </span>
-
+    <>
+        {props.tooltip &&
+            <>
+                <OverlayTrigger
+                    key={btoa(props.tooltip)}
+                    placement={props.position || "left"}
+                    overlay={
+                        <Tooltip id={`tooltip-${btoa(props.tooltip)}`}>
+                            {props.tooltip}
+                        </Tooltip>
+                    }
+                >
+                <span className="COVID_Icon_Wrapper_Header" >
+                    {React.cloneElement(props.children, { color: "white"})}
+                </span>
+                </OverlayTrigger>{' '}
+            </>
+        }
+        {!props.tooltip &&
+            <span className="COVID_Icon_Wrapper_Header" style={{cursor: "pointer"}}>
+                {React.cloneElement(props.children, { color: "white"})}
+            </span>
+        }
+    </>
 
 

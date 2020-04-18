@@ -255,25 +255,7 @@ function processJHUFile(file, api) {
     Object.getOwnPropertyNames(dataSet.country).map(c => dataSet.countries.push(c));
 
     let status = "loaded";
-    for (let w in state.widgets) {
-        const widget = state.widgets[w];
-        let countryCount = widget.countries.length;
-        widget.countries.map(c => {
-            if (dataSet.country[substituteCountry(c)])
-                widget.props.map(p => {
-                    if (typeof dataSet.country[c][p] === 'undefined') {
-                        console.log(`In widget ${w} ${p} not found`);
-                        status = "error";
-                    }
-                })
-            else {
-                console.log(`In widget ${w} ${c} not found`);
-                //deleteCountryFromWidget(c, widget.id);
-                //--countryCount
-                //alert(c + " is no longer in the JHU database.  Maybe the name changed - try adding it again");
-            }
-        })
-    }
+
     return status;
 }
 function processJHUCountries (dataSet) {

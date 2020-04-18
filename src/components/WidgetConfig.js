@@ -11,7 +11,7 @@ export default ({id, children, scale}) => {
     const config = widgetConfig[widget.type];
 
     return (
-        <React.Fragment>
+        <>
             {debug && anyConfiguring && <DebugInfo widget={widget} />}
             {isConfiguringLayout &&
                 <div style={{backgroundColor: "#f4f4f4", padding: 2 * scale, paddingBottom: 4 * scale,
@@ -19,11 +19,12 @@ export default ({id, children, scale}) => {
                     <WidgetConfigSize id={id} scale={scale}/>
                 </div>
             }
-            {isConfiguringData && (widget.cols > 2) && config.config.map((config, ix) =>
+            {isConfiguringData && (widget.cols > 2) &&
+             config.config.map((config, ix) =>
                 <WidgetConfigElement config={config} id={id} key={ix} scale={scale}/>
             )}
              {isWidgetValid(widget) && children}
-        </React.Fragment>
+        </>
     );
 };
 
