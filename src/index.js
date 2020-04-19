@@ -21,53 +21,17 @@ const AppWithBreakPoints = withBreakpoints(App);
 
 
 ReactDOM.render(
-  <React.StrictMode>
+  <React.Fragment>
       <ReactBreakpoints breakpoints={{single: 1, table: 992}}>
          <AppWithBreakPoints />
       </ReactBreakpoints>
-  </React.StrictMode>,
+  </React.Fragment>,
   document.getElementById('root')
 );
 
+
 /*
-const TestApp = () => {
-    const [width, setWidth] = useState();
-    return (
-        <div>
-        <table style={{width: '100%'}}>
-            <colgroup>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-                <td width="8.33333333%"></td>
-            </colgroup>
-            <tbody>
-                <tr rowspan={1}>
-                    <td colspan={3}>1-1</td>
-                    <td colspan={3}>1-3</td>
-                    <td rowspan={2} colspan={6}>1-1</td>
-                </tr>
-                <tr>
-                    <td colspan={6}>2-1</td>
-                </tr>
-                <tr rowspan={1}>
-                    <td colspan={4}>3-1</td>
-                    <td colSpan={4}>3-4</td>
-                    <td colSpan={4}>3-8</td>
-                </tr>
-            </tbody>
-        </table>
-        </div>
-    );
-}
+const TestApp = () => <TestApp2 />
 ReactDOM.render(
     <Container fluid="xl">
         <TestApp></TestApp>

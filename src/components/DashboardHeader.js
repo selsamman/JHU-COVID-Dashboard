@@ -1,14 +1,15 @@
 import {widgetsAPI} from "../capi";
-import {Navbar, Nav, Dropdown, Modal, InputGroup, FormControl, Button} from "react-bootstrap";
-import { dataSet} from "../data/timeseries";
+import {Navbar, Nav, Dropdown, Modal, InputGroup, FormControl, Button, Spinner} from "react-bootstrap";
 import {Check, TextareaT, Grid3x3, Link, PencilSquare, CardList, PlusCircle, Trash} from "react-bootstrap-icons";
 import React, {useState} from "react";
 import {IconWrapperHeader} from "./IconWrapper";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import {Typeahead} from "react-bootstrap-typeahead";
+import {dataSet} from "../data/timeseries";
 
 export const DashboardHeader = () => {
 
-    const {editWidget, anyConfiguring, doneEditing, isDashboardCustom, makeDashboardCustom, persistState} = widgetsAPI({});
+    const {locationStatus, anyConfiguring, doneEditing, askForLocation, persistState, dataSet} = widgetsAPI({});
     const [mode, setMode] = useState("none");
 
     const save = () => {
@@ -16,13 +17,18 @@ export const DashboardHeader = () => {
         doneEditing();
     }
 
+    if (askForLocation && mode === "none")
+        setMode("location")
 
     return (
         <>
             {mode === "link" && <DashboardLinkModal onClose={()=>setMode("none")} />}
             {mode === "create" && <DashboardCreateModal onClose={()=>setMode("none")} />}
             {mode === "remove" && <DashboardRemoveModal onClose={()=>setMode("none")} />}
+            {mode === "location" && <DashboardAskLocation  ask={askForLocation} onClose={()=>setMode("none")} />}
+
             <Navbar fixed="top" bg="dark" variant="dark" style={{height: 40}}>
+
                 { !anyConfiguring &&
                     <>
                         <EditDropdown setMode={setMode}/>
@@ -33,6 +39,7 @@ export const DashboardHeader = () => {
                     <EditModeNav />
                 }
                 <Navbar.Collapse className="justify-content-end">
+                    {askForLocation && <Navbar.Text>fuck</Navbar.Text>}
                     {!anyConfiguring &&
                         <Navbar.Text>
                             <span style={{fontSize: 14}}>JHU data as of {dataSet.dateRange.last}</span>&nbsp;&nbsp;
@@ -342,6 +349,105 @@ const DashboardRemoveModal = ({onClose}) => {
                 </p>
                 <p style={{textAlign: "center"}}>
                     <Button variant="info" onClick={() => {removeDashboard();persistState();onClose()}}>Remove</Button>
+                </p>
+            </Modal.Body>
+        </Modal>
+    );
+}
+const DashboardAskLocation = ({onClose}) => {
+    const {persistState, getLocationData, setLocationDenied, setLocationFetched, substituteCountry, setSubstitution} = widgetsAPI({});
+    const [mode, setMode] = useState("No Thanks");
+    const [searching, setSearching] = useState("available");
+    const [country, setCountry] = useState(substituteCountry("My Country"));
+    const noThanks = () => {setLocationDenied(); onClose();persistState()};
+    const done = () => {setLocationFetched(); onClose();persistState()};
+    const close = () => mode === "Done" ? done() : noThanks();
+    return (
+        <Modal
+            show={true}
+            onHide={close}
+            dialogClassName="modal-90w"
+            aria-labelledby="example-custom-modal-styling-title"
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id="example-custom-modal-styling-title">
+                    Customize Location
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                 <p style={{textAlign: "center"}}>
+                    Some charts use your current country <br />
+                    (and county if you live in the US)
+                </p>
+                <p>
+                    Select Country
+                    <Typeahead
+                        bsSize="small"
+                        id="country"
+                        placeholder={country}
+                        onChange={(country)=> {
+                            country = country.toString();
+                            dataSet.setSubstitution("My Country", country)
+                            dataSet.setSubstitution("My State")
+                            dataSet.setSubstitution("My County")
+                            setCountry(country);
+                            if (country !== "United States")
+                                setMode("Done")
+                            else
+                                setMode("No Thanks");
+                        }}
+                        options={dataSet.justCountries.filter(c => !c.match(/^My /))} />
+                </p>
+                {country === "United States" &&
+                    <p>
+                        Select County
+                        <Typeahead
+                            bsSize="small"
+                            id="county"
+                            placeholder={substituteCountry("My County") === "My County"}
+                            onChange={(county)=>{
+                                county = county.toString();
+                                dataSet.setSubstitution("My County", county);
+                                dataSet.setSubstitution("My State", county.replace(/.*, /, ""))
+                                setMode("Done");
+                            }}
+                            options={dataSet.justCounties.filter(c => c.match(/,/) && !c.match(/^My /))} />
+                    </p>
+                }
+                {(country === "Canada" || country === "Australia") &&
+                    <p>
+                        Select State/Province
+                        <Typeahead
+                            bsSize="small"
+                            id="states"
+                            placeholder={substituteCountry("My County")}
+                            onChange={(c)=>{setSubstitution("My State", c.toString());setMode("Done");}}
+                            options={dataSet.justStates.filter(c => c.match(country))} />
+                    </p>
+                }
+                <p style={{textAlign: "center"}}>
+                    <Button variant="info" onClick={close}>{mode}</Button>
+                </p>
+                <p style={{textAlign: "center"}}>
+                    Or we can do it automatically...<br /><br />
+                    <>
+                        {searching === "inprogress" &&
+                            <Spinner animation="border" />
+                        }
+                        {searching === "available" &&
+                            <Button variant="info" onClick={async () => {
+                                    setSearching("inprogress");
+                                    const result = await getLocationData();
+                                    if (result)
+                                        onClose();
+                                    else
+                                        setSearching("error")
+                                }}>Find My Location</Button>
+                        }
+                        {searching === "error" &&
+                            <text>Not available now</text>
+                        }
+                     </>
                 </p>
             </Modal.Body>
         </Modal>

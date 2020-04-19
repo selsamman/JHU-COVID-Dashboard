@@ -1,16 +1,14 @@
 import React, {useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {widgetsAPI} from "../capi";
-import {widgetConfig} from "../config/widgets";
-import {Row, Col, Button, Dropdown, DropdownButton, Container} from 'react-bootstrap';
+import {Row, Col} from 'react-bootstrap';
 import {Typeahead} from "react-bootstrap-typeahead";
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import {colors} from "../config/colors";
 import { XCircleFill, PlusCircleFill } from 'react-bootstrap-icons';
 
-export default ({id, countries, max, scale}) => {
-    const {widget, addCountryToWidget, deleteCountryFromWidget} = widgetsAPI({id: id});
-    const {selectedCountry, selectCountry} = useState(null);
+export default ({id, max, scale}) => {
+    const {widget, addCountryToWidget, deleteCountryFromWidget, dataSet, getCountryData} = widgetsAPI({id: id});
     const [addingCounties, setAddingCountries] = useState(false);
     return (
         <div>
@@ -27,7 +25,7 @@ export default ({id, countries, max, scale}) => {
                             <Col>
                                 <CountryDropDown
                                     scale={scale}
-                                    countries={countries}
+                                    countries={dataSet.countries}
                                     onSelect={(selectedCountry) => {
                                         addCountryToWidget(selectedCountry[0]);
                                         setAddingCountries(false);
@@ -37,7 +35,8 @@ export default ({id, countries, max, scale}) => {
                     {!addingCounties &&
                         <Row style={{padding: 0}}>
                             {widget.countries.map( (c, ix) =>
-                                <SelectedCountry key={ix} ix={ix} country={c} onDelete={deleteCountryFromWidget} scale={scale}/>)}
+                                <SelectedCountry hasData={getCountryData(c)} key={ix} ix={ix} country={c}
+                                                 onDelete={deleteCountryFromWidget} scale={scale}/>)}
                         </Row>}
                     </Col>
             </Row>
@@ -54,11 +53,13 @@ const CountryDropDown = ({countries, onSelect}) => (
         options={countries} />
 );
 
-const SelectedCountry = ({country, onDelete, ix, scale}) => (
-
-    <Col md={4} xs={4} lg={4} style={{padding: 0, lineHeight: 1.2 * scale}}>
-        <XCircleFill size={11 * scale} color={colors[ix]} onClick={() => onDelete(country)} />
-        &nbsp;
-        <span style={{fontSize: 10 * scale}}>{country}</span>
-    </Col>
-);
+const SelectedCountry = ({country, onDelete, ix, scale, hasData}) => {
+    const color = hasData ? "black" : "#c0c0c0";
+    return (
+        <Col md={4} xs={4} lg={4} style={{padding: 0, lineHeight: 1.2 * scale}}>
+            <XCircleFill size={11 * scale} color={colors[ix]} onClick={() => onDelete(country)} />
+            &nbsp;
+            <span style={{fontSize: 10 * scale, color: color}}>{country}</span>
+        </Col>
+    );
+}

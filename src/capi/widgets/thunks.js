@@ -1,4 +1,4 @@
-import {dataSet, substituteCountry} from "../../data/timeseries";
+import {dataSet} from "../../data/timeseries";
 import {save} from "../../config/localstorage";
 
 export default {
@@ -14,13 +14,13 @@ export default {
             setWidgetBeingEdited(widgets[0].id);
     },
 
-    addCountryToWidget: ({addVerifiedCountryToWidget}) => (newCountry) => {
-        if (dataSet.country[substituteCountry(newCountry)])
+    addCountryToWidget: ({addVerifiedCountryToWidget, getCountryData}) => (newCountry) => {
+        if (getCountryData(newCountry, true))
             addVerifiedCountryToWidget(newCountry);
     },
 
-    addSingleCountryToWidget: ({addVerifiedCountryToWidget, deleteCountryFromWidget, widget}) => (newCountry) => {
-        if (dataSet.country[substituteCountry(newCountry)]) {
+    addSingleCountryToWidget: ({addVerifiedCountryToWidget, deleteCountryFromWidget, widget,getCountryData}) => (newCountry) => {
+        if (getCountryData(newCountry, true)) {
             widget.countries.map( country => deleteCountryFromWidget(country) );
             addVerifiedCountryToWidget(newCountry);
         }
@@ -47,7 +47,7 @@ export default {
         });
     },
 
-     swapWidget: ({setWidgetData}) => (widget, dest) => {
+    swapWidget: ({setWidgetData}) => (widget, dest) => {
         setWidgetData({col: dest.col, row: dest.row, cols: dest.cols, rows:dest.rows}, widget.id);
         setWidgetData({col: widget.col, row: widget.row, cols: widget.cols, rows:widget.rows}, dest.id);
     },
@@ -106,12 +106,12 @@ export default {
 
     },
 
-    validateWidget: ({widget, widgets}) => () => {
+    validateWidget: ({widget, widgets, getCountryData}) => () => {
         for (let w in widgets) {
             const widget = widgets[w];
             let countryCount = widget.countries.length;
             widget.countries.map(c => {
-                if (dataSet.country[substituteCountry(c)])
+                if (getCountryData(c, true))
                     widget.props.map(p => {
                         if (typeof dataSet.country[c][p] === 'undefined') {
                             console.log(`In widget ${w} ${p} not found`);

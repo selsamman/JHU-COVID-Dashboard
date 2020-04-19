@@ -1,8 +1,7 @@
 import {initialDashboard, initialWidget} from "./initialState";
 import {save} from "../config/localstorage";
-import {getDashboardFromURL, getURL} from "../config/urlParameters";
-import {cursorContainerMixin} from "victory";
-import {setCurrentDashboard} from "../config/dashboardCookies";
+import {updateLocation} from "../config/locationData";
+import {dataSet} from "../data/timeseries";
 
 export default {
     redactions: {
@@ -60,8 +59,31 @@ export default {
             },
 
         }),
+        setLocationDenied: () => ({
+            locationStatus: {
+                set: () => "denied"
+            }
+        }),
+        setLocationFetched: () => ({
+            locationStatus: {
+                set: () => "fetched"
+            }
+        }),
+        setLocationNeeded: () => ({
+            locationStatus: {
+                set: () => "ask"
+            }
+        }),
+        setCountrySubstitution: (country, value) => ({
+            substitutionCountries: {
+                assign: (substitutionCountries) => ({substitutionCountries, ...{[country]: value}})
+            }
+        })
     },
+
     selectors: {
+        isBar: state=>state.foo === "bar",
+        foo: state=>state.foo,
         widgetBeingConfiguredId: state => state.widgetBeingConfiguredId,
         editMode: state => state.editMode,
         isConfiguring: (state, {id}) => state.widgetBeingConfiguredId === id && state.editMode !== "none",
@@ -71,8 +93,33 @@ export default {
         anyConfiguringLayout: (state, {id}) => state.editMode === "layout",
         anyConfiguringData: (state, {id}) => state.editMode === "data",
         dashboards: state => state.dashboards,
+        locationStatus: state => state.locationStatus,
+        askForLocation: state => state.locationStatus === "ask",
+        fetchLocation: state => state.locationStatus === "fetch",
+        locationInit: state => state.locationStatus === "init",
+        dataSet: () => dataSet,
+        substitutionCountries: state => state.substitutionCountries,
+        widgetCountries: [
+            (select, {widget, substitutionCountries, dataSet}) => select(widget, substitutionCountries, dataSet),
+            (widget, substitutionCountries, dataSet) =>
+                widget.countries.map( c => substitutionCountries[c] || c).filter( c => !!dataSet.country[c] )
+        ],
+        widgetConfigCountries: [
+            (select, {widget, substitutionCountries}) => select(widget, substitutionCountries),
+            (widget, substitutionCountries) => widget.countries
+        ],
+        widgetData: [
+            (select, {dataSet, widgetCountries}) => (dataSet, widgetCountries),
+            (dataSet, widgetCountries) => widgetCountries.map(c => dataSet.country[c])
+        ],
+        widgetDataSingle: [
+            (select, {dataSet, widgetCountries}) => (dataSet, widgetCountries),
+            (dataSet, widgetCountries) => dataSet.country[widgetCountries[0]]
+        ]
     },
     thunks: {
+        getCountryData: ({substituteCountry, dataSet}) => (country) => dataSet.country[substituteCountry(country)],
+        substituteCountry: ({substitutionCountries}) => (country) => substitutionCountries[country] || country,
         makeDashboardCustom: ({name, dashboards, dashboard, addDashboard, setDashboardByName, setCustom}) => () => {
 
             let newName = "My " + name;
@@ -94,5 +141,6 @@ export default {
             }
         },
         persistState: ({}, state) => () => save(state),
+        getLocationData: (api) => async () => await updateLocation(api),
     }
 }

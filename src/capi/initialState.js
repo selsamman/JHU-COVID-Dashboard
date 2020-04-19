@@ -12,7 +12,6 @@ export const initialWidget = {
     rows: 1, cols: 6,
     props: ["cases", "deaths"],
     countries: ["My Country"],
-
 }
 export const initialDashboard = {
     nextWidgetId: 3,
@@ -23,12 +22,16 @@ export const initialDashboard = {
         {...initialWidget, id: 3, col: 6, type: "Blank"}
     ]
 }
-
 const initialState = {
     schemaVersion: 3,
     widgetBeingConfiguredId: -1,
     editMode: "none",
     currentDashboardIx: 0,
+    locationStatus: "init",
+    foo: "",
+    substitutionCountries: {
+        "My Country": "United States"
+    },
     dashboards : [
         {
             nextWidgetId: 7,

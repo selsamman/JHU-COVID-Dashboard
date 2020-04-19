@@ -8,6 +8,7 @@ import {Dashboard} from "./components/Dashboard";
 import {DashboardHeader} from "./components/DashboardHeader";
 import {widgetsAPI} from "./capi";
 
+
 function App({currentBreakpoint}) {
   const [loadingState, setLoadingState] = useState("loading");
 

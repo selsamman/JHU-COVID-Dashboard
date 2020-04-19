@@ -7,7 +7,7 @@ import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronB
 const debug = false;
 
 export default ({id, children, scale}) => {
-    const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring} = widgetsAPI({id: id});
+    const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries} = widgetsAPI({id: id});
     const config = widgetConfig[widget.type];
 
     return (
@@ -23,7 +23,7 @@ export default ({id, children, scale}) => {
              config.config.map((config, ix) =>
                 <WidgetConfigElement config={config} id={id} key={ix} scale={scale}/>
             )}
-             {isWidgetValid(widget) && children}
+             {widgetCountries.length > 0 && children}
         </>
     );
 };
