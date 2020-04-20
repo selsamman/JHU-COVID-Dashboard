@@ -4,7 +4,7 @@ import {adjustName} from "../capi/dashboard";
 export function getInitialState(initialState) {
     const stateJSON = window.localStorage.getItem("state");
     let state = initialState;
-    if ((new URLSearchParams(document.location.search).get("init")) === 'yes') {
+    if ((new URLSearchParams(document.location.search).get("init")) === 'all') {
         console.log("state cleared by init paramater");
         window.localStorage.setItem("state", JSON.stringify(initialState));
 
@@ -15,6 +15,9 @@ export function getInitialState(initialState) {
         console.log("restored state = " + stateJSON);
         state = JSON.parse(stateJSON);
     }
+    if ((new URLSearchParams(document.location.search).get("init")) === 'location')
+        state.locationStatus = "init"
+
     const newDashboard = getDashboardFromURL();
     if (newDashboard) {
         const sameNameIx = state.dashboards.findIndex(d => d.name === newDashboard.name);

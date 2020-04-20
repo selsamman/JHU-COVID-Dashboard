@@ -355,7 +355,7 @@ const DashboardRemoveModal = ({onClose}) => {
     );
 }
 const DashboardAskLocation = ({onClose}) => {
-    const {persistState, getLocationData, setLocationDenied, setLocationFetched, substituteCountry, setSubstitution} = widgetsAPI({});
+    const {persistState, getLocationData, setLocationDenied, setLocationFetched, substituteCountry, setCountrySubstitution} = widgetsAPI({});
     const [mode, setMode] = useState("No Thanks");
     const [searching, setSearching] = useState("available");
     const [country, setCountry] = useState(substituteCountry("My Country"));
@@ -387,9 +387,9 @@ const DashboardAskLocation = ({onClose}) => {
                         placeholder={country}
                         onChange={(country)=> {
                             country = country.toString();
-                            dataSet.setSubstitution("My Country", country)
-                            dataSet.setSubstitution("My State")
-                            dataSet.setSubstitution("My County")
+                            setCountrySubstitution("My Country", country)
+                            setCountrySubstitution("My State")
+                            setCountrySubstitution("My County")
                             setCountry(country);
                             if (country !== "United States")
                                 setMode("Done")
@@ -407,8 +407,8 @@ const DashboardAskLocation = ({onClose}) => {
                             placeholder={substituteCountry("My County") === "My County"}
                             onChange={(county)=>{
                                 county = county.toString();
-                                dataSet.setSubstitution("My County", county);
-                                dataSet.setSubstitution("My State", county.replace(/.*, /, ""))
+                                setCountrySubstitution("My County", county);
+                                setCountrySubstitution("My State", county.replace(/.*, /, ""))
                                 setMode("Done");
                             }}
                             options={dataSet.justCounties.filter(c => c.match(/,/) && !c.match(/^My /))} />
@@ -416,12 +416,12 @@ const DashboardAskLocation = ({onClose}) => {
                 }
                 {(country === "Canada" || country === "Australia") &&
                     <p>
-                        Select State/Province
+                        Select Province
                         <Typeahead
                             bsSize="small"
-                            id="states"
-                            placeholder={substituteCountry("My County")}
-                            onChange={(c)=>{setSubstitution("My State", c.toString());setMode("Done");}}
+                            id="boo"
+                            placeholder={substituteCountry("Please Select")}
+                            onChange={(c)=>{setCountrySubstitution("My State", c.toString());setMode("Done");}}
                             options={dataSet.justStates.filter(c => c.match(country))} />
                     </p>
                 }
