@@ -37,10 +37,10 @@ async function readJSFile(filePrefix) {
     const location = window.location;
     let url;
     if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
-        url = location.protocol + location.host + "/" + filePrefix + "_test.js";
+        url = location.protocol + "//" + location.host + "/" + filePrefix + "_test.js";
     } else {
         //url = process.env.PUBLIC_URL + "/" + filePrefix + ".csv";
-        url = location.protocol + location.host + "/" + filePrefix + ".js";
+        url = location.protocol + "//" +location.host + "/" + filePrefix + ".js";
     }
     console.log(url);
     const getBuffer = bent('string');
@@ -93,13 +93,26 @@ function processJHUCountries (dataSet) {
         const newCasePerPopulationSeries = newCaseSeries.map( c => c * 1000000 / country.population);
         const newDeathPerPopulationSeries = newDeathSeries.map( c => c * 1000000 / country.population);
 
+        const priorFirst = newCaseSeries.length - 14
+        const priorLast =  newCaseSeries.length - 7;
+        const lastFirst = priorFirst + 7;
+        const lastLast = priorLast + 7;
+
+        let prior3 =  newCaseSeries.reduce((a,v,x)=>x >= priorFirst && x <= priorLast ? a + v : a);
+        let last3 =  newCaseSeries.reduce((a,v,x)=>x >= lastFirst && x <= lastLast ? a + v : a);
+        const caseTrend = prior3 ? Math.round((last3 - prior3) * 100 / prior3) + "%" : '';
+
+        prior3 =  newDeathSeries.reduce((a,v,x)=>x >= priorFirst && x <= priorLast ? a + v : a);
+        last3 =  newDeathSeries.reduce((a,v,x)=>x >= lastFirst && x <= lastLast ? a + v : a);
+        const deathTrend = prior3 ? Math.round((last3 - prior3) * 100 / prior3) + "%" : '';
+
         dataSet.country[countryName] = {
             name: countryName,
             type: country.type,
-            deaths: deaths,
+            deaths, cases,
             deathsPerM: deaths * 1000000 / country.population,
-            cases: cases,
             casesPerM: cases * 1000000 / country.population,
+            caseTrend, deathTrend,
             caseMortality: deaths / country.cases,
             casesOverTime: country.cases,
             deathsOverTime: country.deaths,

@@ -5,7 +5,7 @@ import {Row, Col, Table} from 'react-bootstrap';
 import {DashboardHeader} from "./DashboardHeader";
 import WidgetConfig from "./WidgetConfig";
 
-const mobileScale = 1.5;
+const mobileScale = 1;
 const gridScaleBase = 1.5;
 const gridScaleBaseMin = .8;
 const gridScaleBaseMax = 1.2;

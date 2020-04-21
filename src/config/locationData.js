@@ -1,6 +1,6 @@
 import {dataSet} from "../data/timeseries";
 import bent from "bent";
-
+export let error = {code: 0};
 export async function manageLocation (api) {
 
     const {fetchLocation, locationInit, setLocationNeeded, cunt} = api;
@@ -42,42 +42,47 @@ export async function updateLocation(api) {
     }
     async function getLocationData() {
         const locationTimeoutMs = 20000;
+        error.code = -1;
         let geo = {
             long:(new URLSearchParams(document.location.search)).get("long"),
             lat: (new URLSearchParams(document.location.search)).get("lat")
         }
-        if ((!geo.lat || !geo.long) && navigator.geolocation) {
-            console.log("navigator.geolocation.getCurrentPosition()");
-            let timeoutId;
-            let waitForPosition = Promise.race([
-                new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(
-                        (position) => {
-                        geo.long = position.coords.longitude;
-                        geo.lat = position.coords.latitude;
-                        resolve(true);
-                    }, (error) => {
-                        reject(error);
+        if ((!geo.lat || !geo.long))
+            if (navigator.geolocation) {
+                console.log("navigator.geolocation.getCurrentPosition()");
+                let timeoutId;
+                let waitForPosition = Promise.race([
+                    new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                            geo.long = position.coords.longitude;
+                            geo.lat = position.coords.latitude;
+                            resolve(true);
+                        }, (error) => {
+                            reject(error);
+                        },
+                        {timeout: locationTimeoutMs, enableHighAccuracy: false})
+                    }),
+                    new Promise( (resolve, reject) => {
+                         setTimeout(() => {
+                            reject({code: 3.1})
+                        }, locationTimeoutMs)
                     })
-                }),
-                new Promise( (resolve, reject) => {
-                    timeoutId = setTimeout(() => {
-                        reject('Timed out in '+ locationTimeoutMs + 'ms.')
-                    }, locationTimeoutMs)
-                })
-            ]);
-            try {
-                await waitForPosition;
-                clearTimeout(timeoutId);
-                console.log(`Fetched location long=${geo.long} lat=${geo.lat}`);
+                ]);
+                try {
+                    await waitForPosition;
+                    clearTimeout(timeoutId);
+                    console.log(`Fetched location long=${geo.long} lat=${geo.lat}`);
 
-            } catch (e) {
-                console.log(`Fetched location error ${e}`);
-                clearTimeout(timeoutId);
-                setLocationDenied();
-                return undefined;
-            }
-        }
+                } catch (e) {
+                    console.log(`Fetched location error ${e}`);
+                    clearTimeout(timeoutId);
+                    setLocationDenied();
+                    error.code = e.code;
+                    return undefined;
+                }
+            } else
+                error.code = 4;
         if (geo.lat && geo.long) {
             console.log("Calling api.bigdatacloud.net for location details");
             const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?` +
@@ -88,6 +93,7 @@ export async function updateLocation(api) {
                 return JSON.parse(await getBuffer(url));
             } catch (e) {
                 console.log("Error on bigdatacloud.net" + e)
+                error.code = 5;
                 return undefined;
             }
 

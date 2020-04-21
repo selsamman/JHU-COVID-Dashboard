@@ -1,3 +1,5 @@
+import "react-app-polyfill/ie11";
+import "react-app-polyfill/stable";
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
@@ -13,6 +15,12 @@ import ReactBreakpoints, {withBreakpoints} from "react-breakpoints";
 import {Col, Navbar, Row, Container} from "react-bootstrap";
 import {DashboardHeader} from "./components/DashboardHeader";
 import {getInitialState} from "./config/localstorage";
+
+import ReactGA from 'react-ga';
+
+const trackingId = "UA-131145833-2"; // Replace with your Google Analytics tracking ID
+ReactGA.initialize(trackingId, {gaOptions: {siteSpeedSampleRate: 100}});
+ReactGA.pageview(window.location.pathname + window.location.search);
 
 //trace.log = t => console.log(t);
 const store = createStore(reducer, getInitialState(initialState), applyMiddleware(ReduxThunk))

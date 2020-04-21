@@ -14,13 +14,13 @@ export default {
             setWidgetBeingEdited(widgets[0].id);
     },
 
-    addCountryToWidget: ({addVerifiedCountryToWidget, getCountryData}) => (newCountry) => {
-        if (getCountryData(newCountry, true))
+    addCountryToWidget: ({widget, addVerifiedCountryToWidget, getCountryData}) => (newCountry) => {
+        if (!widget.countries.includes(newCountry) && getCountryData(newCountry))
             addVerifiedCountryToWidget(newCountry);
     },
 
     addSingleCountryToWidget: ({addVerifiedCountryToWidget, deleteCountryFromWidget, widget,getCountryData}) => (newCountry) => {
-        if (getCountryData(newCountry, true)) {
+        if (getCountryData(newCountry)) {
             widget.countries.map( country => deleteCountryFromWidget(country) );
             addVerifiedCountryToWidget(newCountry);
         }
@@ -97,11 +97,17 @@ export default {
             addWidgetToMatrix(widget.row, widget.col + widget.cols - 1, widget.rows, 1);
     },
 
-    expandWidgetWidth: ({widget, deleteWidgetFromMatrix, setWidgetData, widgetRightBlankOrContractableNeighbor : dest}) => () => {
-        setWidgetData({cols: widget.cols + 1});
-        if (dest.cols > 1)
-            setWidgetData({cols: dest.cols - 1, col: dest.col + 1}, dest.id)
+    expandWidgetWidth: ({widget, deleteWidgetFromMatrix, setWidgetData, widgetBlankOrContractableNeighbor : dest}) => () => {
+        if (dest.col > widget.col)
+            setWidgetData({cols: widget.cols + 1});
         else
+            setWidgetData({col: widget.col - 1, cols: widget.cols + 1});
+        if (dest.cols > 1) {
+            if (dest.col > widget.col)
+                setWidgetData({cols: dest.cols - 1, col: dest.col + 1}, dest.id)
+            else
+                setWidgetData({cols: dest.cols - 1}, dest.id)
+        } else
             deleteWidgetFromMatrix(dest.id);
 
     },

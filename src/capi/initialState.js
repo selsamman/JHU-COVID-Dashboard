@@ -23,85 +23,16 @@ export const initialDashboard = {
     ]
 }
 const initialState = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     widgetBeingConfiguredId: -1,
     editMode: "none",
     currentDashboardIx: 0,
+    currentDashBoardName: defaultDashboardName,
     locationStatus: "init",
-    foo: "",
     substitutionCountries: {
         "My Country": "United States"
     },
     dashboards : [
-        {
-            nextWidgetId: 7,
-            dashboardType: "stock",
-            name: defaultDashboardName,
-            widgets: [
-                {
-                    id: 1,
-                    type: "DataForCountry",
-                    countries: ["My Country" ],
-                    row: 0, col: 0,
-                    rows: 1, cols: 3,
-                    props: ["cases", "deaths"],
-                },
-                {
-                    id: 2,
-                    type: "DataForCountry",
-                    countries: ["The Whole World"],
-                    row: 0,
-                    col: 3,
-                    rows: 1, cols: 3,
-                    props: ["deaths", "cases"],
-                },
-                {
-                    id: 3,
-                    type: "DataByCountry",
-                    countries: ["My County", "My Country",  "My State",  "The Whole World"],
-                    row: 1,
-                    col: 0,
-                    rows: 1, cols: 6,
-                    props: ["deaths", "cases", "deathsPerM", "casesPerM"],
-                },
-                {
-                    id:4,
-                    type: "NewCasesPerPopulationOverTime",
-                    countries: ["My County", "My Country",  "My State",  "The Whole World"],
-                    row: 0,
-                    col: 6,
-                    rows: 2, cols: 6,
-                    props: [],
-                },
-                {
-                    id: 5,
-                    type: "CasesPerPopulationOverTime",
-                    countries: ["My County", "My Country",  "My State",  "The Whole World"],
-                    row: 2,
-                    col: 0,
-                    rows: 1, cols: 4,
-                    props: [],
-                },
-                {
-                    id: 6,
-                    type: "DeathsPerPopulationOverTime",
-                    countries: ["My County", "My Country",  "My State",  "The Whole World"],
-                    row: 2,
-                    col: 4,
-                    rows: 1, cols: 4,
-                    props: [],
-                },
-                {
-                    id: 7,
-                    type: "NewDeathsPerPopulationOverTime",
-                    countries: ["My County", "My Country",  "My State",  "The Whole World"],
-                    row: 2,
-                    col: 8,
-                    rows: 1, cols: 4,
-                    props: [],
-                },
-            ]
-        }
-     ]
+        {"nextWidgetId":105,"dashboardType":"stock","name":"COVID Dashboard","widgets":[{"id":1,"type":"DataForCountry","countries":["My Country"],"row":0,"col":0,"rows":1,"cols":5,"props":["cases","deaths","caseTrend","deathTrend"]},{"id":3,"type":"DataByCountry","countries":["My County","My Country","My State","The Whole World","Spain","italy","France","Germany","United Kingdom","Belgium","Turkey","United States","South Korea","Iran","Sweden","Ireland"],"row":0,"col":5,"rows":2,"cols":7,"props":["deaths","cases","deathsPerM","caseTrend","deathTrend"]},{"id":4,"type":"NewCasesOverTime","countries":["My Country"],"row":1,"col":0,"rows":1,"cols":5,"props":[]},{"id":5,"type":"CasesPerPopulationOverTime","countries":["My County","My Country","My State","The Whole World"],"row":2,"col":0,"rows":1,"cols":4,"props":[]},{"id":6,"type":"DeathsPerPopulationOverTime","countries":["My County","My Country","My State","The Whole World"],"row":2,"col":4,"rows":1,"cols":4,"props":[]},{"id":7,"type":"NewDeathsPerPopulationOverTime","countries":["My County","My Country","My State","The Whole World"],"row":2,"col":8,"rows":1,"cols":4,"props":[]}]}     ]
 }
 export default initialState;

@@ -29,11 +29,17 @@ export default {
         setDashboardByName: (name) => ({
             currentDashboardIx: {
                 set: state => state.dashboards.findIndex( (dashboard) => name === dashboard.name)
+            },
+            currentDashboardName: {
+                set: () => name,
             }
         }),
         setDashboardByIx: (dashboardIx) => ({
             currentDashboardIx: {
                 set: () => dashboardIx,
+            },
+            currentDashboardName: {
+                set: (state) => state.dashboards[dashboardIx].name,
             }
         }),
         addDashboard: (name, dashboardTemplate) => ({
@@ -50,6 +56,9 @@ export default {
             },
             currentDashboardIx: {
                 set: (state) => state.dashboards.length,
+            },
+            currentDashboardName: {
+                set: () => name,
             }
         }),
         deleteDashboard: (deleteIx) => ({
@@ -82,8 +91,6 @@ export default {
     },
 
     selectors: {
-        isBar: state=>state.foo === "bar",
-        foo: state=>state.foo,
         widgetBeingConfiguredId: state => state.widgetBeingConfiguredId,
         editMode: state => state.editMode,
         isConfiguring: (state, {id}) => state.widgetBeingConfiguredId === id && state.editMode !== "none",
@@ -102,7 +109,7 @@ export default {
         widgetCountries: [
             (select, {widget, substitutionCountries, dataSet}) => select(widget, substitutionCountries, dataSet),
             (widget, substitutionCountries, dataSet) =>
-                widget.countries.map( c => substitutionCountries[c] || c).filter( c => !!dataSet.country[c] )
+                [...new Set(widget.countries.map( c => substitutionCountries[c] || c).filter( c => !!dataSet.country[c] ))]
         ],
         widgetConfigCountries: [
             (select, {widget, substitutionCountries}) => select(widget, substitutionCountries),

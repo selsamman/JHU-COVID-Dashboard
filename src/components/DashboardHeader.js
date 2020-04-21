@@ -6,6 +6,7 @@ import {IconWrapperHeader} from "./IconWrapper";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {Typeahead} from "react-bootstrap-typeahead";
 import {dataSet} from "../data/timeseries";
+import {error} from "../config/locationData";
 
 export const DashboardHeader = () => {
 
@@ -26,6 +27,7 @@ export const DashboardHeader = () => {
             {mode === "create" && <DashboardCreateModal onClose={()=>setMode("none")} />}
             {mode === "remove" && <DashboardRemoveModal onClose={()=>setMode("none")} />}
             {mode === "location" && <DashboardAskLocation  ask={askForLocation} onClose={()=>setMode("none")} />}
+            {mode === "json" && <ShowDashboardModal onClose={()=>setMode("none")} />}
 
             <Navbar fixed="top" bg="dark" variant="dark" style={{height: 40}}>
 
@@ -39,10 +41,9 @@ export const DashboardHeader = () => {
                     <EditModeNav />
                 }
                 <Navbar.Collapse className="justify-content-end">
-                    {askForLocation && <Navbar.Text>fuck</Navbar.Text>}
                     {!anyConfiguring &&
                         <Navbar.Text>
-                            <span style={{fontSize: 14}}>JHU data as of {dataSet.dateRange.last}</span>&nbsp;&nbsp;
+                            <span style={{fontSize: 12}}>{dataSet.dateRange.last}</span>&nbsp;&nbsp;
                         </Navbar.Text>
                     }
                     {anyConfiguring &&
@@ -143,12 +144,21 @@ const EditDropdown = ({setMode}) => {
                         <div className="menuDashboardItemBottom">Create a link you can share</div>
                     </Dropdown.Item>
                 }
+                {document.location.origin.match(/localhost/) &&
+                    <Dropdown.Item onSelect={() => setMode("json")}>
+                        <div className="menuDashboardItemTop">
+                            <Link size={16} style={{marginTop: -4, marginRight: 3}}/>
+                            Get JSON
+                        </div>
+                        <div className="menuDashboardItemBottom">Get JSON to add to initial state</div>
+                    </Dropdown.Item>
+                }
             </Dropdown.Menu>
         </Dropdown>
     );
 }
 const DashboardDropdown = () => {
-    const {dashboards, name, setDashboardByName} = widgetsAPI({});
+    const {dashboards, name, setDashboardByName, persistState} = widgetsAPI({});
     return (
         <Dropdown >
             <Dropdown.Toggle variant="dark"
@@ -158,7 +168,7 @@ const DashboardDropdown = () => {
             </Dropdown.Toggle>
             <Dropdown.Menu>
                 {dashboards.map(d =>
-                    <Dropdown.Item key={d.name} onSelect={() => setDashboardByName(d.name)}>
+                    <Dropdown.Item key={d.name} onSelect={() => {setDashboardByName(d.name); persistState()}}>
                         {d.name}
                     </Dropdown.Item>
                 )}
@@ -379,6 +389,30 @@ const DashboardAskLocation = ({onClose}) => {
                     Some charts use your current country <br />
                     (and county if you live in the US)
                 </p>
+                <p style={{textAlign: "center"}}>
+                    We can set this automatically<br /><br />
+                    <>
+                        {searching === "inprogress" &&
+                        <Spinner animation="border" />
+                        }
+                        {searching === "available" &&
+                        <Button variant="info" onClick={async () => {
+                            setSearching("inprogress");
+                            const result = await getLocationData();
+                            if (result)
+                                onClose();
+                            else
+                                setSearching("error")
+                        }}>Find My Location</Button>
+                        }
+                        {searching === "error" &&
+                        <text>Not available now ({error.code})</text>
+                        }
+                    </>
+                </p>
+                <p style={{textAlign: "center"}}>
+                    Or you can set the location yourself.
+                </p>
                 <p>
                     Select Country
                     <Typeahead
@@ -428,26 +462,29 @@ const DashboardAskLocation = ({onClose}) => {
                 <p style={{textAlign: "center"}}>
                     <Button variant="info" onClick={close}>{mode}</Button>
                 </p>
+           </Modal.Body>
+        </Modal>
+    );
+}
+const ShowDashboardModal = ({onClose}) => {
+    const { dashboard} = widgetsAPI({});
+    return (
+        <Modal
+            show={true}
+            onHide={() => {onClose()}}
+            dialogClassName="modal-90w"
+            aria-labelledby="example-custom-modal-styling-title"
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id="example-custom-modal-styling-title">
+                    JSON for Dashboard
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
                 <p style={{textAlign: "center"}}>
-                    Or we can do it automatically...<br /><br />
-                    <>
-                        {searching === "inprogress" &&
-                            <Spinner animation="border" />
-                        }
-                        {searching === "available" &&
-                            <Button variant="info" onClick={async () => {
-                                    setSearching("inprogress");
-                                    const result = await getLocationData();
-                                    if (result)
-                                        onClose();
-                                    else
-                                        setSearching("error")
-                                }}>Find My Location</Button>
-                        }
-                        {searching === "error" &&
-                            <text>Not available now</text>
-                        }
-                     </>
+                    <textarea>
+                        {JSON.stringify(dashboard, 5)}
+                    </textarea>
                 </p>
             </Modal.Body>
         </Modal>

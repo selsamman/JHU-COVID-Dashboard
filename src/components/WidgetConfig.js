@@ -4,7 +4,7 @@ import {widgetConfig, isWidgetValid} from "../config/widgets";
 import {Row, Col, Table} from 'react-bootstrap';
 import {widgetsAPI} from "../capi";
 import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronBarDown, ChevronBarUp, CaretDownFill, CaretUpFill} from "react-bootstrap-icons";
-const debug = false;
+const debug = true && document.location.origin.match(/localhost/);
 
 export default ({id, children, scale}) => {
     const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries} = widgetsAPI({id: id});
@@ -19,7 +19,7 @@ export default ({id, children, scale}) => {
                     <WidgetConfigSize id={id} scale={scale}/>
                 </div>
             }
-            {isConfiguringData && (widget.cols > 2) &&
+            {isConfiguringData  &&
              config.config.map((config, ix) =>
                 <WidgetConfigElement config={config} id={id} key={ix} scale={scale}/>
             )}
@@ -43,23 +43,26 @@ const WidgetConfigSize = ({id, scale}) => {
            contractWidgetHeight, expandWidgetHeight, contractWidgetWidth, expandWidgetWidth,
              canMoveWidgetLeft, canMoveWidgetRight, moveWidgetLeft,  moveWidgetRight,
              canMoveWidgetDown, canMoveWidgetUp, moveWidgetDown, moveWidgetUp, widget} =  widgetsAPI({id: id});
+    const narrow = widget.cols < 2 ? 12 : 2;
+    const wide = widget.cols < 2 ? 12 : 4;
+
     return (
-    <Row style={{padding: 0, height: 24 * scale}}>
-        <Col xs={2} className="d-flex justify-content-start">
+    <Row style={{padding: 0, minHeight: 24 * scale}}>
+        <Col xs={narrow} className="d-flex justify-content-start">
             <MoveTool iconComponent={CaretLeftFill} enabled={canMoveWidgetLeft} click={moveWidgetLeft} scale={scale} />
             <MoveTool iconComponent={CaretUpFill} enabled={canMoveWidgetUp} click={moveWidgetUp} scale={scale} />
          </Col>
-        <Col xs={4} className="d-flex justify-content-center">
+        <Col xs={wide} className="d-flex justify-content-center">
             <MoveTool iconComponent={ChevronBarUp} enabled={canContractWidgetHeight} click={contractWidgetHeight} scale={scale} />
             <DataPoint description="rows" data={widget.rows} scale={scale} />
             <MoveTool iconComponent={ChevronBarDown} enabled={canExpandWidgetHeight} click={expandWidgetHeight} scale={scale} />
         </Col>
-        <Col xs={4} className="d-flex justify-content-center">
+        <Col xs={wide} className="d-flex justify-content-center">
              <MoveTool iconComponent={ChevronBarLeft} enabled={canContractWidgetWidth} click={contractWidgetWidth} scale={scale} />
             <DataPoint description="cols" data={widget.cols} scale={scale} />
             <MoveTool iconComponent={ChevronBarRight} enabled={canExpandWidgetWidth} click={expandWidgetWidth} scale={scale} />
         </Col>
-        <Col xs={2} className="d-flex justify-content-end">
+        <Col xs={narrow} className="d-flex justify-content-end">
             <MoveTool iconComponent={CaretDownFill} enabled={canMoveWidgetDown} click={moveWidgetDown} scale={scale} />
             <MoveTool iconComponent={CaretRightFill} enabled={canMoveWidgetRight} click={moveWidgetRight} scale={scale} />
 

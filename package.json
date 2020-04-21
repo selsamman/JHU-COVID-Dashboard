@@ -10,12 +10,14 @@
     "bootstrap": "^4.4.1",
     "js-cookie": "^2.2.1",
     "react": "^16.13.1",
+    "react-app-polyfill": "^1.0.6",
     "react-bootstrap": "1.0.0",
     "react-bootstrap-icons": "^1.0.1-alpha3",
     "react-bootstrap-typeahead": "^4.1.0",
     "react-breakpoints": "^3.0.3",
     "react-copy-to-clipboard": "^5.0.2",
     "react-dom": "^16.13.1",
+    "react-ga": "^2.7.0",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
@@ -42,7 +44,8 @@
     "development": [
       "last 1 chrome version",
       "last 1 firefox version",
-      "last 1 safari version"
+      "last 1 safari version",
+      "ie 11"
     ]
   }
 }

@@ -3,15 +3,21 @@ import {widgetsAPI} from "../capi";
 import {VictoryAxis, VictoryChart, VictoryLine, VictoryLegend, VictoryTheme} from 'victory';
 import {colors} from "../config/colors";
 import {dataSet} from "../data/timeseries";
+import {BarGraph} from "../widgets/BarGraph";
+import IEVictoryChart from "./IEVictoryChart"
 
 export const LineGraph = ({config, id, scale}) => {
     const {widget, anyConfiguring, dataSet, isConfiguring, editWidget, substituteCountry, widgetCountries, getCountryData} = widgetsAPI({id: id});
-    const editWidgetEvent = () => anyConfiguring && editWidget(widget.id);
+
+    if (widgetCountries.length === 1)
+        return <BarGraph config={config} id={id} scale={scale} />
+
+
 
     const labelProps = {
         title: config.name,
         x: 20, y: 0, rowGutter: -12,
-        style: {labels: {fontSize: 11}},
+        style: {labels: {fontSize: 11}, title: {fontSize: 13, fontWeight: "bold"}},
         padding: {bottom: 20},
         centerTitle: true,
         itemsPerRow: 3,
@@ -22,9 +28,9 @@ export const LineGraph = ({config, id, scale}) => {
         domainPadding: 20,
         theme: VictoryTheme.material,
         padding: {
-            left: getPadding(10, 9) * scale,
-            top:  isConfiguring? 8 : 60 * scale,
-            right: 0,
+            left: getPadding(16, 7) * scale,
+            top:  isConfiguring ? 8 : 60 * scale,
+            right: 4,
             bottom: 40 * scale
         },
         height: isConfiguring ? 167 * scale: 250 * scale,
@@ -58,7 +64,7 @@ export const LineGraph = ({config, id, scale}) => {
     function getPadding(base, perDigit) {
         const maxValue = widgetCountries.reduce((a, c) =>
             Math.max(a, getCountryData(c)[config.prop].reduce((a, p) =>
-                Math.max(a, Math.floor(p)))));
+                Math.max(a, Math.floor(p)))), 0);
         const maxDigits = numberWithCommas(maxValue).length;
         const padding = base + maxDigits * perDigit;
         console.log(" maxValue: " + maxValue + "padding increment: " + padding);
@@ -71,3 +77,5 @@ export const LineGraph = ({config, id, scale}) => {
 function numberWithCommas(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+
+

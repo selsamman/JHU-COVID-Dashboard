@@ -16,7 +16,9 @@ export function getInitialState(initialState) {
         state = JSON.parse(stateJSON);
     }
     if ((new URLSearchParams(document.location.search).get("init")) === 'location')
-        state.locationStatus = "init"
+        state.locationStatus = "init";
+
+    updateStockDashboards(state, initialState);
 
     const newDashboard = getDashboardFromURL();
     if (newDashboard) {
@@ -38,6 +40,26 @@ export function getInitialState(initialState) {
     }
     state.editMode = "none";
     return state;
+}
+function updateStockDashboards(state, initialState) {
+    initialState.dashboards
+        .filter(d => d.dashboardType === "stock")
+        .map( initialDashboard => {
+            let existingIx = state.dashboards.findIndex(d => d.name = initialDashboard.name);
+            const existingDashboard = state.dashboards[existingIx];
+            if (existingDashboard && existingDashboard.dashboardType !== 'stock'){
+                existingDashboard.name += " 1";
+                existingIx = -1
+            }
+            if (existingIx >= 0)
+                state.dashboards[existingIx] = initialDashboard;
+            else
+                state.dashboards.push(initialDashboard);
+        })
+        state.currentDashboardIx = state.dashboards.findIndex(d => d.name === state.currentDashboardName);
+        if (state.currentDashboardIx < 0)
+            state.currentDashboardIx = 0;
+        state.currentDashboardName = state.dashboards[state.currentDashboardIx];
 }
 export function save (state) {
     window.localStorage.setItem("state", JSON.stringify(state));

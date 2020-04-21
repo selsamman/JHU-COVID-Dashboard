@@ -36,7 +36,9 @@ export default {
     widgetLeftNeighbor: [
         (select, {widget, widgets}) => select(widget, widgets),
         (widget, widgets) => widgets.filter(w =>
-            w.col === widget.col - widget.cols && w.row <= widget.row).sort((a,b)=> a.col - b.col)[0]
+            widget.col === w.col + w.cols && // Must start horizontally immediately before
+            w.row <= widget.row)
+            .sort((a,b)=> b.row - a.row)[0]
     ],
     canMoveWidgetRight: (state, {widgetRightNeighbor}) => !!widgetRightNeighbor,
     widgetRightNeighbor: [
@@ -44,7 +46,7 @@ export default {
         (widget, widgets) => widgets.filter(w =>
             w.col === widget.col + widget.cols && // Must start horizontally where this widget leaves off
             w.row <= widget.row) // And in a lower row
-            .sort((a,b)=> a.col - b.col)[0]
+            .sort((a,b)=> b.row - a.row)[0]
     ],
     canMoveWidgetUp: (state, {widgetUpperNeighbor}) => !!widgetUpperNeighbor,
     widgetUpperNeighbor: [
@@ -83,14 +85,14 @@ export default {
         (widget) => widget.cols > 3
     ],
 
-    widgetRightBlankOrContractableNeighbor: [
+    widgetBlankOrContractableNeighbor: [
             (select, {widget, widgets}) => select(widget, widgets),
             (widget, widgets) => widgets.find(w => // Look right from here blank row in same column to gobble up
                 (w.type === 'Blank' || w.cols > 1) && // Blank or contractable
                 w.row === widget.row &&
                 w.rows === widget.rows &&
-                w.col === widget.col + widget.cols)
+                ((w.col === widget.col + widget.cols) || (w.col + w.cols === widget.col)))
     ],
-    canExpandWidgetWidth: (state, {widgetRightBlankOrContractableNeighbor}) => !!widgetRightBlankOrContractableNeighbor
+    canExpandWidgetWidth: (state, {widgetBlankOrContractableNeighbor}) => !!widgetBlankOrContractableNeighbor
 
 }
