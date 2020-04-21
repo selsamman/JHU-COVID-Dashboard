@@ -2,7 +2,7 @@ import React from 'react';
 import {widgetsAPI} from "../capi";
 import {Row, Col} from 'react-bootstrap';
 import {dataSet} from "../data/timeseries";
-import {dataPointsDisplay, dataPointsRender} from "../config/widgets";
+import {dataPoints, dataPointsDisplay, dataPointsRender} from "../config/widgets";
 
 export const DataPointsForCountry = ({id, scale}) => {
     const {widget, isConfiguring, getCountryData, widgetCountries} = widgetsAPI({id: id});
@@ -19,7 +19,7 @@ export const DataPointsForCountry = ({id, scale}) => {
                 </Row>
             }
             <Row style={{paddingLeft: 5 * scale, paddingRight: 5 * scale}}>
-                {country && widget.props.map((prop, ix) => (
+                {country && Object.getOwnPropertyNames(dataPoints).filter(p => widget.props.includes(p)).map((prop, ix) => (
                     <Col key={prop} style={{backgroundColor: "#f0f0f0", margin: 4, padding: 4}}>
                         <DataPoint
                             scale={scale}
