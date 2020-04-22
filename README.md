@@ -1,4 +1,6 @@
-# Configurable Dashboard the uses Johns Hopkins University data posted to github - https://github.com/CSSEGISandData
+# Configurable COVID 19 Dashboard
+
+Uses Johns Hopkins University data posted to github - https://github.com/CSSEGISandData
 
 To see deployment go to https://www.cdash19.com
 
@@ -11,18 +13,11 @@ In the project directory, you can run:
 ### `yarn start`
 
 Runs the app in the development mode.<br />
+
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br />
 You will also see any lint errors in the console.
 
-### `yarn build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Note that this app uses data which is fetched daily into a file.  If you want the latest in development mode just run the .dev script which will fetch the latest.
 
