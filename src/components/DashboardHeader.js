@@ -98,9 +98,12 @@ const EditDropdown = ({setMode}) => {
         persistState();
     }
     const create = () => {
+        console.log("creating");
         addDashboard("My New Dashboard");
         setMode("create")
+        console.log("editing");
         editWidget();
+        console.log("setting mode");
         setDataMode()
     }
 
@@ -482,9 +485,7 @@ const ShowDashboardModal = ({onClose}) => {
             </Modal.Header>
             <Modal.Body>
                 <p style={{textAlign: "center"}}>
-                    <textarea>
-                        {JSON.stringify(dashboard, 5)}
-                    </textarea>
+                    <textarea defaultValue={JSON.stringify(dashboard, 5)} />
                 </p>
             </Modal.Body>
         </Modal>

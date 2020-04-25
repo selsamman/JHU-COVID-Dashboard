@@ -1,13 +1,15 @@
 import * as Widgets from '../widgets';
-import { dataSet} from "../data/timeseries";
 import CountrySelect from "../components/CountrySelect";
 import WidgetSelect from "../components/WidgetSelect";
 import PropsSelect from "../components/PropsSelect";
 import SingleCountrySelect from "../components/SingleCountrySelect";
 import {ForwardFill} from 'react-bootstrap-icons';
 import React from "react";
+import SinglePropSelect from "../components/SinglePropSelect";
+import {casesSeverityThresholds, deathSeverityThresholds, flu} from "../data/timeseries";
 
-export const dataPoints = {
+
+const dataPoints = {
     deaths: "Deaths total",
     cases: "Cases total",
     deathsPerM: "Deaths per 1M",
@@ -17,7 +19,7 @@ export const dataPoints = {
 
     //caseMortality: "Deaths per Case",
 }
-export const dataPointsDisplay = {
+const dataPointsDisplay = {
     deaths: ["Deaths", "Total"],
     deathsPerM: ["Deaths", "per 1M People"],
     cases: ["Cases", "Total"],
@@ -25,7 +27,7 @@ export const dataPointsDisplay = {
     deathTrend: ["Deaths", "weekly trend"],
     caseTrend: ["Cases", "weekly trend"],
 };
-export const dataPointsRender = {
+const dataPointsRender = {
     deaths: numberWithCommas,
     deathsPerM: numberWithCommas,
     cases: numberWithCommas,
@@ -33,6 +35,19 @@ export const dataPointsRender = {
     deathTrend: formatTrend,
     caseTrend: formatTrend,
 };
+const severityDataPoints = {
+    mortalitySeverity: "Deaths",
+    caseSeverity: "Cases",
+    mortalitySeverityOverTime: "Deaths over Time",
+    caseSeverityOverTime: "Cases over Time",
+}
+const severityThresholds = {
+    mortalitySeverity: deathSeverityThresholds,
+    caseSeverity: casesSeverityThresholds,
+    mortalitySeverityOverTime: deathSeverityThresholds,
+    caseSeverityOverTime: casesSeverityThresholds,
+}
+
 export const widgetConfig = {
 
     DataByCountry: TableByCountry("Table - Data by Country"),
@@ -45,16 +60,33 @@ export const widgetConfig = {
     NewDeathsOverTime: LineGraphByCountry("New Deaths",'newDeathsOverTime'),
     NewCasesPerPopulationOverTime: LineGraphByCountry( "New Cases per 1M People",'newCasesPerPopulationOverTime'),
     NewDeathsPerPopulationOverTime: LineGraphByCountry("New Deaths per 1M People",'newDeathsPerPopulationOverTime'),
-    Blank: {name: "Blank Space", component: Widgets.BlankWidget, config: [{component: WidgetSelect, props: {}}]}
+    Blank: {name: "Blank Space", component: Widgets.BlankWidget, config: [{component: WidgetSelect, props: {}}]},
+    WorldMap: WorldMapForCountry("World Map")
+}
+function WorldMapForCountry (name) {
+
+    return {
+        name: name,
+        component: Widgets.WorldMap,
+        dataPoints: severityDataPoints,
+        dataPointsDisplay: severityDataPoints,
+        severityThresholds,
+        config: [
+            {component: WidgetSelect},
+            {component: SinglePropSelect}
+        ]}
 }
 function TableByCountry (name, props)  {
     return {
         name: name,
         component: Widgets.TableByCountry,
+        maxCountries: 20,
+        maxProps: 4,
+        dataPoints, dataPointsDisplay, dataPointsRender,
         config: [
-            {component: WidgetSelect, props: {}},
-            {component: CountrySelect, props: {countries: dataSet.countries, max: 20}},
-            {component: PropsSelect, props: {max: 4, dataPoints: dataPoints}}
+            {component: WidgetSelect},
+            {component: CountrySelect},
+            {component: PropsSelect}
         ],
     }
 }
@@ -62,10 +94,12 @@ function DataForCountry(name, props)  {
     return {
         name: name,
         component: Widgets.DataPointsForCountry,
+        maxCountries: 6,
+        dataPoints, dataPointsDisplay, dataPointsRender,
         config: [
-            {component: WidgetSelect, props: {}},
-            {component: SingleCountrySelect, props: {}},
-            {component: PropsSelect, props: {max: 6, dataPoints: dataPoints}}
+            {component: WidgetSelect},
+            {component: SingleCountrySelect},
+            {component: PropsSelect}
         ],
     }
 }
@@ -74,22 +108,12 @@ function LineGraphByCountry (name, prop) {
      return {
         name: name,
         component: Widgets.LineGraph,
-        config: [
-            {component: WidgetSelect, props: {}},
-            {component: CountrySelect, props: { max: 6}},
+         maxCountries: 6,
+         config: [
+            {component: WidgetSelect},
+            {component: CountrySelect},
         ],
-        prop: prop
-    }
-};
-function BarGraphByCountry (name, prop) {
-    return {
-        name: name,
-        component: Widgets.BarGraph,
-        config: [
-            {component: WidgetSelect, props: {}},
-            {component: SingleCountrySelect, props: { }},
-        ],
-        prop: prop
+        dataPoint: prop
     }
 };
 

@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import {widgetsAPI} from "../capi";
 import {Row, Col} from 'react-bootstrap';
 import {Typeahead} from "react-bootstrap-typeahead";
@@ -7,14 +6,14 @@ import 'react-bootstrap-typeahead/css/Typeahead.css';
 import {colors} from "../config/colors";
 import { XCircleFill, PlusCircleFill } from 'react-bootstrap-icons';
 
-export default ({id, max, scale}) => {
+export default ({id, countries, maxCountries, scale}) => {
     const {widget, addCountryToWidget, deleteCountryFromWidget, dataSet, getCountryData} = widgetsAPI({id: id});
     const [addingCounties, setAddingCountries] = useState(false);
     return (
         <div>
             <Row>
                 <Col xs={2}>
-                    {(!addingCounties && widget.countries.length < max) &&
+                    {(!addingCounties && widget.countries.length < maxCountries) &&
                         <PlusCircleFill size={16 * scale} onClick={()=>setAddingCountries(true)} />}
                     {addingCounties &&
                     <XCircleFill size={16 * scale} onClick={()=>setAddingCountries(false)} />}
@@ -25,7 +24,7 @@ export default ({id, max, scale}) => {
                             <Col>
                                 <CountryDropDown
                                     scale={scale}
-                                    countries={dataSet.countries}
+                                    countries={countries}
                                     onSelect={(selectedCountry) => {
                                         addCountryToWidget(selectedCountry[0]);
                                         setAddingCountries(false);

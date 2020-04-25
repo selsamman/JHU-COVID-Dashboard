@@ -1,17 +1,14 @@
 import React from "react";
-import "bootstrap/dist/css/bootstrap.min.css";
 import {widgetsAPI} from "../capi";
 import {widgetConfig, widgetNames} from "../config/widgets";
-import {Dropdown, DropdownButton, Row, Col, Container, Button, ButtonGroup} from "react-bootstrap";
-
-import {writeStateToURL} from "../config/urlParameters";
+import {Dropdown} from "react-bootstrap";
 
 export default ({id, scale}) => {
     const {doneEditing, deleteWidget, setLayoutMode} = widgetsAPI({id: id});
         return (
-            <div>
+            <>
                 <SelectType id={id} scale={scale}/>
-            </div>
+            </>
     )
 };
 const SelectType = ({id, scale}) => {
@@ -20,7 +17,6 @@ const SelectType = ({id, scale}) => {
         <Dropdown size="lg">
             <Dropdown.Toggle
                 style={{border: 0, backgroundColor: "#e8e8e8", color: "#202020", fontSize: 12 * scale, padding: 4}}
-
             >
                 {widgetConfig[widget.type].name}
             </Dropdown.Toggle>

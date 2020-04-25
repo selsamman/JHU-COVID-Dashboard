@@ -33,6 +33,11 @@ div.menuDashboardItemBottom {
     margin: 0px;
     padding: 0px;
 }
+.xtable-striped tbody tr:nth-of-type(odd) {
+    background-color:rgba(0,0,0,.02);
+}
+.foodate::after {content: "fuck";}
+
 
 
 button.dropdown-toggle:focus {outline-color: red;}

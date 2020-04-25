@@ -59,6 +59,9 @@ export default {
             },
             currentDashboardName: {
                 set: () => name,
+            },
+            widgetBeingConfiguredId: {
+                set: () => dashboardTemplate ? dashboardTemplate.widgets[0].id : initialDashboard.widgets[0].id
             }
         }),
         deleteDashboard: (deleteIx) => ({
@@ -85,7 +88,7 @@ export default {
         }),
         setCountrySubstitution: (country, value) => ({
             substitutionCountries: {
-                assign: (substitutionCountries) => ({substitutionCountries, ...{[country]: value}})
+                assign: () => ({[country]: value})
             }
         })
     },
@@ -106,23 +109,7 @@ export default {
         locationInit: state => state.locationStatus === "init",
         dataSet: () => dataSet,
         substitutionCountries: state => state.substitutionCountries,
-        widgetCountries: [
-            (select, {widget, substitutionCountries, dataSet}) => select(widget, substitutionCountries, dataSet),
-            (widget, substitutionCountries, dataSet) =>
-                [...new Set(widget.countries.map( c => substitutionCountries[c] || c).filter( c => !!dataSet.country[c] ))]
-        ],
-        widgetConfigCountries: [
-            (select, {widget, substitutionCountries}) => select(widget, substitutionCountries),
-            (widget, substitutionCountries) => widget.countries
-        ],
-        widgetData: [
-            (select, {dataSet, widgetCountries}) => (dataSet, widgetCountries),
-            (dataSet, widgetCountries) => widgetCountries.map(c => dataSet.country[c])
-        ],
-        widgetDataSingle: [
-            (select, {dataSet, widgetCountries}) => (dataSet, widgetCountries),
-            (dataSet, widgetCountries) => dataSet.country[widgetCountries[0]]
-        ]
+
     },
     thunks: {
         getCountryData: ({substituteCountry, dataSet}) => (country) => dataSet.country[substituteCountry(country)],
@@ -133,7 +120,7 @@ export default {
             while(dashboards.find(d => d.name === newName)) {
                 const match = newName.match(/\d+$/)
                 if (match)
-                    newName.replace(/\d+$/, (value) => value * 1 + 1)
+                    newName = newName.replace(/\d+$/, (value) => value * 1 + 1)
                 else
                     newName += " 1";
             }

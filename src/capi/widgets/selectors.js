@@ -1,4 +1,5 @@
 import {widgetsAPI} from "../index";
+import {widgetConfig} from "../../config/widgets";
 
 export default {
     widgets: state => state.widgets,
@@ -31,7 +32,24 @@ export default {
         (select, {widgets, id}) => select(widgets, id),
         (widgets, id) => widgets.find(w => (w.id === id))
     ],
-
+    widgetCountries: [
+        (select, {widget, substitutionCountries, dataSet}) => select(widget, substitutionCountries, dataSet),
+        (widget, substitutionCountries, dataSet) => !widget ? [] :
+            [...new Set(widget.countries.map( c => substitutionCountries[c] || c).filter( c => !!dataSet.country[c] ))]
+    ],
+    widgetProps: [
+        (select, {widget, dataSet}) => select(widget, dataSet),
+        (widget) => !widget ? [] :
+            widgetConfig[widget.type].dataPoint
+                ? widgetConfig[widget.type].dataPoint
+                : widgetConfig[widget.type].dataPoints
+                    ? Object.getOwnPropertyNames(widgetConfig[widget.type].dataPoints).filter(p => widget.props.includes(p))
+                    : []
+    ],
+    widgetConfigCountries: [
+        (select, {widget, substitutionCountries}) => select(widget, substitutionCountries),
+        (widget, substitutionCountries) => widget.countries
+    ],
     canMoveWidgetLeft: (state, {widgetLeftNeighbor}) => !!widgetLeftNeighbor ,
     widgetLeftNeighbor: [
         (select, {widget, widgets}) => select(widget, widgets),

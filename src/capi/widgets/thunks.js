@@ -19,13 +19,13 @@ export default {
             addVerifiedCountryToWidget(newCountry);
     },
 
-    addSingleCountryToWidget: ({addVerifiedCountryToWidget, deleteCountryFromWidget, widget,getCountryData}) => (newCountry) => {
-        if (getCountryData(newCountry)) {
-            widget.countries.map( country => deleteCountryFromWidget(country) );
-            addVerifiedCountryToWidget(newCountry);
-        }
+    addSingleCountryToWidget: ({setWidgetData, widget,getCountryData}) => (newCountry) => {
+        if (getCountryData(newCountry))
+            setWidgetData({countries: [newCountry].concat(widget.countries.slice(1))});
     },
-
+    addSinglePropToWidget: ({setWidgetData, widget}) => (newProp) => {
+        setWidgetData({props: [newProp].concat(widget.props.slice(1))});
+    },
     newWidget: ({addWidgetToMatrix, widgets, nextRow, setWidgetBeingEdited, setDataMode, nextWidgetId,anyConfiguring }) => () => {
         const widget = widgets.filter( w => w.cols >= 3 && w.type === 'Blank').sort((a, b) => a.row - b.row)[0];
         if (typeof widget !== 'undefined')

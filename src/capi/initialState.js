@@ -2,6 +2,14 @@ export function upgrade(state) {  // DONT FORGET TO UPDATE THIS!!!
     if (state.schemaVersion < 3) {
         state = initialState;
     }
+    if (state.schemaVersion < 5) {
+        state.currentDashboardName =  state.dashboards[0].name;
+        state.currentDashboardIx = 0;
+        delete state.substitutionCountries.substitutionCountries;
+        delete state.currentDashBoardName;
+        state.schemaVersion = 5;
+        console.log("Upgrading to schema version " + 4);
+    }
     return state;
 }
 export const defaultDashboardName = "COVID Dashboard";
@@ -14,7 +22,7 @@ export const initialWidget = {
     countries: ["My Country"],
 }
 export const initialDashboard = {
-    nextWidgetId: 3,
+    nextWidgetId: 4,
     dashboardType: "custom",
     name: "My " + defaultDashboardName,
     widgets: [
@@ -23,11 +31,11 @@ export const initialDashboard = {
     ]
 }
 const initialState = {
-    schemaVersion: 4,
+    schemaVersion: 5,
     widgetBeingConfiguredId: -1,
     editMode: "none",
     currentDashboardIx: 0,
-    currentDashBoardName: defaultDashboardName,
+    currentDashboardName: defaultDashboardName,
     locationStatus: "init",
     substitutionCountries: {
         "My Country": "United States"

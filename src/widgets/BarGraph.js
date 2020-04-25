@@ -1,16 +1,13 @@
 import React from 'react';
 import {widgetsAPI} from "../capi";
-import {VictoryChart, VictoryBar, VictoryTheme, VictoryLegend, VictoryAxis, VictoryLine} from 'victory';
-import {widgetConfig} from "../config/widgets";
+import {VictoryChart, VictoryBar, VictoryTheme, VictoryLegend, VictoryAxis} from 'victory';
 import {colors} from "../config/colors";
-import IEVictoryChart from "./IEVictoryChart"
 
-export const BarGraph = ({config, id, scale}) => {
-    const {widget, anyConfiguring, dataSet, isConfiguring, editWidget, widgetCountries, getCountryData} = widgetsAPI({id: id});
-    const editWidgetEvent = () => anyConfiguring && editWidget(widget.id);
+export const BarGraph = ({dataPoint, id, scale, name}) => {
+    const {dataSet, isConfiguring, widgetCountries, getCountryData} = widgetsAPI({id: id});
     const country = widgetCountries[0];
     const labelProps = {
-        title: config.name + " - " + country,
+        title: name + " - " + country,
         x: 20, y: 0, rowGutter: -12,
         style: {labels: {fontSize: 11}, title: {fontSize: 13, fontWeight: "bold", textAlign: "center"}},
         padding: {bottom: 0},
@@ -34,8 +31,7 @@ export const BarGraph = ({config, id, scale}) => {
     };
     const childProps = (country) => {
         return {
-
-            data: getCountryData(country)[config.prop]
+            data: getCountryData(country)[dataPoint]
                 .map((c, ix) => ({x: dataSet.dates[ix].replace(/\/20/,'').replace(/\//, '-'), y: c}))
                 .slice(dataSet.dates.length - 30),
             style: {data: {stroke: colors[0]}, tickLabels: {angle: 45}},
@@ -59,7 +55,7 @@ export const BarGraph = ({config, id, scale}) => {
     );
     function getPadding(base, perDigit) {
         const maxValue = widgetCountries.reduce((a, c) =>
-            Math.max(a, getCountryData(c)[config.prop].reduce((a, p) =>
+            Math.max(a, getCountryData(c)[dataPoint].reduce((a, p) =>
                 Math.max(a, Math.floor(p)))
             ), 0
         );

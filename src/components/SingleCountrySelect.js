@@ -1,14 +1,9 @@
-import React, {useState} from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from 'react';
 import {widgetsAPI} from "../capi";
-import {widgetConfig} from "../config/widgets";
-import {Row, Col, Button, Dropdown, DropdownButton, Container} from 'react-bootstrap';
+import {Row, Col} from 'react-bootstrap';
 import {Typeahead} from "react-bootstrap-typeahead";
-import 'react-bootstrap-typeahead/css/Typeahead.css';
-import {colors} from "../config/colors";
-import { XCircleFill, PlusCircleFill } from 'react-bootstrap-icons';
 
-export default ({id, scale}) => {
+export default ({id, scale, countries}) => {
     const {widget, dataSet, addSingleCountryToWidget} = widgetsAPI({id: id});
     return (
         <div>
@@ -16,7 +11,7 @@ export default ({id, scale}) => {
                  <Col>
                     <CountryDropDown
                         scale={scale}
-                        countries={dataSet.countries}
+                        countries={countries}
                         country={widget.countries[0]}
                         onSelect={(selectedCountry) => {
                             addSingleCountryToWidget(selectedCountry[0]);

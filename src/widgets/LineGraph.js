@@ -2,20 +2,17 @@ import React from 'react';
 import {widgetsAPI} from "../capi";
 import {VictoryAxis, VictoryChart, VictoryLine, VictoryLegend, VictoryTheme} from 'victory';
 import {colors} from "../config/colors";
-import {dataSet} from "../data/timeseries";
 import {BarGraph} from "../widgets/BarGraph";
-import IEVictoryChart from "./IEVictoryChart"
 
-export const LineGraph = ({config, id, scale}) => {
-    const {widget, anyConfiguring, dataSet, isConfiguring, editWidget, substituteCountry, widgetCountries, getCountryData} = widgetsAPI({id: id});
+export const LineGraph = (props) => {
+    const {id, scale, dataPoint} = props;
+    const {dataSet, isConfiguring, widgetCountries, getCountryData, name} = widgetsAPI({id: id});
 
     if (widgetCountries.length === 1)
-        return <BarGraph config={config} id={id} scale={scale} />
-
-
+        return <BarGraph {...props} />
 
     const labelProps = {
-        title: config.name,
+        title: name,
         x: 20, y: 0, rowGutter: -12,
         style: {labels: {fontSize: 11}, title: {fontSize: 13, fontWeight: "bold"}},
         padding: {bottom: 20},
@@ -40,7 +37,7 @@ export const LineGraph = ({config, id, scale}) => {
     const childProps = (country, ix) => {
         return {
             samples: 4,
-            data: getCountryData(country)[config.prop]
+            data: getCountryData(country)[dataPoint]
                 .map((c, ix) => ({x: dataSet.dates[ix].replace(/\/20/,'').replace(/\//, '-'), y: c}))
                 .slice(dataSet.dates.length - 30),
             style: {data: {stroke: colors[ix]}, tickLabels: {angle: 45}},
@@ -63,7 +60,7 @@ export const LineGraph = ({config, id, scale}) => {
     );
     function getPadding(base, perDigit) {
         const maxValue = widgetCountries.reduce((a, c) =>
-            Math.max(a, getCountryData(c)[config.prop].reduce((a, p) =>
+            Math.max(a, getCountryData(c)[dataPoint].reduce((a, p) =>
                 Math.max(a, Math.floor(p)))), 0);
         const maxDigits = numberWithCommas(maxValue).length;
         const padding = base + maxDigits * perDigit;

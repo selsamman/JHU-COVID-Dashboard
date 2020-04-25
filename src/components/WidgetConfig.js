@@ -1,18 +1,18 @@
-import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import {widgetConfig, isWidgetValid} from "../config/widgets";
+import React, {useState} from 'react';
+import {dataSet} from "../data/timeseries";
+import {widgetConfig} from "../config/widgets";
 import {Row, Col, Table} from 'react-bootstrap';
 import {widgetsAPI} from "../capi";
 import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronBarDown, ChevronBarUp, CaretDownFill, CaretUpFill} from "react-bootstrap-icons";
 const debug = true && document.location.origin.match(/localhost/);
 
-export default ({id, children, scale}) => {
-    const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries} = widgetsAPI({id: id});
+export default ({id, children, scale, mode}) => {
+    const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries, widgetProps} = widgetsAPI({id: id});
     const config = widgetConfig[widget.type];
 
     return (
         <>
-            {debug && anyConfiguring && <DebugInfo widget={widget} />}
+            {debug && anyConfiguring && <DebugInfo widget={widget} mode={mode}/>}
             {isConfiguringLayout &&
                 <div style={{backgroundColor: "#f4f4f4", padding: 2 * scale, paddingBottom: 4 * scale,
                     marginBottom: 4 * scale, borderRadius: 4 * scale}}>
@@ -23,7 +23,9 @@ export default ({id, children, scale}) => {
              config.config.map((config, ix) =>
                 <WidgetConfigElement config={config} id={id} key={ix} scale={scale}/>
             )}
-             {widgetCountries.length > 0 && children}
+             {widgetCountries.length > 0 && widgetProps.length > 0 &&
+                children
+             }
         </>
     );
 };
@@ -32,7 +34,7 @@ const WidgetConfigElement = ({id, config, scale}) => {
     const {widget} = widgetsAPI({id: id});
     return (
         <div style={{backgroundColor: "#f4f4f4", padding: 8, marginBottom: 4, borderRadius: 4}}>
-            <config.component {...config.props} widgetConfig={widgetConfig[widget.type]} id={id} scale={scale} />
+            <config.component {...widgetConfig[widget.type]} countries={dataSet.countries} id={id} scale={scale} />
         </div>
     );
 }
@@ -89,12 +91,17 @@ const DataPoint = ({description, data, scale}) => (
         </div>
     </div>
 )
-const DebugInfo = ({widget}) => (
-    <Row style={{padding: 4, fontSize: 12}}>
-        <Col>id: {widget.id}</Col>
-        <Col>row: {widget.row}</Col>
-        <Col>col: {widget.col}</Col>
-        <Col>rows: {widget.rows}</Col>
-        <Col>cols: {widget.cols}</Col>
-    </Row>
-);
+const DebugInfo = ({widget, mode}) => {
+    const [width, setWidth] = useState(-1);
+    return (
+        <Row style={{padding: 4, fontSize: 12}} ref={n=>n && setWidth(n.offsetWidth)} >
+            <Col>id: {widget.id}</Col>
+            <Col>row: {widget.row}</Col>
+            <Col>col: {widget.col}</Col>
+            <Col>rows: {widget.rows}</Col>
+            <Col>cols: {widget.cols}</Col>
+            <Col>width: {width}</Col>
+            <Col>mode: {mode}</Col>
+        </Row>
+    );
+}

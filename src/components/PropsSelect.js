@@ -1,12 +1,11 @@
 import React  from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import {widgetsAPI} from "../capi";
 import {Form, Col} from 'react-bootstrap';
 
-export default ({dataPoints, id, max, scale}) => {
+export default ({dataPoints, id, maxProps, scale}) => {
     const {widget, addPropToWidget, deletePropFromWidget} = widgetsAPI({id: id});
     const onChange = prop => widget.props.includes(prop) ? deletePropFromWidget(prop) : addPropToWidget(prop);
-    const isDisabled = prop => widget.props.length >= max && !widget.props.includes(prop);
+    const isDisabled = prop => widget.props.length >= maxProps && !widget.props.includes(prop);
     return (
         <Form>
             <Form.Row>
