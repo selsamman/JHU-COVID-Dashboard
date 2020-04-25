@@ -1,0 +1,3 @@
+cp ./deploy_uat.yml serverless.yml
+serverless deploy
+rm serverless.yml
