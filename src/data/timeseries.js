@@ -1,5 +1,5 @@
 import bent from 'bent';
-import {manageLocation} from "../config/locationData";
+
 export let dataSet = {
     countries: ["My Country", "My State", "My County"],
     justCountries: ["My Country"],
@@ -9,9 +9,9 @@ export let dataSet = {
 
 export const flu= 168 // Based on mortality rate of the flu;
 export const deathSeverityThresholds = [0, 1, flu / 8, flu / 4, flu];
-export const casesSeverityThresholds = [0, 1, 50, 100, 200];
+export const casesSeverityThresholds = [0, 1, 1000, 2000, 4000];
 let importState = 'none';
-export const importJHUData = async (api) => {
+export const importJHUData = async ({manageStartupSequence}) => {
     let file;
 
     switch (importState) {
@@ -26,7 +26,7 @@ export const importJHUData = async (api) => {
                 return importState
             };
             importState = processJHUFile(file);
-            await manageLocation(api);
+            manageStartupSequence();
             return importState
 
         default:

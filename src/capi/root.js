@@ -1,6 +1,6 @@
 import {initialDashboard, initialWidget} from "./initialState";
 import {save} from "../config/localstorage";
-import {updateLocation} from "../config/locationData";
+import {updateLocation, manageLocation} from "../config/locationData";
 import {dataSet} from "../data/timeseries";
 
 export default {
@@ -71,21 +71,17 @@ export default {
             },
 
         }),
-        setLocationDenied: () => ({
+        setLocationStatus: (status) => ({
             locationStatus: {
-                set: () => "denied"
+                set: () => status
             }
         }),
-        setLocationFetched: () => ({
-            locationStatus: {
-                set: () => "fetched"
+        setStartupSequence: (seq) => ({
+            startupSequence: {
+                set: () => seq
             }
         }),
-        setLocationNeeded: () => ({
-            locationStatus: {
-                set: () => "ask"
-            }
-        }),
+
         setCountrySubstitution: (country, value) => ({
             substitutionCountries: {
                 assign: () => ({[country]: value})
@@ -105,11 +101,11 @@ export default {
         dashboards: state => state.dashboards,
         locationStatus: state => state.locationStatus,
         askForLocation: state => state.locationStatus === "ask",
-        fetchLocation: state => state.locationStatus === "fetch",
         locationInit: state => state.locationStatus === "init",
         dataSet: () => dataSet,
         substitutionCountries: state => state.substitutionCountries,
-
+        startupSequence: state => state.startupSequence,
+        newDashboards: state => state.newDashboards,
     },
     thunks: {
         getCountryData: ({substituteCountry, dataSet}) => (country) => dataSet.country[substituteCountry(country)],
@@ -136,5 +132,50 @@ export default {
         },
         persistState: ({}, state) => () => save(state),
         getLocationData: (api) => async () => await updateLocation(api),
+        manageStartupSequence: (api) => async () => {
+
+            const {doOverlays, locationInit, setLocationNeeded, startupSequence} = api;
+
+            let geo = {
+                long:(new URLSearchParams(document.location.search)).get("long"),
+                lat: (new URLSearchParams(document.location.search)).get("lat")
+            }
+            const init = (new URLSearchParams(document.location.search)).get("init");
+
+            if (geo.lat && geo.long)
+                await updateLocation(api, geo);
+            else if (locationInit) {
+                await (new Promise((r) => setTimeout(r, 5000)));
+                setLocationNeeded(); // Will pickup and do Overlays when location set to fetched or denied
+            } else if (startupSequence === "init" || init === "prompts") {
+                doOverlays();
+            }
+
+        },
+        doOverlays: ({setStartupSequence}) => async () => {
+            const sequence = ["dashboard", "edit"];
+            await (new Promise((r) => setTimeout(r, 2000)));
+            for (let ix = 0; ix < sequence.length; ++ix) {
+                setStartupSequence(sequence[ix]);
+                await (new Promise((r) => setTimeout(r, 4000)));
+            }
+            setStartupSequence("done");
+        },
+        setLocationDenied: ({setLocationStatus, doOverlays}) => () => {
+            setLocationStatus("denied");
+            doOverlays();
+        },
+        setLocationFetched: ({setLocationStatus, doOverlays}) => () => {
+            setLocationStatus("fetched");
+            doOverlays();
+        },
+        setLocationNeeded: ({setLocationStatus}) => () => {
+            setLocationStatus("ask");
+        },
     }
+}
+async function wait(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
 }

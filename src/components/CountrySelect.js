@@ -56,7 +56,7 @@ const SelectedCountry = ({country, onDelete, ix, scale, hasData}) => {
     const color = hasData ? "black" : "#c0c0c0";
     return (
         <Col md={4} xs={4} lg={4} style={{padding: 0, lineHeight: 1.2 * scale}}>
-            <XCircleFill size={11 * scale} color={colors[ix]} onClick={() => onDelete(country)} />
+            <XCircleFill size={11 * scale} color={colors[ix % colors.length]} onClick={() => onDelete(country)} />
             &nbsp;
             <span style={{fontSize: 10 * scale, color: color}}>{country}</span>
         </Col>

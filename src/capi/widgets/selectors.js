@@ -39,12 +39,18 @@ export default {
     ],
     widgetProps: [
         (select, {widget, dataSet}) => select(widget, dataSet),
-        (widget) => !widget ? [] :
-            widgetConfig[widget.type].dataPoint
-                ? widgetConfig[widget.type].dataPoint
-                : widgetConfig[widget.type].dataPoints
-                    ? Object.getOwnPropertyNames(widgetConfig[widget.type].dataPoints).filter(p => widget.props.includes(p))
-                    : []
+        (widget) => {
+            const config = widgetConfig[widget.type]
+            if (!widget)
+                return [];
+            if (config.dataPoint)
+                return config.dataPoint;
+            if (config.dataPoints) {
+                const points = widget.props.filter(p => Object.getOwnPropertyNames(config.dataPoints).includes(p))
+                return points.length > 0 ? points : (config.defaultDataPoint ? [config.defaultDataPoint] : [])
+            }
+            return [];
+        }
     ],
     widgetConfigCountries: [
         (select, {widget, substitutionCountries}) => select(widget, substitutionCountries),
@@ -109,7 +115,7 @@ export default {
                 (w.type === 'Blank' || w.cols > 1) && // Blank or contractable
                 w.row === widget.row &&
                 w.rows === widget.rows &&
-                ((w.col === widget.col + widget.cols) || (w.col + w.cols === widget.col)))
+                ((w.col === widget.col + widget.cols) || (widget.col + widget.cols === 12 && w.col + w.cols === widget.col)))
     ],
     canExpandWidgetWidth: (state, {widgetBlankOrContractableNeighbor}) => !!widgetBlankOrContractableNeighbor
 

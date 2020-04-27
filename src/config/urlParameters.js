@@ -1,6 +1,5 @@
 import {upgrade} from "../capi/initialState";
-let dictionaryHash = {};
-let dictionaryArray = [];
+
 
 export function getURL(state) {
 
@@ -15,7 +14,9 @@ export function getURL(state) {
     const urlSize = url.length;
     const percentOver = Math.ceil((urlSize - 2048) * 100 / 2048);
     if (urlSize > 2048) {
+        console.log(`${urlSize} ${JSON.stringify(state).length} ${url} = ${JSON.stringify(state)}`);
         alert(`This URL is ${percentOver}% too large. Dashboard is too complex`);
+        return null;
     }
     return url;
 }
@@ -29,8 +30,8 @@ export function getDashboardFromURL() {
         if (!(state.widgets instanceof Array))
                 throw ("missing properties")
         else {
-            console.log(JSON.stringify(state))
-            return upgrade(state);
+            console.log("dash=" + JSON.stringify(state))
+            return state;
         }
         return state;
     } catch (e) {
@@ -42,42 +43,49 @@ export function getDashboardFromURL() {
 
 
 export function compressState (state) {
-    const replacedState = JSON.parse(JSON.stringify(state, replacer));
+    let dictionaryHash = {};
+    let dictionaryArray = [];
+    const replacedState = {dict: dictionaryHash, data: JSON.parse(JSON.stringify(state, replacer))};
+    console.log(`${JSON.stringify(replacedState).length}  ${JSON.stringify(replacedState)}`);
     //eslint-disable-next-line
-    return btoa(CJSON.stringify({dict: dictionaryHash, data: replacedState}));
+    return btoa(CJSON.stringify(replacedState));
 
+    function replacer(key, value) {
+        if (typeof value === "string" || typeof value === "number") {
+            let newValue;
+
+            if (typeof dictionaryHash[value] === 'undefined') {
+                newValue = (dictionaryArray.length + 1);
+                dictionaryHash[value] = dictionaryHash[value] || newValue
+                dictionaryArray.push(value);
+            } else
+                newValue = dictionaryHash[value];
+            return newValue;
+        } else
+            return value;
+    }
 }
 export function uncompressState(stateString) {
+
+    let dictionaryArray = [];
     //eslint-disable-next-line
     const uncompressedState = CJSON.parse(atob(stateString));
-    dictionaryArray = [];
+
     Object.getOwnPropertyNames(uncompressedState.dict).map( dict => {
         const key = uncompressedState.dict[dict];
         dictionaryArray[key] = isNaN(dict) ? dict : dict * 1;
     });
     return JSON.parse(JSON.stringify(uncompressedState.data), reviver)
-}
 
-function replacer(key, value) {
-     if (typeof value === "string" || typeof value === "number") {
-        let newValue;
-
-        if (typeof dictionaryHash[value] === 'undefined') {
-            newValue = (dictionaryArray.length + 1);
-            dictionaryHash[value] = dictionaryHash[value] || newValue
-            dictionaryArray.push(value);
-        } else
-            newValue = dictionaryHash[value];
-        return newValue;
-    } else
-        return value;
-}
-function reviver (key, value) {
+    function reviver (key, value) {
         if (typeof value === "number")
             return dictionaryArray[value]
         else
             return value;
+    }
 }
+
+
 
 
     /**

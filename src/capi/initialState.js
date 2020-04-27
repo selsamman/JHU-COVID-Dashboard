@@ -71,34 +71,25 @@ const initialState = {
                 "col": 0,
                 "rows": 1,
                 "cols": 5,
-                "props": []
+                "props": ["mortalitySeverityOverTime"]
             }, {
                 "id": 5,
-                "type": "CasesPerPopulationOverTime",
-                "countries": ["My County", "My Country", "My State", "The Whole World"],
+                "type": "DeathsPerPopulationOverTime",
+                "countries": ["My County", "My State", "United States", "Italy", "Spain", "My Country"],
                 "row": 2,
                 "col": 0,
                 "rows": 1,
-                "cols": 4,
+                "cols": 5,
                 "props": []
             }, {
                 "id": 6,
-                "type": "DeathsPerPopulationOverTime",
+                "type": "WorldMap",
                 "countries": ["My County", "My Country", "My State", "The Whole World"],
                 "row": 2,
-                "col": 4,
+                "col": 5,
                 "rows": 1,
-                "cols": 4,
-                "props": []
-            }, {
-                "id": 7,
-                "type": "NewDeathsPerPopulationOverTime",
-                "countries": ["My County", "My Country", "My State", "The Whole World"],
-                "row": 2,
-                "col": 8,
-                "rows": 1,
-                "cols": 4,
-                "props": []
+                "cols": 7,
+                "props": ["caseSeverityOverTime"]
             }]
         }]
 }

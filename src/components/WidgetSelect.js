@@ -6,18 +6,16 @@ import {Dropdown} from "react-bootstrap";
 export default ({id, scale}) => {
     const {doneEditing, deleteWidget, setLayoutMode} = widgetsAPI({id: id});
         return (
-            <>
+            <div className="WidgetSelector">
                 <SelectType id={id} scale={scale}/>
-            </>
+            </div>
     )
 };
 const SelectType = ({id, scale}) => {
     const {widget, setWidgetData} = widgetsAPI({id: id});
     return (
         <Dropdown size="lg">
-            <Dropdown.Toggle
-                style={{border: 0, backgroundColor: "#e8e8e8", color: "#202020", fontSize: 12 * scale, padding: 4}}
-            >
+            <Dropdown.Toggle variant="secondary" size="sm" style={{fontSize: 14 * scale, padding: 4}}>
                 {widgetConfig[widget.type].name}
             </Dropdown.Toggle>
             <Dropdown.Menu>

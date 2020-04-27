@@ -62,7 +62,7 @@ const WidgetRow = ({row, mode})=> {
                     const WidgetComponent = config.component;
                     return (
                         <Col key={ix}
-                             onClickCapture={()=>{anyConfiguring && editWidget(widget.id)}}
+                             onClick={()=>{anyConfiguring && editWidget(widget.id)}}
                         >
                             <WidgetConfig id={widget.id} mode={mode} scale={mobileScale}>
                                 <WidgetComponent {...config} mode={mode} key={widget.id} id={widget.id} ix={ix}  scale={mobileScale}/>
@@ -85,7 +85,7 @@ const WidgetTableRow = ({row, mode})=> {
                     const WidgetComponent = config.component;
                     return (
                         <td key={ix} rowSpan={widget.rows} colSpan={widget.cols} width={(widget.cols * 100 / 12) + "%"}
-                            onClickCapture={()=>{anyConfiguring && editWidget(widget.id)}}
+                            onClick={()=>{anyConfiguring && editWidget(widget.id)}}
                             style={{borderWidth: anyConfiguring ? 1: 0, borderStyle: "dotted", borderColor:  "#808080"}}
                         >
                             <WidgetConfig id={widget.id} mode={mode} scale={scale(widget)}>

@@ -2,9 +2,8 @@ import React from 'react';
 import {widgetsAPI} from "../capi";
 import {Table} from 'react-bootstrap';
 
-
-export const TableByCountry = ({scale, id, dataPointsDisplay, dataPointsRender}) => {
-    const {widgetCountries, getCountryData, widgetProps} = widgetsAPI({id: id});
+export const TableByCountry = ({scale, id, dataPointsDisplay, dataPointsRender, allCountries}) => {
+    const {widgetCountries, getCountryData, widgetProps, dataSet, widget} = widgetsAPI({id: id});
 
     return (
         <>
@@ -38,8 +37,23 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPointsRender})
         </>
     );
     function getSortedCountries() {
-        return widgetCountries
-            .sort((c1, c2) => adjust(getCountryData(c2)[widgetProps[0]]) - adjust(getCountryData(c1)[widgetProps[0]]))
+        const countries = allCountries
+            ? Object.getOwnPropertyNames(dataSet.country).filter(c => c !== "The Whole World" )
+                .filter(c => {
+                    const data = getCountryData(c);
+                    if (!(widget.allData || (data.deathsPerM > 10 && data.casesPerM > 1000)))
+                        return false;
+                    return widget.includeCounties && data.type === "county" ||
+                           widget.includeStates && data.type === "state" ||
+                           data.type === "country"
+                })
+            : widgetCountries
+        const sortedCountries = countries
+            .sort((c1, c2) => !widget.sortUp
+                ? adjust(getCountryData(c2)[widgetProps[0]]) - adjust(getCountryData(c1)[widgetProps[0]])
+                : adjust(getCountryData(c1)[widgetProps[0]]) - adjust(getCountryData(c2)[widgetProps[0]])
+            )
+        return allCountries ? sortedCountries.slice(0, 10) : sortedCountries;
         function adjust(data) {
             return data.toString().replace(/%/, '');
         }

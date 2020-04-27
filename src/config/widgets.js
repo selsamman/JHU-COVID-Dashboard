@@ -10,22 +10,22 @@ import {casesSeverityThresholds, deathSeverityThresholds, flu} from "../data/tim
 
 
 const dataPoints = {
-    deaths: "Deaths total",
-    cases: "Cases total",
+    deaths: "Total Deaths",
+    cases: "Total Cases",
     deathsPerM: "Deaths per 1M",
     casesPerM: "Cases per 1M",
-    deathTrend: "Deaths trend",
-    caseTrend: "Cases trend",
-
-    //caseMortality: "Deaths per Case",
+    deathTrend: "Deaths Weekly Trend",
+    caseTrend: "Cases Weekly Trend",
+    caseMortality: "Deaths per Case",
 }
 const dataPointsDisplay = {
     deaths: ["Deaths", "Total"],
-    deathsPerM: ["Deaths", "per 1M People"],
+    deathsPerM: ["Deaths", "per million"],
     cases: ["Cases", "Total"],
-    casesPerM: ["Cases", "per 1M People"],
+    casesPerM: ["Cases", "per million"],
     deathTrend: ["Deaths", "weekly trend"],
     caseTrend: ["Cases", "weekly trend"],
+    caseMortality: ["Deaths", "per Case"],
 };
 const dataPointsRender = {
     deaths: numberWithCommas,
@@ -34,6 +34,7 @@ const dataPointsRender = {
     casesPerM: numberWithCommas,
     deathTrend: formatTrend,
     caseTrend: formatTrend,
+    caseMortality: numberAsPercent,
 };
 const severityDataPoints = {
     mortalitySeverity: "Deaths",
@@ -51,15 +52,16 @@ const severityThresholds = {
 export const widgetConfig = {
 
     DataByCountry: TableByCountry("Table - Data by Country"),
+    DataAllCountries: TableAllCountries("Table - All Countries"),
     DataForCountry: DataForCountry("Data Points"),
-    CasesOverTime: LineGraphByCountry( "Total Cases", 'casesOverTime'),
-    DeathsOverTime: LineGraphByCountry("Total Deaths", 'deathsOverTime'),
-    CasesPerPopulationOverTime: LineGraphByCountry( "Total Cases per 1M People", 'casesPerPopulationOverTime'),
-    DeathsPerPopulationOverTime: LineGraphByCountry("Total Deaths per 1M People", 'deathsPerPopulationOverTime'),
-    NewCasesOverTime: LineGraphByCountry( "New Cases",'newCasesOverTime'),
-    NewDeathsOverTime: LineGraphByCountry("New Deaths",'newDeathsOverTime'),
-    NewCasesPerPopulationOverTime: LineGraphByCountry( "New Cases per 1M People",'newCasesPerPopulationOverTime'),
-    NewDeathsPerPopulationOverTime: LineGraphByCountry("New Deaths per 1M People",'newDeathsPerPopulationOverTime'),
+    CasesOverTime: LineGraphByCountry( "Graph - Total Cases ", 'casesOverTime'),
+    DeathsOverTime: LineGraphByCountry("Graph - Total Deaths", 'deathsOverTime'),
+    CasesPerPopulationOverTime: LineGraphByCountry( "Graph - Cases per 1M", 'casesPerPopulationOverTime'),
+    DeathsPerPopulationOverTime: LineGraphByCountry("Graph - Deaths per 1M", 'deathsPerPopulationOverTime'),
+    NewCasesOverTime: LineGraphByCountry( "Graph - New Cases",'newCasesOverTime'),
+    NewDeathsOverTime: LineGraphByCountry("Graph - New Deaths",'newDeathsOverTime'),
+    NewCasesPerPopulationOverTime: LineGraphByCountry( "Graph - New Cases per 1M",'newCasesPerPopulationOverTime'),
+    NewDeathsPerPopulationOverTime: LineGraphByCountry("Graph - New Deaths per 1M",'newDeathsPerPopulationOverTime'),
     Blank: {name: "Blank Space", component: Widgets.BlankWidget, config: [{component: WidgetSelect, props: {}}]},
     WorldMap: WorldMapForCountry("World Map")
 }
@@ -70,6 +72,7 @@ function WorldMapForCountry (name) {
         component: Widgets.WorldMap,
         dataPoints: severityDataPoints,
         dataPointsDisplay: severityDataPoints,
+        defaultDataPoint: "mortalitySeverityOverTime",
         severityThresholds,
         config: [
             {component: WidgetSelect},
@@ -81,11 +84,31 @@ function TableByCountry (name, props)  {
         name: name,
         component: Widgets.TableByCountry,
         maxCountries: 20,
+        allCountries: false,
         maxProps: 4,
         dataPoints, dataPointsDisplay, dataPointsRender,
+        defaultDataPoint: "casesPerM",
+        orderColumns: true,
+        sortDirection: true,
         config: [
             {component: WidgetSelect},
             {component: CountrySelect},
+            {component: PropsSelect}
+        ],
+    }
+}
+function TableAllCountries (name, props)  {
+    return {
+        name: name,
+        component: Widgets.TableByCountry,
+        maxProps: 4,
+        allCountries: true,
+        dataPoints, dataPointsDisplay, dataPointsRender,
+        defaultDataPoint: "casesPerM",
+        orderColumns: true,
+        sortDirection: true,
+        config: [
+            {component: WidgetSelect},
             {component: PropsSelect}
         ],
     }
@@ -96,6 +119,7 @@ function DataForCountry(name, props)  {
         component: Widgets.DataPointsForCountry,
         maxCountries: 6,
         dataPoints, dataPointsDisplay, dataPointsRender,
+        defaultDataPoint: "casesPerM",
         config: [
             {component: WidgetSelect},
             {component: SingleCountrySelect},
@@ -106,7 +130,7 @@ function DataForCountry(name, props)  {
 
 function LineGraphByCountry (name, prop) {
      return {
-        name: name,
+        name: name.replace(/.*- /, ''),
         component: Widgets.LineGraph,
          maxCountries: 6,
          config: [
@@ -123,6 +147,12 @@ export function numberWithCommas(x) {
     if(x.toString().length > 0 && !isNaN (x * 1))
         x = Math.round(x);
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+export function numberAsPercent(x) {
+    if(x.toString().length > 0 && !isNaN (x * 1))
+        x = Math.round(x*10000);
+        x = x / 100;
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "%";
 }
 function formatTrend (x, scale) {
     return (

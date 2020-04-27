@@ -3,34 +3,26 @@ import {widgetsAPI} from "../capi";
 import {VictoryAxis, VictoryChart, VictoryLine, VictoryLegend, VictoryTheme} from 'victory';
 import {colors} from "../config/colors";
 import {BarGraph} from "../widgets/BarGraph";
+import Title from "../components/Title";
+import Countries from "../components/Countries";
 
 export const LineGraph = (props) => {
-    const {id, scale, dataPoint} = props;
-    const {dataSet, isConfiguring, widgetCountries, getCountryData, name} = widgetsAPI({id: id});
+    const {id, scale, dataPoint, name} = props;
+    const {dataSet, widgetCountries, getCountryData} = widgetsAPI({id: id});
 
     if (widgetCountries.length === 1)
         return <BarGraph {...props} />
 
-    const labelProps = {
-        title: name,
-        x: 20, y: 0, rowGutter: -12,
-        style: {labels: {fontSize: 11}, title: {fontSize: 13, fontWeight: "bold"}},
-        padding: {bottom: 20},
-        centerTitle: true,
-        itemsPerRow: 3,
-        data: widgetCountries.map( (c, ix) => ({name: c, symbol: {fill: colors[ix]}})),
-        orientation: "horizontal",
-    };
     const parentProps =  {
         domainPadding: 20,
         theme: VictoryTheme.material,
         padding: {
-            left: getPadding(16, 7) * scale,
-            top:  isConfiguring ? 8 : 60 * scale,
+            left: getPadding(16, 8) * scale,
+            top:  20 * scale,
             right: 4,
             bottom: 40 * scale
         },
-        height: isConfiguring ? 167 * scale: 250 * scale,
+        height: 250 * scale,
         samples: 4,
         interpolation: "natural",
     };
@@ -45,8 +37,9 @@ export const LineGraph = (props) => {
     }
     return (
         <>
+            <Title name={name} scale={scale}  id={id} />
+            <Countries countries={widgetCountries} scale={scale} id={id}/>
             <VictoryChart {...parentProps}>
-                {!isConfiguring && <VictoryLegend {...labelProps} />}
                 <VictoryAxis tickCount={10}
                              dependentAxis style={{tickLabels: {fontSize: 10}}}
                              tickFormat={(t) => numberWithCommas(t)}/>

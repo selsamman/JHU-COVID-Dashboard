@@ -4,7 +4,7 @@ import {widgetConfig} from "../config/widgets";
 import {Row, Col, Table} from 'react-bootstrap';
 import {widgetsAPI} from "../capi";
 import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronBarDown, ChevronBarUp, CaretDownFill, CaretUpFill} from "react-bootstrap-icons";
-const debug = true && document.location.origin.match(/localhost/);
+const debug = false && document.location.origin.match(/localhost/);
 
 export default ({id, children, scale, mode}) => {
     const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries, widgetProps} = widgetsAPI({id: id});
@@ -20,9 +20,12 @@ export default ({id, children, scale, mode}) => {
                 </div>
             }
             {isConfiguringData  &&
-             config.config.map((config, ix) =>
-                <WidgetConfigElement config={config} id={id} key={ix} scale={scale}/>
-            )}
+                <div className="WidgetConfigGroup">
+                    {config.config.map((config, ix) =>
+                        <WidgetConfigElement config={config} id={id} key={ix} scale={scale}/>
+                     )}
+                </div>
+             }
              {widgetCountries.length > 0 && widgetProps.length > 0 &&
                 children
              }
@@ -33,7 +36,7 @@ export default ({id, children, scale, mode}) => {
 const WidgetConfigElement = ({id, config, scale}) => {
     const {widget} = widgetsAPI({id: id});
     return (
-        <div style={{backgroundColor: "#f4f4f4", padding: 8, marginBottom: 4, borderRadius: 4}}>
+        <div  className="WidgetConfigElement">
             <config.component {...widgetConfig[widget.type]} countries={dataSet.countries} id={id} scale={scale} />
         </div>
     );
@@ -73,7 +76,7 @@ const WidgetConfigSize = ({id, scale}) => {
     )
 }
 
-const MoveTool = ({enabled, iconComponent, click, scale}) => {
+export const MoveTool = ({enabled, iconComponent, click, scale}) => {
     const component = {iconComponent};
     return (
         <span>

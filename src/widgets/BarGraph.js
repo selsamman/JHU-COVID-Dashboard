@@ -2,31 +2,22 @@ import React from 'react';
 import {widgetsAPI} from "../capi";
 import {VictoryChart, VictoryBar, VictoryTheme, VictoryLegend, VictoryAxis} from 'victory';
 import {colors} from "../config/colors";
+import Countries from "../components/Countries";
+import Title from "../components/Title";
 
 export const BarGraph = ({dataPoint, id, scale, name}) => {
-    const {dataSet, isConfiguring, widgetCountries, getCountryData} = widgetsAPI({id: id});
+    const {dataSet, widgetCountries, getCountryData, widget} = widgetsAPI({id: id});
     const country = widgetCountries[0];
-    const labelProps = {
-        title: name + " - " + country,
-        x: 20, y: 0, rowGutter: -12,
-        style: {labels: {fontSize: 11}, title: {fontSize: 13, fontWeight: "bold", textAlign: "center"}},
-        padding: {bottom: 0},
-        centerTitle: true,
-        itemsPerRow: 1,
-        data: [],
-        orientation: "horizontal",
-    };
     const parentProps =  {
 
         theme: VictoryTheme.material,
         padding: {
-            left: getPadding(5, 5) * scale,
-            top:  isConfiguring? 8 : 60 * scale,
-            right: 0,
-            bottom: 40 * scale
+            left: getPadding(16, 5) * scale,
+            top:  10 * scale,
+            right: 6,
+            bottom: 25 * scale
         },
-        height: isConfiguring ? 167 * scale: 240 * scale,
-
+        height: 150 * scale,
         samples: 4,
     };
     const childProps = (country) => {
@@ -34,16 +25,17 @@ export const BarGraph = ({dataPoint, id, scale, name}) => {
             data: getCountryData(country)[dataPoint]
                 .map((c, ix) => ({x: dataSet.dates[ix].replace(/\/20/,'').replace(/\//, '-'), y: c}))
                 .slice(dataSet.dates.length - 30),
-            style: {data: {stroke: colors[0]}, tickLabels: {angle: 45}},
-
+            style: {data: {fill: colors[0]}, tickLabels: {angle: 45}},
+            alignment: "start",
             samples: 4,
         }
     }
 
     return (
         <>
+            <Title name={name} scale={scale} id={id}/>
+            <Countries countries={widgetCountries} scale={scale} id={id} />
             <VictoryChart {...parentProps}>
-                {!isConfiguring && <VictoryLegend {...labelProps} />}
                 <VictoryAxis tickCount={10}
                              dependentAxis style={{tickLabels: {fontSize: 10}}}
                              tickFormat={(t) => numberWithCommas(t)}/>

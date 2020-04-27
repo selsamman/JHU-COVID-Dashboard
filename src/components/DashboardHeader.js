@@ -1,7 +1,17 @@
 import {widgetsAPI} from "../capi";
-import {Navbar, Nav, Dropdown, Modal, InputGroup, FormControl, Button, Spinner} from "react-bootstrap";
-import {Check, TextareaT, Grid3x3, Link, PencilSquare, CardList, PlusCircle, Trash} from "react-bootstrap-icons";
-import React, {useState} from "react";
+import {Navbar, Nav, Dropdown, Modal, InputGroup, FormControl, Button, Spinner, Overlay, Popover, Tooltip} from "react-bootstrap";
+import {
+    Check,
+    TextareaT,
+    Grid3x3,
+    Link,
+    PencilSquare,
+    CardList,
+    PlusCircle,
+    Trash,
+    HouseDoor, CaretDown
+} from "react-bootstrap-icons";
+import React, {useState, useRef, useEffect} from "react";
 import {IconWrapperHeader} from "./IconWrapper";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {Typeahead} from "react-bootstrap-typeahead";
@@ -26,6 +36,7 @@ export const DashboardHeader = () => {
             {mode === "link" && <DashboardLinkModal onClose={()=>setMode("none")} />}
             {mode === "create" && <DashboardCreateModal onClose={()=>setMode("none")} />}
             {mode === "remove" && <DashboardRemoveModal onClose={()=>setMode("none")} />}
+            {mode === "rename" && <DashboardRenameModal onClose={()=>setMode("none")} />}
             {mode === "location" && <DashboardAskLocation  ask={askForLocation} onClose={()=>setMode("none")} />}
             {mode === "json" && <ShowDashboardModal onClose={()=>setMode("none")} />}
 
@@ -33,8 +44,8 @@ export const DashboardHeader = () => {
 
                 { !anyConfiguring &&
                     <>
-                        <EditDropdown setMode={setMode}/>
-                        <DashboardDropdown />
+                        <EditDropdown setMode={setMode} />
+                        <DashboardDropdown/>
                     </>
                 }
                 { anyConfiguring &&
@@ -88,8 +99,8 @@ const EditModeNav = ({}) => {
         </Nav>
     );
 }
-const EditDropdown = ({setMode}) => {
-    const {isDashboardCustom, setDataMode, addDashboard, makeDashboardCustom, editWidget, persistState} = widgetsAPI({});
+const EditDropdown = ({setMode, showPopover}) => {
+    const {isDashboardCustom, setDataMode, addDashboard, makeDashboardCustom, editWidget, persistState, startupSequence} = widgetsAPI({});
     const edit = () => {
         if (!isDashboardCustom)
             makeDashboardCustom();
@@ -107,76 +118,128 @@ const EditDropdown = ({setMode}) => {
         setDataMode()
     }
 
+    const triggerRef = useRef(null);
+
     return (
-        <Dropdown id="DashboardDropDownMenu">
-            <Dropdown.Toggle variant="dark"
-                style={{backgroundColor: "transparent", border: "none", padding: 0, color: "transparent"}}
-            >
-                <IconWrapperHeader><PencilSquare size={20} style={{marginTop: -4}}/></IconWrapperHeader>
-            </Dropdown.Toggle>
-            <Dropdown.Menu >
-                <Dropdown.Item onSelect={edit}>
-                    <div className="menuDashboardItemTop">
-                        <CardList size={14} style={{marginTop: -3, marginRight: 4}}/>
-                        Edit Dashboard
-                    </div>
-                    <div className="menuDashboardItemBottom">Change countries and data</div>
-                </Dropdown.Item>
-                <Dropdown.Item onSelect={create}>
-                    <div className="menuDashboardItemTop">
-                        <PlusCircle size={13} style={{marginTop: -3, marginRight: 4}}/>
-                        New Dashboard
-                    </div>
-                    <div className="menuDashboardItemBottom">Create an empty dashboard</div>
-                </Dropdown.Item>
-                {isDashboardCustom &&
-                    <Dropdown.Item onSelect={() => setMode("remove")}>
+        <>
+            <Dropdown id="DashboardDropDownMenu">
+                <Dropdown.Toggle variant="dark" ref={triggerRef}
+                    style={{backgroundColor: "transparent", border: "none", padding: 0, color: "transparent"}}
+                >
+                    <IconWrapperHeader><PencilSquare size={20} style={{marginTop: -4}}/></IconWrapperHeader>
+                </Dropdown.Toggle>
+                <Dropdown.Menu >
+                    <Dropdown.Item onSelect={edit}>
                         <div className="menuDashboardItemTop">
-                            <Trash size={16} style={{marginTop: -4, marginRight: 3}}/>
-                            Remove Dashboard
+                            <CardList size={14} style={{marginTop: -3, marginRight: 4}}/>
+                            Edit Dashboard
                         </div>
-                        <div className="menuDashboardItemBottom">Remove this dashboard from list</div>
+                        <div className="menuDashboardItemBottom">Change countries and data</div>
                     </Dropdown.Item>
-                }
-                {isDashboardCustom &&
-                    <Dropdown.Item onSelect={() => setMode("link")}>
+                    <Dropdown.Item onSelect={create}>
                         <div className="menuDashboardItemTop">
-                            <Link size={16} style={{marginTop: -4, marginRight: 3}}/>
-                            Share Dashboard
+                            <PlusCircle size={13} style={{marginTop: -3, marginRight: 4}}/>
+                            New Dashboard
                         </div>
-                        <div className="menuDashboardItemBottom">Create a link you can share</div>
+                        <div className="menuDashboardItemBottom">Create an empty dashboard</div>
                     </Dropdown.Item>
-                }
-                {document.location.origin.match(/localhost/) &&
-                    <Dropdown.Item onSelect={() => setMode("json")}>
+                    {isDashboardCustom &&
+                        <Dropdown.Item onSelect={() => setMode("rename")}>
+                            <div className="menuDashboardItemTop">
+                                <CaretDown size={16} style={{marginTop: -4, marginRight: 3}}/>
+                                Rename Dashboard
+                            </div>
+                            <div className="menuDashboardItemBottom">Change the name in the dropdown</div>
+                        </Dropdown.Item>
+                    }
+                    {isDashboardCustom &&
+                        <Dropdown.Item onSelect={() => setMode("remove")}>
+                            <div className="menuDashboardItemTop">
+                                <Trash size={16} style={{marginTop: -4, marginRight: 3}}/>
+                                Remove Dashboard
+                            </div>
+                            <div className="menuDashboardItemBottom">Remove this dashboard from list</div>
+                        </Dropdown.Item>
+                    }
+                    {isDashboardCustom &&
+                        <Dropdown.Item onSelect={() => setMode("link")}>
+                            <div className="menuDashboardItemTop">
+                                <Link size={16} style={{marginTop: -4, marginRight: 3}}/>
+                                Share Dashboard
+                            </div>
+                            <div className="menuDashboardItemBottom">Create a link you can share</div>
+                        </Dropdown.Item>
+                    }
+                    {document.location.origin.match(/localhost/) &&
+                        <Dropdown.Item onSelect={() => setMode("json")}>
+                            <div className="menuDashboardItemTop">
+                                <Link size={16} style={{marginTop: -4, marginRight: 3}}/>
+                                Get JSON
+                            </div>
+                            <div className="menuDashboardItemBottom">Get JSON to add to initial state</div>
+                        </Dropdown.Item>
+                    }
+                    <Dropdown.Item onSelect={() => setMode("location")}>
                         <div className="menuDashboardItemTop">
-                            <Link size={16} style={{marginTop: -4, marginRight: 3}}/>
-                            Get JSON
+                            <HouseDoor size={14} style={{marginTop: -3, marginRight: 4}}/>
+                            Change Location
                         </div>
-                        <div className="menuDashboardItemBottom">Get JSON to add to initial state</div>
+                        <div className="menuDashboardItemBottom">Set your country/county</div>
                     </Dropdown.Item>
-                }
-            </Dropdown.Menu>
-        </Dropdown>
+                </Dropdown.Menu>
+            </Dropdown>
+            <Overlay target={triggerRef.current} show={startupSequence === "edit"} placement="right" transition={true}>
+                {(props) => (
+                    <Popover id="popover-basic" {...props}>
+                        <Popover.Title as="h3">Customize Your Dashboard</Popover.Title>
+                        <Popover.Content>
+                            Add countries, change the type of charts or the data points shown
+                        </Popover.Content>
+                    </Popover>
+                )}
+            </Overlay>
+        </>
     );
 }
 const DashboardDropdown = () => {
-    const {dashboards, name, setDashboardByName, persistState} = widgetsAPI({});
+    const {dashboards, name, setDashboardByName, persistState, startupSequence, newDashboards} = widgetsAPI({});
+    const triggerRef = useRef(null);
     return (
-        <Dropdown >
-            <Dropdown.Toggle variant="dark"
-                             style={{backgroundColor: "transparent", border: "none", padding: 0}}
-            >
-                {name}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-                {dashboards.map(d =>
-                    <Dropdown.Item key={d.name} onSelect={() => {setDashboardByName(d.name); persistState()}}>
-                        {d.name}
-                    </Dropdown.Item>
+        <>
+            <Dropdown >
+                <Dropdown.Toggle variant="dark" ref={triggerRef}
+                                 style={{backgroundColor: "transparent", border: "none", padding: 0}}
+                >
+                    {name}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                    {dashboards.map(d =>
+                        <Dropdown.Item key={d.name} onSelect={() => {setDashboardByName(d.name); persistState()}}>
+                            {d.name}
+                        </Dropdown.Item>
+                    )}
+                </Dropdown.Menu>
+            </Dropdown>
+            <Overlay target={triggerRef.current} show={startupSequence === "dashboard"} placement="right" transition={true}>
+                {(props) => (
+                    <Popover id="popover-basic" {...props}>
+                        <Popover.Title as="h3">Dashboard Chooser</Popover.Title>
+                        <Popover.Content>
+                            Select a dashboard here.
+                            {newDashboards &&
+                                <>
+                                    <div style={{marginTop: 6, borderTop: '1px solid "#f0f0f0"'}}>
+                                        <span style={{fontWeight: "bold",}}>You have new dashboards</span><br/>
+                                        Check them out!
+                                    </div>
+
+                                </>
+                            }
+                        </Popover.Content>
+                    </Popover>
                 )}
-            </Dropdown.Menu>
-        </Dropdown>
+            </Overlay>
+        </>
     )
 }
 
