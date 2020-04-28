@@ -1,0 +1,12 @@
+org: # Your Serverless Framework Org
+app: # Your Serverless Framework App
+component: website
+name: landing-page
+stage: dev
+
+inputs:
+  src:
+    src: ../JHU-COVID-Dashboard/src
+    hook: npm run build
+    dist: ../JHU-COVID-Dashboard/build
+  domain: cdash19.com
