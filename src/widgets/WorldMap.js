@@ -6,7 +6,7 @@ import {Col, Row} from "react-bootstrap";
 import {CaretRightFill, PencilSquare} from "react-bootstrap-icons";
 import {IconWrapperHeader} from "../components/IconWrapper";
 import {AnimateRange} from "./AnimateRange";
-import Title from "../components/Title";
+import ChartTitle from "../components/ChartTitle";
 
 const colors = ["#77bd1b", "#c9e034", "#ffeb0a", "#ff8614", "#e81422"];
 const animationTime = 10;
@@ -27,7 +27,7 @@ export const WorldMap = ({id, scale, dataPointsDisplay, severityThresholds, mode
     const dates = dataSet.dates.slice(dataSet.dates.length - dataSet.country["United States"].caseSeverityOverTime.length);
     return (
         <>
-            <Title name={dataPointsDisplay[widgetProps[0]]} id={id} scale={scale} />
+            <ChartTitle name={dataPointsDisplay[widgetProps[0]]} id={id} scale={scale} />
             {!isConfiguring && isAnimated &&
                 <Row>
                     <Col style={{fontSize: 11 * scale, textAlign: "center"}}>

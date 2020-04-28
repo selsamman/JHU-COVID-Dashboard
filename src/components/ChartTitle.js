@@ -10,7 +10,7 @@ export default ({id, scale, name}) => {
             {!isConfiguring &&
                 <Row style={{padding: 0}}>
                     <Col style={{padding: 0, lineHeight: 1.2 * scale, textAlign: "center", marginBottom: 10 * scale}}>
-                        <span style={{fontSize: 15 * scale, color: "black"}}>{name}</span>
+                        <span style={{fontSize: 15 * scale, color: "black"}}>{name.replace(/.*- /, '')}</span>
                     </Col>
                 </Row>
             }

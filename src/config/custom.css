@@ -64,6 +64,11 @@ div.menuDashboardItemBottom {
     background-color: transparent;
     color: #202020
 }
+.btn-secondary.dropdown-toggle, .show>.btn-secondary.dropdown-toggle {
+    border: 0;
+    background-color: transparent;
+    color: #202020
+}
 
 
 

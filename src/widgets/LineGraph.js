@@ -3,7 +3,7 @@ import {widgetsAPI} from "../capi";
 import {VictoryAxis, VictoryChart, VictoryLine, VictoryLegend, VictoryTheme} from 'victory';
 import {colors} from "../config/colors";
 import {BarGraph} from "../widgets/BarGraph";
-import Title from "../components/Title";
+import ChartTitle from "../components/ChartTitle";
 import Countries from "../components/Countries";
 
 export const LineGraph = (props) => {
@@ -18,11 +18,11 @@ export const LineGraph = (props) => {
         theme: VictoryTheme.material,
         padding: {
             left: getPadding(16, 8) * scale,
-            top:  20 * scale,
+            top:  10 * scale,
             right: 4,
-            bottom: 40 * scale
+            bottom: 25 * scale
         },
-        height: 250 * scale,
+        height: 150 * scale,
         samples: 4,
         interpolation: "natural",
     };
@@ -37,7 +37,7 @@ export const LineGraph = (props) => {
     }
     return (
         <>
-            <Title name={name} scale={scale}  id={id} />
+            <ChartTitle name={name} scale={scale}  id={id} />
             <Countries countries={widgetCountries} scale={scale} id={id}/>
             <VictoryChart {...parentProps}>
                 <VictoryAxis tickCount={10}

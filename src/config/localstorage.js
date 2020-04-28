@@ -52,7 +52,7 @@ function updateStockDashboards(state, initialState) {
     initialState.dashboards
         .filter(d => d.dashboardType === "stock")
         .map( initialDashboard => {
-            let existingIx = state.dashboards.findIndex(d => d.name = initialDashboard.name);
+            let existingIx = state.dashboards.findIndex(d => d.name === initialDashboard.name);
             const existingDashboard = state.dashboards[existingIx];
             if (existingDashboard && existingDashboard.dashboardType !== 'stock'){
                 existingDashboard.name += " 1";

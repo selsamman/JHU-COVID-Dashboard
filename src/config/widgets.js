@@ -16,7 +16,11 @@ const dataPoints = {
     casesPerM: "Cases per 1M",
     deathTrend: "Deaths Weekly Trend",
     caseTrend: "Cases Weekly Trend",
+    newCases: "New Cases",
+    newDeaths: "New Deaths",
     caseMortality: "Deaths per Case",
+    newDeathsPerPopulation: "New Deaths per 1M",
+    newCasesPerPopulation: "New Cases per 1M",
 }
 const dataPointsDisplay = {
     deaths: ["Deaths", "Total"],
@@ -26,6 +30,10 @@ const dataPointsDisplay = {
     deathTrend: ["Deaths", "weekly trend"],
     caseTrend: ["Cases", "weekly trend"],
     caseMortality: ["Deaths", "per Case"],
+    newCases: ["Cases", "recently added"],
+    newDeaths: ["Deaths", "recently added"],
+    newDeathsPerPopulation: ["Deaths", "new per 1M"],
+    newCasesPerPopulation: ["Cases", "new per 1M"],
 };
 const dataPointsRender = {
     deaths: numberWithCommas,
@@ -35,6 +43,10 @@ const dataPointsRender = {
     deathTrend: formatTrend,
     caseTrend: formatTrend,
     caseMortality: numberAsPercent,
+    newCases: numberWithCommas,
+    newDeaths: numberWithCommas,
+    newDeathsPerPopulation: numberWithCommas,
+    newCasesPerPopulation: numberWithCommas,
 };
 const severityDataPoints = {
     mortalitySeverity: "Deaths",
@@ -62,6 +74,7 @@ export const widgetConfig = {
     NewDeathsOverTime: LineGraphByCountry("Graph - New Deaths",'newDeathsOverTime'),
     NewCasesPerPopulationOverTime: LineGraphByCountry( "Graph - New Cases per 1M",'newCasesPerPopulationOverTime'),
     NewDeathsPerPopulationOverTime: LineGraphByCountry("Graph - New Deaths per 1M",'newDeathsPerPopulationOverTime'),
+    CaseMortalityOverTime: LineGraphByCountry("Graph - Deaths per Case",'caseMortalityOverTime'),
     Blank: {name: "Blank Space", component: Widgets.BlankWidget, config: [{component: WidgetSelect, props: {}}]},
     WorldMap: WorldMapForCountry("World Map")
 }
@@ -90,6 +103,7 @@ function TableByCountry (name, props)  {
         defaultDataPoint: "casesPerM",
         orderColumns: true,
         sortDirection: true,
+        selectedRow: true,
         config: [
             {component: WidgetSelect},
             {component: CountrySelect},
@@ -107,6 +121,7 @@ function TableAllCountries (name, props)  {
         defaultDataPoint: "casesPerM",
         orderColumns: true,
         sortDirection: true,
+        selectedRow: true,
         config: [
             {component: WidgetSelect},
             {component: PropsSelect}
@@ -118,6 +133,7 @@ function DataForCountry(name, props)  {
         name: name,
         component: Widgets.DataPointsForCountry,
         maxCountries: 6,
+        maxProps: 8,
         dataPoints, dataPointsDisplay, dataPointsRender,
         defaultDataPoint: "casesPerM",
         config: [
@@ -130,7 +146,7 @@ function DataForCountry(name, props)  {
 
 function LineGraphByCountry (name, prop) {
      return {
-        name: name.replace(/.*- /, ''),
+        name: name,
         component: Widgets.LineGraph,
          maxCountries: 6,
          config: [

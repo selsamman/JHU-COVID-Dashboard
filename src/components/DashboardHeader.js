@@ -100,7 +100,9 @@ const EditModeNav = ({}) => {
     );
 }
 const EditDropdown = ({setMode, showPopover}) => {
-    const {isDashboardCustom, setDataMode, addDashboard, makeDashboardCustom, editWidget, persistState, startupSequence} = widgetsAPI({});
+    const [show, setShow] = useState(false);
+    const showRef = useRef(null);
+    const {isDashboardCustom, setDataMode, createDashboard, makeDashboardCustom, editWidget, persistState, startupSequence} = widgetsAPI({});
     const edit = () => {
         if (!isDashboardCustom)
             makeDashboardCustom();
@@ -109,26 +111,28 @@ const EditDropdown = ({setMode, showPopover}) => {
         persistState();
     }
     const create = () => {
-        console.log("creating");
-        addDashboard("My New Dashboard");
+        createDashboard("My COVID Dashboard");
         setMode("create")
-        console.log("editing");
         editWidget();
-        console.log("setting mode");
         setDataMode()
     }
 
     const triggerRef = useRef(null);
-
+    console.log(`show=${show}`);
     return (
         <>
             <Dropdown id="DashboardDropDownMenu">
                 <Dropdown.Toggle variant="dark" ref={triggerRef}
                     style={{backgroundColor: "transparent", border: "none", padding: 0, color: "transparent"}}
+                                 onMouseEnter={(e) => {hover("enter", "toggle")}}
+                                 onMouseLeave={(e) => {hover("leave", "toggle")}}
+                                 open={show}>
                 >
                     <IconWrapperHeader><PencilSquare size={20} style={{marginTop: -4}}/></IconWrapperHeader>
                 </Dropdown.Toggle>
-                <Dropdown.Menu >
+                <Dropdown.Menu show={show}
+                               onMouseEnter={(e) => {hover("enter", "menu")}}
+                               onMouseLeave={(e) => {hover("leave", "menu")}}>
                     <Dropdown.Item onSelect={edit}>
                         <div className="menuDashboardItemTop">
                             <CardList size={14} style={{marginTop: -3, marginRight: 4}}/>
@@ -200,6 +204,21 @@ const EditDropdown = ({setMode, showPopover}) => {
             </Overlay>
         </>
     );
+    function hover(state, obj) {
+        if (state === "enter") {
+            setShow(true);
+            if (obj === "menu" && showRef.current) {
+                clearTimeout(showRef.current);
+                showRef.current = undefined;
+            }
+        } else if (state === "leave") {
+            if (obj === "menu") {
+                setShow(false)
+            } else {
+                showRef.current = setTimeout(() => setShow(false) || console.log("timeout fired"), 2000) ;
+            }
+        }
+    }
 }
 const DashboardDropdown = () => {
     const {dashboards, name, setDashboardByName, persistState, startupSequence, newDashboards} = widgetsAPI({});
@@ -361,11 +380,11 @@ const DashboardCreateModal = ({onClose}) => {
             <Modal.Body>
                 {mode === 'init' &&
                 <React.Fragment>
-                    <p>
+                    <div>
                         You have a new dashboard!<br/>
                         You can edit it and can add widgets.
-                    </p>
-                    <p style={{textAlign: "center"}}>
+                    </div>
+                    <div style={{textAlign: "center"}}>
                         <br/>
                         Give it a name if you like
                         <InputGroup className="mb-3">
@@ -379,11 +398,11 @@ const DashboardCreateModal = ({onClose}) => {
                                          onBlur={persistState}
                             />
                         </InputGroup>
-                    </p>
-                    <p style={{textAlign: "center"}}>
+                    </div>
+                    <div style={{textAlign: "center"}}>
                         <br />
                         <Button variant="info" onClick={done}>Done</Button>
-                    </p>
+                    </div>
                 </React.Fragment>
                 }
                 {mode === 'done' &&

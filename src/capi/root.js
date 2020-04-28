@@ -2,6 +2,7 @@ import {initialDashboard, initialWidget} from "./initialState";
 import {save} from "../config/localstorage";
 import {updateLocation, manageLocation} from "../config/locationData";
 import {dataSet} from "../data/timeseries";
+import {widgetsAPI} from "./index";
 
 export default {
     redactions: {
@@ -44,7 +45,7 @@ export default {
         }),
         addDashboard: (name, dashboardTemplate) => ({
             dashboards: {
-                append: () => dashboardTemplate ? {
+                append: () => ({
                     ...dashboardTemplate,
                     widgets: dashboardTemplate.widgets.map(widget => ({
                         ...widget,
@@ -52,7 +53,7 @@ export default {
                         countries: widget.countries.slice(0)
                     })),
                     name: name,
-                } : initialDashboard
+                })
             },
             currentDashboardIx: {
                 set: (state) => state.dashboards.length,
@@ -61,15 +62,29 @@ export default {
                 set: () => name,
             },
             widgetBeingConfiguredId: {
-                set: () => dashboardTemplate ? dashboardTemplate.widgets[0].id : initialDashboard.widgets[0].id
+                set: () => dashboardTemplate.widgets[0].id
             }
         }),
         deleteDashboard: (deleteIx) => ({
             dashboards: {
-                where: (state, item, ix) => ix === deleteIx,
+                where: (state, item, ix) => {
+                    console.log(`deleting ${deleteIx} found ${ix}`);
+                    return ix === deleteIx
+                },
                 delete: true
             },
-
+        }),
+        setDashboardData: (data) => ({
+            dashboards: {
+                where: (state, item, ix) => ix === state.currentDashboardIx,
+                assign: () => data
+            }
+        }),
+        setDashboardSelectedLocation: (location) => ({
+            dashboards: {
+                where: (state, item, ix) => ix === state.currentDashboardIx,
+                assign: () => ({selectedLocation: location})
+            }
         }),
         setLocationStatus: (status) => ({
             locationStatus: {
@@ -106,13 +121,26 @@ export default {
         substitutionCountries: state => state.substitutionCountries,
         startupSequence: state => state.startupSequence,
         newDashboards: state => state.newDashboards,
+        dashboardSelectedLocation: (state, {dashboard}) => dashboard.selectedLocation,
+        currentDashboardIx: state => state.currentDashboardIx,
     },
     thunks: {
-        getCountryData: ({substituteCountry, dataSet}) => (country) => dataSet.country[substituteCountry(country)],
+        getCountryData: ({substituteCountry, dataSet, dashboard}) => (country) => (
+            country === "Selected Location"
+                    ? dataSet.country[dashboard.selectedLocation || "United States"]
+                    : dataSet.country[substituteCountry(country)]
+        ),
         substituteCountry: ({substitutionCountries}) => (country) => substitutionCountries[country] || country,
-        makeDashboardCustom: ({name, dashboards, dashboard, addDashboard, setDashboardByName, setCustom}) => () => {
-
-            let newName = "My " + name;
+        makeDashboardCustom: ({name, dashboard, addDashboard, setDashboardByName, setCustom, adjustDashboardName}) => () => {
+            let newName = adjustDashboardName("My " + name);
+            addDashboard(newName, dashboard);
+            setDashboardByName(newName);
+            setCustom();
+        },
+        createDashboard: ({addDashboard, adjustDashboardName}) => name => {
+            addDashboard(adjustDashboardName(name), initialDashboard);
+        },
+        adjustDashboardName: ({dashboards}) => (newName) => {
             while(dashboards.find(d => d.name === newName)) {
                 const match = newName.match(/\d+$/)
                 if (match)
@@ -120,14 +148,12 @@ export default {
                 else
                     newName += " 1";
             }
-            addDashboard(newName, dashboard);
-            setDashboardByName(newName);
-            setCustom();
+            return newName;
         },
         removeDashboard: ({currentDashboardIx, deleteDashboard, setDashboardByIx, isDashboardCustom}) => () => {
             if (isDashboardCustom) {
+                setDashboardByIx(0);
                 deleteDashboard(currentDashboardIx);
-                setDashboardByIx(0)
             }
         },
         persistState: ({}, state) => () => save(state),

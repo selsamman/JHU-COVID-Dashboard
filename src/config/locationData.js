@@ -122,4 +122,6 @@ function adjustDataSetForLocation(location, api) {
     else
         setCountrySubstitution("My Country", "United States");
 
+    setCountrySubstitution("Selected Location", dataSet.country["My Country"]);
+
 }

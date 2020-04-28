@@ -1,14 +1,16 @@
 import React  from 'react';
 import {widgetsAPI} from "../capi";
-import {Form, Col, InputGroup, FormControl} from 'react-bootstrap';
+import {Form, Col, InputGroup, FormControl, Dropdown} from 'react-bootstrap';
 import {IconWrapperToolbar} from "./IconWrapper";
 import {CaretLeftFill, CaretRightFill} from "react-bootstrap-icons";
 import {MoveTool} from "./WidgetConfig";
+import {widgetConfig, widgetNames} from "../config/widgets";
 
 export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, dataPointsDisplay}) => {
     const {widget, addPropToWidget, deletePropFromWidget, widgetProps, setWidgetData} = widgetsAPI({id: id});
+    console.log(widget.props);
     const onChange = prop => widget.props.includes(prop) ? deletePropFromWidget(prop) : addPropToWidget(prop);
-    const isDisabled = prop => widget.props.length >= maxProps && !widget.props.includes(prop);
+    const isDisabled = prop => widgetProps.length >= maxProps && !widget.props.includes(prop);
     return (
         <Form>
             <Form.Row>
@@ -40,7 +42,7 @@ export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, d
                             <Form.Check
                                 style={{fontSize: 11 * scale}}
                                 onChange={()=>{setWidgetData({sortUp :!widget.sortUp})}}
-                                label="Lowest First"
+                                label="Ascending"
                                 checked={widget.sortUp}
                             />
                         </Form.Group>
@@ -50,7 +52,7 @@ export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, d
                             <Form.Check
                                 style={{fontSize: 11 * scale}}
                                 onChange={()=>{setWidgetData({allData: !widget.allData})}}
-                                label="Case/Death Threshold"
+                                label="Threshold"
                                 checked={!widget.allData}
                             />
                         </Form.Group>
@@ -60,7 +62,7 @@ export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, d
                             <Form.Check
                                 style={{fontSize: 11 * scale}}
                                 onChange={()=>{setWidgetData({includeCounties: !widget.includeCounties})}}
-                                label="Include Counties"
+                                label="Counties"
                                 checked={widget.includeCounties}
                             />
                         </Form.Group>
@@ -70,11 +72,37 @@ export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, d
                             <Form.Check
                                 style={{fontSize: 11 * scale}}
                                 onChange={()=>{setWidgetData({includeStates: !widget.includeStates})}}
-                                label="Include States"
+                                label="States"
                                 checked={widget.includeStates}
                             />
                         </Form.Group>
-                        }
+                     }
+                    {allCountries &&
+                        <Form.Group as={Col}>
+                            <Form.Check
+                                style={{fontSize: 11 * scale}}
+                                onChange={()=>{setWidgetData({selectCountry: !widget.selectCountry})}}
+                                label="Select"
+                                checked={widget.selectCountry}
+                            />
+                        </Form.Group>
+                    }
+                    {allCountries &&
+                        <Form.Group as={Col}>
+                            <Dropdown size="sm">
+                                <Dropdown.Toggle variant="secondary" size="sm" style={{fontSize: 11 * scale, padding: 4}}>
+                                    show {widget.displayCount || 5}
+                                </Dropdown.Toggle>
+                                <Dropdown.Menu>
+                                    {[5, 10, 15, 20, 25, 30, 40, 50].map(count =>
+                                        <Dropdown.Item onSelect={() => {setWidgetData({displayCount:count})}} key={count}>
+                                            show {count}
+                                        </Dropdown.Item>
+                                    )}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        </Form.Group>
+                    }
                 </Form.Row>
             }
         </Form>

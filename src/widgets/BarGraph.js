@@ -3,7 +3,7 @@ import {widgetsAPI} from "../capi";
 import {VictoryChart, VictoryBar, VictoryTheme, VictoryLegend, VictoryAxis} from 'victory';
 import {colors} from "../config/colors";
 import Countries from "../components/Countries";
-import Title from "../components/Title";
+import ChartTitle from "../components/ChartTitle";
 
 export const BarGraph = ({dataPoint, id, scale, name}) => {
     const {dataSet, widgetCountries, getCountryData, widget} = widgetsAPI({id: id});
@@ -33,7 +33,7 @@ export const BarGraph = ({dataPoint, id, scale, name}) => {
 
     return (
         <>
-            <Title name={name} scale={scale} id={id}/>
+            <ChartTitle name={name} scale={scale} id={id}/>
             <Countries countries={widgetCountries} scale={scale} id={id} />
             <VictoryChart {...parentProps}>
                 <VictoryAxis tickCount={10}

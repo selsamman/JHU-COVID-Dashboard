@@ -1,7 +1,7 @@
 import bent from 'bent';
 
 export let dataSet = {
-    countries: ["My Country", "My State", "My County"],
+    countries: ["My Country", "My State", "My County", "Selected Location"],
     justCountries: ["My Country"],
     justCounties: [ "My County"],
     justStates: ["My State"],
@@ -9,7 +9,7 @@ export let dataSet = {
 
 export const flu= 168 // Based on mortality rate of the flu;
 export const deathSeverityThresholds = [0, 1, flu / 8, flu / 4, flu];
-export const casesSeverityThresholds = [0, 1, 1000, 2000, 4000];
+export const casesSeverityThresholds = [0, 50, 1000, 2000, 4000];
 let importState = 'none';
 export const importJHUData = async ({manageStartupSequence}) => {
     let file;
@@ -119,7 +119,8 @@ function processJHUCountries (dataSet) {
         const caseSeveritySeries = casePerPopulationSeries.map(deathsPerM => (
             casesSeverityThresholds.reduce((accum, threshold, ix) => (
                 deathsPerM >= threshold ? ix : accum), 0)));
-        const caseSeverity = caseSeveritySeries[caseSeveritySeries.length - 1]
+        const caseSeverity = caseSeveritySeries[caseSeveritySeries.length - 1];
+        const caseMortalitySeries = country.deaths.map((d, ix) => d && country.cases[ix] ? d / country.cases[ix] : "");
 
             dataSet.country[countryName] = {
             name: countryName,
@@ -133,8 +134,11 @@ function processJHUCountries (dataSet) {
             casesPerM,
             caseTrend, deathTrend,
             caseMortality: deaths / cases,
+            caseMortalityOverTime: caseMortalitySeries,
             newDeaths: newDeathSeries[newDeathSeries.length - 1],
-            newCases: newDeathSeries[newDeathSeries.length - 1],
+            newCases: newCaseSeries[newDeathSeries.length - 1],
+            newDeathsPerPopulation: newDeathSeries[newDeathSeries.length - 1] * 1000000 / country.population,
+            newCasesPerPopulation: newDeathSeries[newDeathSeries.length - 1] * 1000000 / country.population,
             casesOverTime: country.cases,
             deathsOverTime: country.deaths,
             newCasesOverTime: newCaseSeries,

@@ -1,12 +1,15 @@
 import React from 'react';
 import {widgetsAPI} from "../capi";
-import {Table} from 'react-bootstrap';
+import {Col, Form, Table} from 'react-bootstrap';
+import ChartTitle from "../components/ChartTitle";
 
-export const TableByCountry = ({scale, id, dataPointsDisplay, dataPointsRender, allCountries}) => {
-    const {widgetCountries, getCountryData, widgetProps, dataSet, widget} = widgetsAPI({id: id});
-
+export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPointsRender, allCountries}) => {
+    const {widgetCountries, getCountryData, widgetProps, dataSet, widget,
+           dashboardSelectedLocation, setDashboardSelectedLocation} = widgetsAPI({id: id});
+    const title = (allCountries ? `Top ${widget.displayCount || 5} ` : '') + dataPoints[widgetProps[0]]
     return (
         <>
+            <ChartTitle name={title} scale={scale}  id={id} />
             <Table  striped bordered hover size="sm" responsive="sm">
                 <thead>
                     <tr>
@@ -21,10 +24,20 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPointsRender, 
                     </tr>
                 </thead>
                 <tbody>
-                    {getSortedCountries()
-                        .map( country => (
+                    {getSortedCountries().map( country => (
                         <tr key={country}>
-                            <td style={{fontSize: 12 * scale}}>{country}</td>
+                            <td style={{fontSize: 12 * scale}}>
+                                {widget.selectCountry &&
+                                    <Form.Check type="radio"
+                                        onChange={()=>{setDashboardSelectedLocation(country)}}
+                                        label={country}
+                                        checked={dashboardSelectedLocation === country}
+                                    />
+                                }
+                                {!widget.selectCountry &&
+                                    <span>{country}</span>
+                                }
+                            </td>
                             {widgetProps.map(prop => (
                                     <td key={prop} style={{fontSize: 12 * scale, textAlign: 'right'}}>
                                         {dataPointsRender[prop](getCountryData(country)[prop])}
@@ -53,7 +66,7 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPointsRender, 
                 ? adjust(getCountryData(c2)[widgetProps[0]]) - adjust(getCountryData(c1)[widgetProps[0]])
                 : adjust(getCountryData(c1)[widgetProps[0]]) - adjust(getCountryData(c2)[widgetProps[0]])
             )
-        return allCountries ? sortedCountries.slice(0, 10) : sortedCountries;
+        return allCountries ? sortedCountries.slice(0, widget.displayCount || 5) : sortedCountries;
         function adjust(data) {
             return data.toString().replace(/%/, '');
         }

@@ -10,6 +10,8 @@ export default {
         (select, {widgets}) => select(widgets),
         (widgets) => {
             const matrix = [];
+            if (!widgets)
+                return [];
             widgets.map( w => {
                 matrix[w.row] = matrix[w.row] || [];
                 matrix[w.row][w.col] = w;
@@ -30,19 +32,24 @@ export default {
     widgetCols: (state, {widgetMatrix, row}) => widgetMatrix[row],
     widget: [
         (select, {widgets, id}) => select(widgets, id),
-        (widgets, id) => widgets.find(w => (w.id === id))
+        (widgets, id) => widgets ? widgets.find(w => (w.id === id)) : undefined
     ],
     widgetCountries: [
-        (select, {widget, substitutionCountries, dataSet}) => select(widget, substitutionCountries, dataSet),
-        (widget, substitutionCountries, dataSet) => !widget ? [] :
-            [...new Set(widget.countries.map( c => substitutionCountries[c] || c).filter( c => !!dataSet.country[c] ))]
+        (select, {widget, substitutionCountries, dataSet, dashboardSelectedLocation}) =>
+            select(widget, substitutionCountries, dataSet, dashboardSelectedLocation),
+        (widget, substitutionCountries, dataSet, dashboardSelectedLocation) => !widget ? [] :
+            [...new Set(widget.countries
+                .map( c => (c === "Selected Location"
+                    ? dashboardSelectedLocation || "United States" : substitutionCountries[c] || c))
+                .filter( c => !!dataSet.country[c] ))].sort()
+
     ],
     widgetProps: [
         (select, {widget, dataSet}) => select(widget, dataSet),
         (widget) => {
-            const config = widgetConfig[widget.type]
             if (!widget)
                 return [];
+            const config = widgetConfig[widget.type]
             if (config.dataPoint)
                 return config.dataPoint;
             if (config.dataPoints) {
