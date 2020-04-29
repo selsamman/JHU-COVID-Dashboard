@@ -3,24 +3,11 @@ import bent from "bent";
 export let error = {code: 0};
 export async function manageLocation (api) {
 
-    const {fetchLocation, locationInit, setLocationNeeded, cunt} = api;
-    const hasLongLat = (new URLSearchParams(document.location.search)).get("long") &&
-                        (new URLSearchParams(document.location.search)).get("lat")
-    if (fetchLocation || hasLongLat)
-        await updateLocation(api);
-    else if (locationInit) {
-        console.log("Will ask for location in 5 seconds");
-        setTimeout(() => {
-
-            setLocationNeeded();
-            console.log("Asking for location now");
-        }, 5000)
-    }
 
 }
-export async function updateLocation(api) {
+export async function updateLocation(api, geo) {
     const {setLocationDenied, setLocationFetched, substituteCountry, persistState} = api;
-    const rawLocation = await getLocationData();
+    const rawLocation = await getLocationData(geo);
     if (rawLocation) {
         console.log(JSON.stringify(rawLocation))
         const location = {
@@ -40,14 +27,11 @@ export async function updateLocation(api) {
         persistState();
         return false;
     }
-    async function getLocationData() {
+    async function getLocationData(geo) {
+        geo = geo || {};
         const locationTimeoutMs = 20000;
         error.code = -1;
-        let geo = {
-            long:(new URLSearchParams(document.location.search)).get("long"),
-            lat: (new URLSearchParams(document.location.search)).get("lat")
-        }
-        if ((!geo.lat || !geo.long))
+        if (!geo.lat || !geo.long)
             if (navigator.geolocation) {
                 console.log("navigator.geolocation.getCurrentPosition()");
                 let timeoutId;
@@ -137,5 +121,7 @@ function adjustDataSetForLocation(location, api) {
         setCountrySubstitution("My Country", location.country);
     else
         setCountrySubstitution("My Country", "United States");
+
+    setCountrySubstitution("Selected Location", dataSet.country["My Country"]);
 
 }

@@ -19,15 +19,15 @@ export const IconWrapperHeader = (props) =>
                         </Tooltip>
                     }
                 >
-                <span className="COVID_Icon_Wrapper_Header" >
-                    {React.cloneElement(props.children, { color: "white"})}
+                <span className="COVID_Icon_Wrapper_Header"  style={{cursor: "pointer"}}>
+                    {React.cloneElement(props.children, { color: props.color || "white"})}
                 </span>
                 </OverlayTrigger>{' '}
             </>
         }
         {!props.tooltip &&
             <span className="COVID_Icon_Wrapper_Header" style={{cursor: "pointer"}}>
-                {React.cloneElement(props.children, { color: "white"})}
+                {React.cloneElement(props.children, { color: props.color || "white"})}
             </span>
         }
     </>

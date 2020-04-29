@@ -1,7 +1,8 @@
 import {initialDashboard, initialWidget} from "./initialState";
 import {save} from "../config/localstorage";
-import {updateLocation} from "../config/locationData";
+import {updateLocation, manageLocation} from "../config/locationData";
 import {dataSet} from "../data/timeseries";
+import {widgetsAPI} from "./index";
 
 export default {
     redactions: {
@@ -44,7 +45,7 @@ export default {
         }),
         addDashboard: (name, dashboardTemplate) => ({
             dashboards: {
-                append: () => dashboardTemplate ? {
+                append: () => ({
                     ...dashboardTemplate,
                     widgets: dashboardTemplate.widgets.map(widget => ({
                         ...widget,
@@ -52,40 +53,50 @@ export default {
                         countries: widget.countries.slice(0)
                     })),
                     name: name,
-                } : initialDashboard
+                })
             },
             currentDashboardIx: {
                 set: (state) => state.dashboards.length,
             },
             currentDashboardName: {
                 set: () => name,
+            },
+            widgetBeingConfiguredId: {
+                set: () => dashboardTemplate.widgets[0].id
             }
         }),
         deleteDashboard: (deleteIx) => ({
             dashboards: {
-                where: (state, item, ix) => ix === deleteIx,
+                where: (state, item, ix) => (ix === deleteIx),
                 delete: true
             },
+        }),
+        setDashboardData: (data) => ({
+            dashboards: {
+                where: (state, item, ix) => ix === state.currentDashboardIx,
+                assign: () => data
+            }
+        }),
+        setDashboardSelectedLocation: (location) => ({
+            dashboards: {
+                where: (state, item, ix) => ix === state.currentDashboardIx,
+                assign: () => ({selectedLocation: location})
+            }
+        }),
+        setLocationStatus: (status) => ({
+            locationStatus: {
+                set: () => status
+            }
+        }),
+        setStartupSequence: (seq) => ({
+            startupSequence: {
+                set: () => seq
+            }
+        }),
 
-        }),
-        setLocationDenied: () => ({
-            locationStatus: {
-                set: () => "denied"
-            }
-        }),
-        setLocationFetched: () => ({
-            locationStatus: {
-                set: () => "fetched"
-            }
-        }),
-        setLocationNeeded: () => ({
-            locationStatus: {
-                set: () => "ask"
-            }
-        }),
         setCountrySubstitution: (country, value) => ({
             substitutionCountries: {
-                assign: (substitutionCountries) => ({substitutionCountries, ...{[country]: value}})
+                assign: () => ({[country]: value})
             }
         })
     },
@@ -102,52 +113,92 @@ export default {
         dashboards: state => state.dashboards,
         locationStatus: state => state.locationStatus,
         askForLocation: state => state.locationStatus === "ask",
-        fetchLocation: state => state.locationStatus === "fetch",
         locationInit: state => state.locationStatus === "init",
         dataSet: () => dataSet,
         substitutionCountries: state => state.substitutionCountries,
-        widgetCountries: [
-            (select, {widget, substitutionCountries, dataSet}) => select(widget, substitutionCountries, dataSet),
-            (widget, substitutionCountries, dataSet) =>
-                [...new Set(widget.countries.map( c => substitutionCountries[c] || c).filter( c => !!dataSet.country[c] ))]
-        ],
-        widgetConfigCountries: [
-            (select, {widget, substitutionCountries}) => select(widget, substitutionCountries),
-            (widget, substitutionCountries) => widget.countries
-        ],
-        widgetData: [
-            (select, {dataSet, widgetCountries}) => (dataSet, widgetCountries),
-            (dataSet, widgetCountries) => widgetCountries.map(c => dataSet.country[c])
-        ],
-        widgetDataSingle: [
-            (select, {dataSet, widgetCountries}) => (dataSet, widgetCountries),
-            (dataSet, widgetCountries) => dataSet.country[widgetCountries[0]]
-        ]
+        startupSequence: state => state.startupSequence,
+        newDashboards: state => state.newDashboards,
+        dashboardSelectedLocation: (state, {dashboard}) => dashboard.selectedLocation,
+        currentDashboardIx: state => state.currentDashboardIx,
     },
     thunks: {
-        getCountryData: ({substituteCountry, dataSet}) => (country) => dataSet.country[substituteCountry(country)],
+        getCountryData: ({substituteCountry, dataSet, dashboard}) => (country) => (
+            country === "Selected Location"
+                    ? dataSet.country[dashboard.selectedLocation || "United States"]
+                    : dataSet.country[substituteCountry(country)]
+        ),
         substituteCountry: ({substitutionCountries}) => (country) => substitutionCountries[country] || country,
-        makeDashboardCustom: ({name, dashboards, dashboard, addDashboard, setDashboardByName, setCustom}) => () => {
-
-            let newName = "My " + name;
-            while(dashboards.find(d => d.name === newName)) {
-                const match = newName.match(/\d+$/)
-                if (match)
-                    newName.replace(/\d+$/, (value) => value * 1 + 1)
-                else
-                    newName += " 1";
-            }
+        makeDashboardCustom: ({name, dashboard, addDashboard, setDashboardByName, setCustom, adjustDashboardName}) => () => {
+            let newName = adjustDashboardName("My " + name);
             addDashboard(newName, dashboard);
             setDashboardByName(newName);
             setCustom();
         },
+        createDashboard: ({addDashboard, adjustDashboardName}) => name => {
+            addDashboard(adjustDashboardName(name), initialDashboard);
+        },
+        adjustDashboardName: ({dashboards}) => (newName) => {
+            while(dashboards.find(d => d.name === newName)) {
+                const match = newName.match(/\d+$/)
+                if (match)
+                    newName = newName.replace(/\d+$/, (value) => value * 1 + 1)
+                else
+                    newName += " 1";
+            }
+            return newName;
+        },
         removeDashboard: ({currentDashboardIx, deleteDashboard, setDashboardByIx, isDashboardCustom}) => () => {
             if (isDashboardCustom) {
+                setDashboardByIx(0);
                 deleteDashboard(currentDashboardIx);
-                setDashboardByIx(0)
             }
         },
         persistState: ({}, state) => () => save(state),
         getLocationData: (api) => async () => await updateLocation(api),
+        manageStartupSequence: (api) => async () => {
+
+            const {doOverlays, locationInit, setLocationNeeded, startupSequence} = api;
+
+            let geo = {
+                long:(new URLSearchParams(document.location.search)).get("long"),
+                lat: (new URLSearchParams(document.location.search)).get("lat")
+            }
+            const init = (new URLSearchParams(document.location.search)).get("init");
+
+            if (geo.lat && geo.long)
+                await updateLocation(api, geo);
+            else if (locationInit) {
+                await (new Promise((r) => setTimeout(r, 5000)));
+                setLocationNeeded(); // Will pickup and do Overlays when location set to fetched or denied
+            } else if (startupSequence === "init" || init === "prompts") {
+                doOverlays();
+            }
+
+        },
+        doOverlays: ({setStartupSequence}) => async () => {
+            const sequence = ["dashboard", "edit"];
+            await (new Promise((r) => setTimeout(r, 2000)));
+            for (let ix = 0; ix < sequence.length; ++ix) {
+                setStartupSequence(sequence[ix]);
+                await (new Promise((r) => setTimeout(r, 4000)));
+            }
+            setStartupSequence("done");
+        },
+        setLocationDenied: ({setLocationStatus, doOverlays}) => () => {
+            setLocationStatus("denied");
+            doOverlays();
+        },
+        setLocationFetched: ({setLocationStatus, doOverlays}) => () => {
+            setLocationStatus("fetched");
+            doOverlays();
+        },
+        setLocationNeeded: ({setLocationStatus}) => () => {
+            setLocationStatus("ask");
+        },
     }
+}
+async function wait(ms) {
+    return new Promise(resolve => {
+        setTimeout(resolve, ms);
+    });
 }

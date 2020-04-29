@@ -1,15 +1,17 @@
-import populationByCountry from "./population";
 import bent from 'bent';
-import {widgetsAPI} from "../capi";
-import {manageLocation} from "../config/locationData";
+
 export let dataSet = {
-    countries: ["My Country", "My State", "My County"],
+    countries: ["My Country", "My State", "My County", "Selected Location"],
     justCountries: ["My Country"],
     justCounties: [ "My County"],
     justStates: ["My State"],
 }
+
+export const flu= 168 // Based on mortality rate of the flu;
+export const deathSeverityThresholds = [0, 1, flu / 8, flu / 4, flu];
+export const casesSeverityThresholds = [0, 50, 1000, 2000, 4000];
 let importState = 'none';
-export const importJHUData = async (api) => {
+export const importJHUData = async ({manageStartupSequence}) => {
     let file;
 
     switch (importState) {
@@ -24,7 +26,7 @@ export const importJHUData = async (api) => {
                 return importState
             };
             importState = processJHUFile(file);
-            await manageLocation(api);
+            manageStartupSequence();
             return importState
 
         default:
@@ -106,14 +108,37 @@ function processJHUCountries (dataSet) {
         last3 =  newDeathSeries.reduce((a,v,x)=>x >= lastFirst && x <= lastLast ? a + v : a);
         const deathTrend = prior3 ? Math.round((last3 - prior3) * 100 / prior3) + "%" : '';
 
-        dataSet.country[countryName] = {
+        const deathsPerM = deaths * 1000000 / country.population;
+        const casesPerM =  cases * 1000000 / country.population;
+
+        const mortalitySeveritySeries = deathPerPopulationSeries.map(deathsPerM => (
+        deathSeverityThresholds.reduce((accum, threshold, ix) => (
+            deathsPerM >= threshold ? ix : accum), 0)));
+        const mortalitySeverity = mortalitySeveritySeries[mortalitySeveritySeries.length - 1];
+
+        const caseSeveritySeries = casePerPopulationSeries.map(deathsPerM => (
+            casesSeverityThresholds.reduce((accum, threshold, ix) => (
+                deathsPerM >= threshold ? ix : accum), 0)));
+        const caseSeverity = caseSeveritySeries[caseSeveritySeries.length - 1];
+        const caseMortalitySeries = country.deaths.map((d, ix) => d && country.cases[ix] ? d / country.cases[ix] : "");
+
+            dataSet.country[countryName] = {
             name: countryName,
             type: country.type,
+            code: country.code,
             deaths, cases,
-            deathsPerM: deaths * 1000000 / country.population,
-            casesPerM: cases * 1000000 / country.population,
+            mortalitySeverity, caseSeverity,
+            mortalitySeverityOverTime: mortalitySeveritySeries,
+            caseSeverityOverTime: caseSeveritySeries,
+            deathsPerM,
+            casesPerM,
             caseTrend, deathTrend,
-            caseMortality: deaths / country.cases,
+            caseMortality: deaths / cases,
+            caseMortalityOverTime: caseMortalitySeries,
+            newDeaths: newDeathSeries[newDeathSeries.length - 1],
+            newCases: newCaseSeries[newDeathSeries.length - 1],
+            newDeathsPerPopulation: newDeathSeries[newDeathSeries.length - 1] * 1000000 / country.population,
+            newCasesPerPopulation: newDeathSeries[newDeathSeries.length - 1] * 1000000 / country.population,
             casesOverTime: country.cases,
             deathsOverTime: country.deaths,
             newCasesOverTime: newCaseSeries,

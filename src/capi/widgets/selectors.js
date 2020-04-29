@@ -1,4 +1,5 @@
 import {widgetsAPI} from "../index";
+import {widgetConfig} from "../../config/widgets";
 
 export default {
     widgets: state => state.widgets,
@@ -9,6 +10,8 @@ export default {
         (select, {widgets}) => select(widgets),
         (widgets) => {
             const matrix = [];
+            if (!widgets)
+                return [];
             widgets.map( w => {
                 matrix[w.row] = matrix[w.row] || [];
                 matrix[w.row][w.col] = w;
@@ -29,9 +32,37 @@ export default {
     widgetCols: (state, {widgetMatrix, row}) => widgetMatrix[row],
     widget: [
         (select, {widgets, id}) => select(widgets, id),
-        (widgets, id) => widgets.find(w => (w.id === id))
+        (widgets, id) => widgets ? widgets.find(w => (w.id === id)) : undefined
     ],
+    widgetCountries: [
+        (select, {widget, substitutionCountries, dataSet, dashboardSelectedLocation}) =>
+            select(widget, substitutionCountries, dataSet, dashboardSelectedLocation),
+        (widget, substitutionCountries, dataSet, dashboardSelectedLocation) => !widget ? [] :
+            [...new Set(widget.countries
+                .map( c => (c === "Selected Location"
+                    ? dashboardSelectedLocation || "United States" : substitutionCountries[c] || c))
+                .filter( c => !!dataSet.country[c] ))].sort()
 
+    ],
+    widgetProps: [
+        (select, {widget, dataSet}) => select(widget, dataSet),
+        (widget) => {
+            if (!widget)
+                return [];
+            const config = widgetConfig[widget.type]
+            if (config.dataPoint)
+                return config.dataPoint;
+            if (config.dataPoints) {
+                const points = widget.props.filter(p => Object.getOwnPropertyNames(config.dataPoints).includes(p))
+                return points.length > 0 ? points : (config.defaultDataPoint ? [config.defaultDataPoint] : [])
+            }
+            return [];
+        }
+    ],
+    widgetConfigCountries: [
+        (select, {widget, substitutionCountries}) => select(widget, substitutionCountries),
+        (widget, substitutionCountries) => widget.countries
+    ],
     canMoveWidgetLeft: (state, {widgetLeftNeighbor}) => !!widgetLeftNeighbor ,
     widgetLeftNeighbor: [
         (select, {widget, widgets}) => select(widget, widgets),
@@ -91,7 +122,7 @@ export default {
                 (w.type === 'Blank' || w.cols > 1) && // Blank or contractable
                 w.row === widget.row &&
                 w.rows === widget.rows &&
-                ((w.col === widget.col + widget.cols) || (w.col + w.cols === widget.col)))
+                ((w.col === widget.col + widget.cols) || (widget.col + widget.cols === 12 && w.col + w.cols === widget.col)))
     ],
     canExpandWidgetWidth: (state, {widgetBlankOrContractableNeighbor}) => !!widgetBlankOrContractableNeighbor
 
