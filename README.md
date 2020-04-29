@@ -4,6 +4,8 @@ Uses Johns Hopkins University data posted to github - https://github.com/CSSEGIS
 
 To see deployment go to https://www.cdash19.com
 
+Read about [how it was created](https://medium.com/@sam.elsamman/a-covid-19-dashboard-in-react-766cc5217a84?source=friends_link&sk=25c05de32778c0fc161a878395971534)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
