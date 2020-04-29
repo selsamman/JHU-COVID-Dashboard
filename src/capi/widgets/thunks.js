@@ -111,26 +111,4 @@ export default {
             deleteWidgetFromMatrix(dest.id);
 
     },
-
-    validateWidget: ({widget, widgets, getCountryData}) => () => {
-        for (let w in widgets) {
-            const widget = widgets[w];
-            let countryCount = widget.countries.length;
-            widget.countries.map(c => {
-                if (getCountryData(c, true))
-                    widget.props.map(p => {
-                        if (typeof dataSet.country[c][p] === 'undefined') {
-                            console.log(`In widget ${w} ${p} not found`);
-                        }
-                    })
-                else {
-                    console.log(`In widget ${w} ${c} not found`);
-                    //deleteCountryFromWidget(c, widget.id);
-                    //--countryCount
-                    //alert(c + " is no longer in the JHU database.  Maybe the name changed - try adding it again");
-                }
-            })
-        }
-    },
-
 }

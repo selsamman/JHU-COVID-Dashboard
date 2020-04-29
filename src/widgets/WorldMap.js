@@ -13,7 +13,6 @@ const animationTime = 10;
 
 const Map = React.memo(({cols, dataSet, dataPoint, mode, replay, isAnimated}) => {
     const countries = dataSet.countries.map(c => dataSet.country[c])
-    console.log(replay);
     const StyledWorld = isAnimated
         ? getStyledWorldAnimated(cols, countries, dataPoint, mode)
         : getStyledWorld(cols, countries, dataPoint, mode);

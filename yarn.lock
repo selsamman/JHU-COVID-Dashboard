@@ -9201,9 +9201,9 @@ redent@^3.0.0:
     strip-indent "^3.0.0"
 
 redux-capi@^0.3.0:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/redux-capi/-/redux-capi-0.3.1.tgz#30e26013d0734c496c389944392e7eaa6852ab62"
-  integrity sha512-veHfbadQxghZ9vU5IZd1vUWR8bbS6ZkqekhA81JimN2pHXQFhomfvr9ia4yVy2EUmLXTP3Ynzj5Nxca3+2BOgQ==
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/redux-capi/-/redux-capi-0.3.2.tgz#85456e1e786cd423b75ce7c69abcda45ddc99d9b"
+  integrity sha512-FDDN8XTdAbMuWietzDa4iEUtUdvgtMOSmdZFbG7qqHSViIqQb9KY/3PlxGHBKn3Hd8I/vZMJYtkfAfj8PTvzXg==
 
 redux-thunk@^2.3.0:
   version "2.3.0"

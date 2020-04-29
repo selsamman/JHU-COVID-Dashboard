@@ -118,7 +118,6 @@ const EditDropdown = ({setMode, showPopover}) => {
     }
 
     const triggerRef = useRef(null);
-    console.log(`show=${show}`);
     return (
         <>
             <Dropdown id="DashboardDropDownMenu">
@@ -175,7 +174,7 @@ const EditDropdown = ({setMode, showPopover}) => {
                         </Dropdown.Item>
                     }
                     {document.location.origin.match(/localhost/) &&
-                        <Dropdown.Item onSelect={() => setMode("json")}>
+                        <Dropdown.Item onSelect={() => {setShow(false);setMode("json")}}>
                             <div className="menuDashboardItemTop">
                                 <Link size={16} style={{marginTop: -4, marginRight: 3}}/>
                                 Get JSON
@@ -215,7 +214,7 @@ const EditDropdown = ({setMode, showPopover}) => {
             if (obj === "menu") {
                 setShow(false)
             } else {
-                showRef.current = setTimeout(() => setShow(false) || console.log("timeout fired"), 2000) ;
+                showRef.current = setTimeout(() => setShow(false), 2000) ;
             }
         }
     }
@@ -281,11 +280,11 @@ const DashboardLinkModal = ({onClose}) => {
             <Modal.Body>
                  {mode === 'init' &&
                      <React.Fragment>
-                        <p>
+                        <div>
                             Share this dashboard with someone else by sending them a link.
                             The dashboard you share will have the latest data.
-                        </p>
-                        <p style={{textAlign: "center"}}>
+                        </div>
+                        <div style={{textAlign: "center"}}>
                             <br/>
                             Make sure name is descriptive
                             <InputGroup className="mb-3">
@@ -299,8 +298,8 @@ const DashboardLinkModal = ({onClose}) => {
                                     onBlur={persistState}
                                 />
                             </InputGroup>
-                        </p>
-                        <p style={{textAlign: "center"}}>
+                        </div>
+                        <div style={{textAlign: "center"}}>
                             <br/>
                              <CopyToClipboard
                                  onCopy={() => setMode("done")}
@@ -308,14 +307,14 @@ const DashboardLinkModal = ({onClose}) => {
                                  text={link}>
                                  <Button>Copy Link to Clipboard</Button>
                              </CopyToClipboard>
-                         </p>
+                         </div>
                      </React.Fragment>
                 }
                 {mode === 'done' &&
-                    <p style={{textAlign: "center"}}>
+                    <div style={{textAlign: "center"}}>
                         Your link has been copied to the clipboard.  <br />
                         You can now paste it into any app.
-                    </p>
+                    </div>
                 }
             </Modal.Body>
         </Modal>
@@ -337,7 +336,7 @@ const DashboardRenameModal = ({onClose}) => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p style={{textAlign: "center"}}>
+                <div style={{textAlign: "center"}}>
                     <br/>
                     Change your dashboard name
                     <InputGroup className="mb-3">
@@ -351,11 +350,11 @@ const DashboardRenameModal = ({onClose}) => {
                                      onBlur={persistState}
                         />
                     </InputGroup>
-                </p>
-                <p style={{textAlign: "center"}}>
+                </div>
+                <div style={{textAlign: "center"}}>
                     <br />
                     <Button variant="info" onClick={onClose}>Done</Button>
-                </p>
+                </div>
             </Modal.Body>
         </Modal>
     );
@@ -407,14 +406,14 @@ const DashboardCreateModal = ({onClose}) => {
                 }
                 {mode === 'done' &&
                     <>
-                        <p style={{textAlign: "center"}}>
+                        <div style={{textAlign: "center"}}>
                             Your link has been copied to the clipboard.  <br />
                             You can now paste it into any app.
-                        </p>
-                        <p style={{textAlign: "center"}}>
+                        </div>
+                        <div style={{textAlign: "center"}}>
                             <br />
                             <Button variant="info" onClick={onClose}>Done</Button>
-                        </p>
+                        </div>
                     </>
                 }
             </Modal.Body>
@@ -436,15 +435,15 @@ const DashboardRemoveModal = ({onClose}) => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p style={{textAlign: "center"}}>
+                <div style={{textAlign: "center"}}>
                     This dashboard will be removed from your list
-                </p>
-                <p style={{textAlign: "center"}}>
+                </div>
+                <div style={{textAlign: "center"}}>
                     {name}
-                </p>
-                <p style={{textAlign: "center"}}>
+                </div>
+                <div style={{textAlign: "center"}}>
                     <Button variant="info" onClick={() => {removeDashboard();persistState();onClose()}}>Remove</Button>
-                </p>
+                </div>
             </Modal.Body>
         </Modal>
     );
@@ -470,11 +469,11 @@ const DashboardAskLocation = ({onClose}) => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                 <p style={{textAlign: "center"}}>
+                <div style={{textAlign: "center"}}>
                     Some charts use your current country <br />
                     (and county if you live in the US)
-                </p>
-                <p style={{textAlign: "center"}}>
+                </div>
+                <div style={{textAlign: "center"}}>
                     We can set this automatically<br /><br />
                     <>
                         {searching === "inprogress" &&
@@ -494,11 +493,11 @@ const DashboardAskLocation = ({onClose}) => {
                         <text>Not available now ({error.code})</text>
                         }
                     </>
-                </p>
-                <p style={{textAlign: "center"}}>
+                </div>
+                <div style={{textAlign: "center"}}>
                     Or you can set the location yourself.
-                </p>
-                <p>
+                </div>
+                <div>
                     Select Country
                     <Typeahead
                         bsSize="small"
@@ -516,9 +515,9 @@ const DashboardAskLocation = ({onClose}) => {
                                 setMode("No Thanks");
                         }}
                         options={dataSet.justCountries.filter(c => !c.match(/^My /))} />
-                </p>
+                </div>
                 {country === "United States" &&
-                    <p>
+                    <div>
                         Select County
                         <Typeahead
                             bsSize="small"
@@ -531,10 +530,10 @@ const DashboardAskLocation = ({onClose}) => {
                                 setMode("Done");
                             }}
                             options={dataSet.justCounties.filter(c => c.match(/,/) && !c.match(/^My /))} />
-                    </p>
+                    </div>
                 }
                 {(country === "Canada" || country === "Australia") &&
-                    <p>
+                    <div>
                         Select Province
                         <Typeahead
                             bsSize="small"
@@ -542,11 +541,11 @@ const DashboardAskLocation = ({onClose}) => {
                             placeholder={substituteCountry("Please Select")}
                             onChange={(c)=>{setCountrySubstitution("My State", c.toString());setMode("Done");}}
                             options={dataSet.justStates.filter(c => c.match(country))} />
-                    </p>
+                    </div>
                 }
-                <p style={{textAlign: "center"}}>
+                <div style={{textAlign: "center"}}>
                     <Button variant="info" onClick={close}>{mode}</Button>
-                </p>
+                </div>
            </Modal.Body>
         </Modal>
     );
@@ -566,9 +565,9 @@ const ShowDashboardModal = ({onClose}) => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <p style={{textAlign: "center"}}>
+                <div style={{textAlign: "center"}}>
                     <textarea defaultValue={JSON.stringify(dashboard, 5)} />
-                </p>
+                </div>
             </Modal.Body>
         </Modal>
     );

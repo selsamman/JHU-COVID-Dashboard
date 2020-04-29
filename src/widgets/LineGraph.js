@@ -57,8 +57,6 @@ export const LineGraph = (props) => {
                 Math.max(a, Math.floor(p)))), 0);
         const maxDigits = numberWithCommas(maxValue).length;
         const padding = base + maxDigits * perDigit;
-        console.log(" maxValue: " + maxValue + "padding increment: " + padding);
-
         return padding;
     }
 }

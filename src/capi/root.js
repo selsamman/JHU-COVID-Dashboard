@@ -67,10 +67,7 @@ export default {
         }),
         deleteDashboard: (deleteIx) => ({
             dashboards: {
-                where: (state, item, ix) => {
-                    console.log(`deleting ${deleteIx} found ${ix}`);
-                    return ix === deleteIx
-                },
+                where: (state, item, ix) => (ix === deleteIx),
                 delete: true
             },
         }),

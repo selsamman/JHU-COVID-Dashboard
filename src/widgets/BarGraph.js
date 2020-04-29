@@ -53,8 +53,6 @@ export const BarGraph = ({dataPoint, id, scale, name}) => {
         );
         const maxDigits = numberWithCommas(maxValue).length;
         const padding = base + maxDigits * perDigit;
-        console.log("BarGraph maxValue: " + maxValue + "padding increment: " + padding);
-
         return padding;
     }
 }

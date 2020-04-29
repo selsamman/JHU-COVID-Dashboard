@@ -8,7 +8,6 @@ import {widgetConfig, widgetNames} from "../config/widgets";
 
 export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, dataPointsDisplay}) => {
     const {widget, addPropToWidget, deletePropFromWidget, widgetProps, setWidgetData} = widgetsAPI({id: id});
-    console.log(widget.props);
     const onChange = prop => widget.props.includes(prop) ? deletePropFromWidget(prop) : addPropToWidget(prop);
     const isDisabled = prop => widgetProps.length >= maxProps && !widget.props.includes(prop);
     return (
