@@ -20,7 +20,7 @@ import {error} from "../config/locationData";
 
 export const DashboardHeader = () => {
 
-    const {locationStatus, anyConfiguring, doneEditing, askForLocation, persistState, dataSet} = widgetsAPI({});
+    const {locationStatus, anyConfiguring, doneEditing, askForLocation, persistState, dataSet} = widgetsAPI({}, DashboardHeader);
     const [mode, setMode] = useState("none");
 
     const save = () => {
@@ -71,7 +71,7 @@ export const DashboardHeader = () => {
     );
 }
 const EditModeNav = ({}) => {
-    const {newWidget, setDataMode, setLayoutMode, anyConfiguringData, anyConfiguringLayout} = widgetsAPI({});
+    const {newWidget, setDataMode, setLayoutMode, anyConfiguringData, anyConfiguringLayout} = widgetsAPI({}, EditModeNav);
     return (
         <Nav className="mr-auto">
             <Nav.Link onClick={newWidget}>
@@ -99,10 +99,10 @@ const EditModeNav = ({}) => {
         </Nav>
     );
 }
-const EditDropdown = ({setMode, showPopover}) => {
+const EditDropdown = ({setMode}) => {
     const [show, setShow] = useState(false);
     const showRef = useRef(null);
-    const {isDashboardCustom, setDataMode, createDashboard, makeDashboardCustom, editWidget, persistState, startupSequence} = widgetsAPI({});
+    const {isDashboardCustom, setDataMode, createDashboard, makeDashboardCustom, editWidget, persistState, startupSequence} = widgetsAPI({}, EditDropdown);
     const edit = () => {
         if (!isDashboardCustom)
             makeDashboardCustom();
@@ -220,7 +220,7 @@ const EditDropdown = ({setMode, showPopover}) => {
     }
 }
 const DashboardDropdown = () => {
-    const {dashboards, name, setDashboardByName, persistState, startupSequence, newDashboards} = widgetsAPI({});
+    const {dashboards, name, setDashboardByName, persistState, startupSequence, newDashboards} = widgetsAPI({}, DashboardDropdown);
     const triggerRef = useRef(null);
     return (
         <>

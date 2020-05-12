@@ -6,8 +6,8 @@ import 'react-bootstrap-typeahead/css/Typeahead.css';
 import {colors} from "../config/colors";
 import { XCircleFill, PlusCircleFill } from 'react-bootstrap-icons';
 
-export default ({id, countries, maxCountries, scale}) => {
-    const {widget, addCountryToWidget, deleteCountryFromWidget, dataSet, getCountryData} = widgetsAPI({id: id});
+const CountrySelect = ({id, countries, maxCountries, scale}) => {
+    const {widget, addCountryToWidget, deleteCountryFromWidget, dataSet, getCountryData} = widgetsAPI({id: id}, CountrySelect);
     const [addingCounties, setAddingCountries] = useState(false);
     return (
         <div>
@@ -42,6 +42,7 @@ export default ({id, countries, maxCountries, scale}) => {
         </div>
     );
 };
+export default CountrySelect;
 
 const CountryDropDown = ({countries, onSelect}) => (
     <Typeahead

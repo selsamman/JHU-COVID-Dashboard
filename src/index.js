@@ -18,7 +18,7 @@ const trackingId = "UA-131145833-2"; // Replace with your Google Analytics track
 ReactGA.initialize(trackingId, {gaOptions: {siteSpeedSampleRate: 100}});
 ReactGA.pageview(window.location.pathname + window.location.search);
 
-//trace.log = t => console.log(t);
+trace.log = t => console.log(t);
 
 const store = createStore(reducer, getInitialState(initialState), applyMiddleware(ReduxThunk))
 widgetsAPI.mount(store);

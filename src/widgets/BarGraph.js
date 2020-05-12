@@ -6,7 +6,7 @@ import Countries from "../components/Countries";
 import ChartTitle from "../components/ChartTitle";
 
 export const BarGraph = ({dataPoint, id, scale, name}) => {
-    const {dataSet, widgetCountries, getCountryData, widget} = widgetsAPI({id: id});
+    const {dataSet, widgetCountries, getCountryData, widget} = widgetsAPI({id: id}, BarGraph);
     const country = widgetCountries[0];
     const parentProps =  {
 

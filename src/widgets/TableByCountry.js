@@ -2,19 +2,24 @@ import React from 'react';
 import {widgetsAPI} from "../capi";
 import {Col, Form, Table} from 'react-bootstrap';
 import ChartTitle from "../components/ChartTitle";
+import styled, {css}from "styled-components";
+import {ReactComponent as World} from "./world.svg";
 
 export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPointsRender, allCountries}) => {
     const {widgetCountries, getCountryData, widgetProps, dataSet, widget,
-           dashboardSelectedLocation, setDashboardSelectedLocation} = widgetsAPI({id: id});
-    const title = (allCountries ? `Top ${widget.displayCount || 5} ` : '') + dataPoints[widgetProps[0]]
+           dashboardSelectedLocation, setDashboardSelectedLocation} = widgetsAPI({id: id}, TableByCountry);
+    const title = (widget.includeStates ? "State " : "") + (widget.includeCounties ? "County " : "") +
+                (allCountries ? `Top ${widget.displayCount || 5} ` : '') + dataPoints[widgetProps[0]];
+    const TableWrapper = widget.scroll ? ScrollingTable : NonScrollingTable;
     return (
         <>
             <ChartTitle name={title} scale={scale}  id={id} />
-            <Table  striped bordered hover size="sm" responsive="sm">
+            <TableWrapper widget={widget}>
+            <Table  striped bordered hover size="sm" responsive="sm" className="TableByCountry">
                 <thead>
                     <tr>
                         <th style={{fontSize: 12 * scale, textAlign: 'left', fontWeight: 'bold', paddingBottom: 10 * scale}}>
-                        Country
+                            {(widget.includeStates ? "State " : (widget.includeCounties ? "County " : "Country"))}
                         </th>
                         {widgetProps.map((prop, ix) => (
                             <th key={prop}>
@@ -47,6 +52,7 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
                     ))}
                 </tbody>
             </Table>
+            </TableWrapper>
         </>
     );
     function getSortedCountries() {
@@ -82,4 +88,37 @@ const DataPoint = ({description, scale}) => (
             {description[1]}
         </div>
     </div>
+)
+
+const ScrollingTable = ({widget, children}) => {
+    const height = widget.rows * 350;
+    const headerHeight = 50;
+    const bodyHeight = height - headerHeight
+    const StyledTable =  styled.div`
+        .ScrollingTableHeader table thead th, .ScrollingTableBody table thead th {
+            height: ${headerHeight}px;
+        };
+        .ScrollingTableBody table {
+            margin-top: -${headerHeight}px;
+        };`
+
+    return (
+        <StyledTable>
+            <div className="ScrollingTableContainer" style={{height: height}}>
+                <div className="ScrollingTableHeader" style={{height: headerHeight}}>
+                    <div className="ScrollingInnerTableHeader" >
+                        {children}
+                    </div>
+                </div>
+                <div className="ScrollingTableBody" style={{top: headerHeight, maxHeight: bodyHeight}}>
+                    {children}
+                </div>
+            </div>
+        </StyledTable>
+    )
+}
+const NonScrollingTable = ({children}) => (
+    <>
+        {children}
+    </>
 )

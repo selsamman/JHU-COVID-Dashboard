@@ -8,7 +8,7 @@ import Countries from "../components/Countries";
 
 export const LineGraph = (props) => {
     const {id, scale, dataPoint, name} = props;
-    const {dataSet, widgetCountries, getCountryData} = widgetsAPI({id: id});
+    const {dataSet, widgetCountries, getCountryData} = widgetsAPI({id: id}, LineGraph);
 
     if (widgetCountries.length === 1)
         return <BarGraph {...props} />

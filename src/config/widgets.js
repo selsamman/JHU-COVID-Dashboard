@@ -104,6 +104,9 @@ function TableByCountry (name, props)  {
         orderColumns: true,
         sortDirection: true,
         selectedRow: true,
+        includeStates: true,
+        includeCounties: true,
+        scrollable: true,
         config: [
             {component: WidgetSelect},
             {component: CountrySelect},
@@ -122,6 +125,7 @@ function TableAllCountries (name, props)  {
         orderColumns: true,
         sortDirection: true,
         selectedRow: true,
+        scrollable: true,
         config: [
             {component: WidgetSelect},
             {component: PropsSelect}

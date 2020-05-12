@@ -3,8 +3,8 @@ import {widgetsAPI} from "../capi";
 import {Row, Col} from 'react-bootstrap';
 import {Typeahead} from "react-bootstrap-typeahead";
 
-export default ({id, scale, countries}) => {
-    const {widget, dataSet, addSingleCountryToWidget} = widgetsAPI({id: id});
+const SingleCountrySelect = ({id, scale, countries}) => {
+    const {widget, dataSet, addSingleCountryToWidget} = widgetsAPI({id: id}, SingleCountrySelect);
     return (
         <div>
             <Row>
@@ -30,3 +30,5 @@ const CountryDropDown = ({countries, onSelect, country, scale}) => (
         onChange={onSelect}
         options={countries} />
 );
+
+export default SingleCountrySelect;

@@ -429,6 +429,55 @@ const initialState = {
                 }
             ],
         },
+        {
+            "nextWidgetId": 7,
+            "dashboardType": "stock",
+            "name": "US State and Counties",
+            "widgets": [{
+                "id": 1,
+                "type": "DataByCountry",
+                "row": 0,
+                "col": 0,
+                "rows": 1,
+                "cols": 6,
+                "props": ["caseTrend", "deathTrend", "casesPerM", "deathsPerM"],
+                "countries": ["United States"],
+                "includeCounties": false,
+                "includeStates": true,
+                "selectCountry": true
+            }, {
+                "id": 3,
+                "type": "NewCasesOverTime",
+                "row": 1,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["Selected Location"]
+            }, {
+                "id": 4,
+                "type": "DataByCountry",
+                "row": 0,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["caseTrend", "deathTrend", "cases", "deaths"],
+                "countries": ["Selected Location"],
+                "includeCounties": true,
+                "selectCountry": true
+            }, {
+                "id": 6,
+                "type": "NewDeathsOverTime",
+                "row": 1,
+                "col": 0,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["Selected Location"]
+            }],
+            "selectedLocation": "Alabama",
+            "selectedState": "Alabama"
+        }
     ],
 }
 export default initialState;
