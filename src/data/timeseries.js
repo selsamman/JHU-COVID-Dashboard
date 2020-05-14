@@ -58,6 +58,12 @@ function processJHUFile(file) {
         first: dataSet.dates[0],
         last: dataSet.dates[dataSet.dates.length - 1]
     }
+    dataSet.benchmarks = {
+        mortality: ["USA - Overall Mortality", 8657],
+        heartDisease: ["USA - Heart Desease", 1992],
+        cancer: ["USA - Cancer", 1843],
+        flu: ["USA - Flu & Pneumonia", 171]
+    }
     processJHUCountries(dataSet);
     dataSet.codes = {};
     Object.getOwnPropertyNames(dataSet.country)
@@ -87,6 +93,7 @@ function processJHUFile(file) {
     let status = "loaded";
     return status;
 }
+
 function processJHUCountries (dataSet) {
     dataSet.country["The Whole World"] = dataSet.country["Total"];
     delete dataSet.country["Total"];
@@ -137,6 +144,9 @@ function processJHUCountries (dataSet) {
             name: countryName,
             type: country.type,
             code: country.code,
+            population: country.population,
+            deathsAsPercentOfFlu: deathsPerM / 171,
+            deathsAsPercentOfOverall: deathsPerM / 8657,
             states: [],
             counties: [],
             deaths, cases,

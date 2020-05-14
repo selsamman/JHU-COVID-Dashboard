@@ -4,17 +4,18 @@ import {Col, Form, Table} from 'react-bootstrap';
 import ChartTitle from "../components/ChartTitle";
 import styled, {css}from "styled-components";
 import {ReactComponent as World} from "./world.svg";
+import ScrollingTable, {scrollIntoView} from "../components/ScrollingTable";
 
 export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPointsRender, allCountries}) => {
-    const {widgetCountries, getCountryData, widgetProps, dataSet, widget,
+    const {widgetCountries, getCountryData, widgetProps, dataSet, widget, name,
            dashboardSelectedLocation, setDashboardSelectedLocation} = widgetsAPI({id: id}, TableByCountry);
     const title = (widget.includeStates ? "State " : "") + (widget.includeCounties ? "County " : "") +
                 (allCountries ? `Top ${widget.displayCount || 5} ` : '') + dataPoints[widgetProps[0]];
-    const TableWrapper = widget.scroll ? ScrollingTable : NonScrollingTable;
+    const scrollId = name + "-" + widget.id;
     return (
         <>
             <ChartTitle name={title} scale={scale}  id={id} />
-            <TableWrapper widget={widget}>
+            <ScrollingTable height={widget.rows * 350} headerHeight={50} enable={!!widget.scroll} id={scrollId}>
             <Table  striped bordered hover size="sm" responsive="sm" className="TableByCountry">
                 <thead>
                     <tr>
@@ -30,8 +31,9 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
                 </thead>
                 <tbody>
                     {getSortedCountries().map( country => (
-                        <tr key={country}>
-                            <td style={{fontSize: 12 * scale}}>
+                        <tr key={country}
+                            ref={(ref) => ref && dashboardSelectedLocation === country && scrollIntoView(ref)}>
+                            <td style={{fontSize: 12 * scale}} id={getId(widget.id, country)}>
                                 {widget.selectCountry &&
                                     <Form.Check type="radio"
                                         onChange={()=>{setDashboardSelectedLocation(country)}}
@@ -52,7 +54,7 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
                     ))}
                 </tbody>
             </Table>
-            </TableWrapper>
+            </ScrollingTable>
         </>
     );
     function getSortedCountries() {
@@ -60,7 +62,7 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
             ? Object.getOwnPropertyNames(dataSet.country).filter(c => c !== "The Whole World" )
                 .filter(c => {
                     const data = getCountryData(c);
-                    if (!(widget.allData || (data.deathsPerM > 10 && data.casesPerM > 1000)))
+                    if (!(widget.allData || (data.population > 1000000 && data.deathsPerM > 10 && data.casesPerM > 1000)))
                         return false;
                     return widget.includeCounties && data.type === "county" ||
                            widget.includeStates && data.type === "state" ||
@@ -78,7 +80,9 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
         }
     }
 }
-
+function getId(id, country) {
+    return `country-${id}-${country.replace(/[^A-Za-z]/g, '_')}`;
+}
 const DataPoint = ({description, scale}) => (
     <div >
         <div style={{fontSize: 11 * scale, textAlign: 'right'}} >
@@ -88,37 +92,4 @@ const DataPoint = ({description, scale}) => (
             {description[1]}
         </div>
     </div>
-)
-
-const ScrollingTable = ({widget, children}) => {
-    const height = widget.rows * 350;
-    const headerHeight = 50;
-    const bodyHeight = height - headerHeight
-    const StyledTable =  styled.div`
-        .ScrollingTableHeader table thead th, .ScrollingTableBody table thead th {
-            height: ${headerHeight}px;
-        };
-        .ScrollingTableBody table {
-            margin-top: -${headerHeight}px;
-        };`
-
-    return (
-        <StyledTable>
-            <div className="ScrollingTableContainer" style={{height: height}}>
-                <div className="ScrollingTableHeader" style={{height: headerHeight}}>
-                    <div className="ScrollingInnerTableHeader" >
-                        {children}
-                    </div>
-                </div>
-                <div className="ScrollingTableBody" style={{top: headerHeight, maxHeight: bodyHeight}}>
-                    {children}
-                </div>
-            </div>
-        </StyledTable>
-    )
-}
-const NonScrollingTable = ({children}) => (
-    <>
-        {children}
-    </>
 )

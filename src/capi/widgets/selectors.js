@@ -42,7 +42,7 @@ export default {
             function map (c) {
                 let country = c;
                 if (country === "Selected Location") {
-                    country = dashboardSelectedLocation ? dashboardSelectedLocation : "United States";
+                    country = dashboardSelectedLocation ? dashboardSelectedLocation : "My Country";
                     if (widget.includeCounties && dataSet.country[country].type === 'county' && dashboardSelectedState)
                         country = dashboardSelectedState
                     if (widget.includeStates && dataSet.country[country].type === 'state' && dashboardSelectedCountry)

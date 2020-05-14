@@ -69,42 +69,6 @@ div.menuDashboardItemBottom {
     background-color: transparent;
     color: #202020
 }
-.ScrollingTableContainer {
-    position: relative;
-    margin-bottom: 20px;
-}
-.ScrollingTableBody {
-    margin: 0;
-    position: absolute;
-    overflow-y: scroll;
-    width: 100%;
-    border: 1px solid #dee2e6;
-}
-.ScrollingTableHeader {
-    margin: 0;
-    position: absolute;
-    overflow: hidden;
-    width: 100%;
-}
-.ScrollingInnerTableHeader {
-    overflow-y: scroll
-}
-.ScrollingTableHeader table {
-    margin-bottom: 0;
-}
-.ScrollingTableHeader table thead {
-    border: 0;
-}
-.ScrollingTableBody table thead {
-    visibility: hidden;
-}
-.ScrollingTableBody table {
-
-    border: 0
-}
-.ScrollingTableHeader table tbody {
-    visibility: hidden;
-}
 
 
 
