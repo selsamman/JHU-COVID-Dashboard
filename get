@@ -1,0 +1,6 @@
+echo modules.exports.testing = >public/ctrack_test.js
+curl https://covidtracking.com/api/v1/states/daily.json --output public/ctrack_test.json
+cat public/ctrack_test.json >> public/ctrack_test.js
+rm public/ctrack_test.json
+curl https://cdash19.com/jhu.js --output public/jhu_test.js
+curl -H "Accept-Encoding: gzip" -I https://cdash19.com/jhu.js

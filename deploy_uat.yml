@@ -1,0 +1,9 @@
+component: website
+name: landing-page-uat
+stage: dev
+
+inputs:
+  src:
+    src: ./src
+    hook: npm run build
+    dist: ./build
