@@ -2,8 +2,8 @@ import React  from 'react';
 import {widgetsAPI} from "../capi";
 import  {Dropdown} from 'react-bootstrap';
 
-export default ({dataPoints, id, scale}) => {
-    const {widget, addSinglePropToWidget, widgetProps} = widgetsAPI({id: id});
+ const SinglePropSelect =  ({dataPoints, id, scale}) => {
+    const {widget, addSinglePropToWidget, widgetProps} = widgetsAPI({id: id}, SinglePropSelect);
     return (
         <Dropdown size="lg">
             <Dropdown.Toggle
@@ -24,3 +24,4 @@ export default ({dataPoints, id, scale}) => {
         </Dropdown>
     )
 };
+export default SinglePropSelect;

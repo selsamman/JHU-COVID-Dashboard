@@ -2,7 +2,7 @@ import React from 'react';
 import {widgetsAPI} from "../capi";
 import {Row, Col} from 'react-bootstrap';
 export const BlankWidget = ({config, id, scale}) => {
-    const {widget, anyConfiguring, isConfiguring, editWidget} = widgetsAPI({id: id});
+    const {widget, anyConfiguring, isConfiguring, editWidget} = widgetsAPI({id: id}, BlankWidget);
 
     const props = config.dataPoints;
     return (

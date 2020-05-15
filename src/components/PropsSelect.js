@@ -6,8 +6,9 @@ import {CaretLeftFill, CaretRightFill} from "react-bootstrap-icons";
 import {MoveTool} from "./WidgetConfig";
 import {widgetConfig, widgetNames} from "../config/widgets";
 
-export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, dataPointsDisplay}) => {
-    const {widget, addPropToWidget, deletePropFromWidget, widgetProps, setWidgetData} = widgetsAPI({id: id});
+const PropsSelect = ({dataPoints, id, maxProps, scale, sortDirection, scrollable,
+                         includeStates, includeCounties, allCountries, dataPointsDisplay}) => {
+    const {widget, addPropToWidget, deletePropFromWidget, widgetProps, setWidgetData} = widgetsAPI({id: id}, PropsSelect);
     const onChange = prop => widget.props.includes(prop) ? deletePropFromWidget(prop) : addPropToWidget(prop);
     const isDisabled = prop => widgetProps.length >= maxProps && !widget.props.includes(prop);
     return (
@@ -42,11 +43,39 @@ export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, d
                                 style={{fontSize: 11 * scale}}
                                 onChange={()=>{setWidgetData({sortUp :!widget.sortUp})}}
                                 label="Ascending"
-                                checked={widget.sortUp}
+                                checked={!!widget.sortUp}
                             />
                         </Form.Group>
                     }
-                    {sortDirection &&
+                    {includeStates &&
+                        <Form.Group as={Col}>
+                            <Form.Check
+                                style={{fontSize: 11 * scale}}
+                                onChange={()=>{
+                                    setWidgetData({includeStates: !widget.includeStates})
+                                    if (!widget.includeStates)
+                                        setWidgetData({includeCounties: false})
+                                }}
+                                label="States of"
+                                checked={!!widget.includeStates}
+                            />
+                        </Form.Group>
+                    }
+                    {includeCounties &&
+                        <Form.Group as={Col}>
+                            <Form.Check
+                                style={{fontSize: 11 * scale}}
+                                onChange={()=>{
+                                    setWidgetData({includeCounties: !widget.includeCounties})
+                                    if (!widget.includeCounties)
+                                        setWidgetData({includeStates: false})
+                                }}
+                                label= "Counties of"
+                                checked={!!widget.includeCounties}
+                            />
+                        </Form.Group>
+                        }
+                    {allCountries &&
                         <Form.Group as={Col}>
                             <Form.Check
                                 style={{fontSize: 11 * scale}}
@@ -62,7 +91,7 @@ export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, d
                                 style={{fontSize: 11 * scale}}
                                 onChange={()=>{setWidgetData({includeCounties: !widget.includeCounties})}}
                                 label="Counties"
-                                checked={widget.includeCounties}
+                                checked={!!widget.includeCounties}
                             />
                         </Form.Group>
                     }
@@ -72,17 +101,27 @@ export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, d
                                 style={{fontSize: 11 * scale}}
                                 onChange={()=>{setWidgetData({includeStates: !widget.includeStates})}}
                                 label="States"
-                                checked={widget.includeStates}
+                                checked={!!widget.includeStates}
                             />
                         </Form.Group>
                      }
-                    {allCountries &&
+                    {sortDirection &&
                         <Form.Group as={Col}>
                             <Form.Check
                                 style={{fontSize: 11 * scale}}
                                 onChange={()=>{setWidgetData({selectCountry: !widget.selectCountry})}}
                                 label="Select"
-                                checked={widget.selectCountry}
+                                checked={!!widget.selectCountry}
+                            />
+                        </Form.Group>
+                    }
+                    {scrollable &&
+                        <Form.Group as={Col}>
+                            <Form.Check
+                                style={{fontSize: 11 * scale}}
+                                onChange={()=>{setWidgetData({scroll: !widget.scroll})}}
+                                label="Scroll"
+                                checked={!!widget.scroll}
                             />
                         </Form.Group>
                     }
@@ -138,5 +177,6 @@ export default ({dataPoints, id, maxProps, scale, sortDirection, allCountries, d
     }
 
 };
+export default PropsSelect;
 
 

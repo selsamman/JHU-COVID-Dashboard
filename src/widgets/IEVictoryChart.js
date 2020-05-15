@@ -2,6 +2,7 @@ import {VictoryChart} from "victory";
 import React from "react";
 
 // A hack to make victory charts work with IE
+// Not currently used as it has issues
 
  const IEVictoryChart = (props) => (
     <div style={{height: props.height}}>

@@ -3,8 +3,8 @@ import {Row, Col} from 'react-bootstrap';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import {widgetsAPI} from "../capi";
 
-export default ({id, scale, name}) => {
-    const {isConfiguring} = widgetsAPI({id: id});
+const ChartTitle = ({id, scale, name}) => {
+    const {isConfiguring} = widgetsAPI({id: id}, ChartTitle);
     return (
         <>
             {!isConfiguring &&
@@ -17,4 +17,5 @@ export default ({id, scale, name}) => {
         </>
     );
 };
+export default ChartTitle;
 

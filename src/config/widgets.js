@@ -21,6 +21,8 @@ const dataPoints = {
     caseMortality: "Deaths per Case",
     newDeathsPerPopulation: "New Deaths per 1M",
     newCasesPerPopulation: "New Cases per 1M",
+    deathsAsPercentOfFlu: ["Deaths as % of Flu"],
+    deathsAsPercentOfOverall: ["Deaths as % of Total"]
 }
 const dataPointsDisplay = {
     deaths: ["Deaths", "Total"],
@@ -34,6 +36,9 @@ const dataPointsDisplay = {
     newDeaths: ["Deaths", "recently added"],
     newDeathsPerPopulation: ["Deaths", "new per 1M"],
     newCasesPerPopulation: ["Cases", "new per 1M"],
+    deathsAsPercentOfFlu: ["Deaths", "COVID vs Flu"],
+    deathsAsPercentOfOverall: ["Deaths", "COVID vs All"]
+
 };
 const dataPointsRender = {
     deaths: numberWithCommas,
@@ -47,6 +52,8 @@ const dataPointsRender = {
     newDeaths: numberWithCommas,
     newDeathsPerPopulation: numberWithCommas,
     newCasesPerPopulation: numberWithCommas,
+    deathsAsPercentOfFlu: numberAsPercentWhole,
+    deathsAsPercentOfOverall: numberAsPercentWhole
 };
 const severityDataPoints = {
     mortalitySeverity: "Deaths",
@@ -98,12 +105,15 @@ function TableByCountry (name, props)  {
         component: Widgets.TableByCountry,
         maxCountries: 20,
         allCountries: false,
-        maxProps: 4,
+        maxProps: 6,
         dataPoints, dataPointsDisplay, dataPointsRender,
         defaultDataPoint: "casesPerM",
         orderColumns: true,
         sortDirection: true,
         selectedRow: true,
+        includeStates: true,
+        includeCounties: true,
+        scrollable: true,
         config: [
             {component: WidgetSelect},
             {component: CountrySelect},
@@ -115,13 +125,14 @@ function TableAllCountries (name, props)  {
     return {
         name: name,
         component: Widgets.TableByCountry,
-        maxProps: 4,
+        maxProps: 6,
         allCountries: true,
         dataPoints, dataPointsDisplay, dataPointsRender,
         defaultDataPoint: "casesPerM",
         orderColumns: true,
         sortDirection: true,
         selectedRow: true,
+        scrollable: true,
         config: [
             {component: WidgetSelect},
             {component: PropsSelect}
@@ -168,6 +179,12 @@ export function numberAsPercent(x) {
     if(x.toString().length > 0 && !isNaN (x * 1))
         x = Math.round(x*10000);
         x = x / 100;
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "%";
+}
+export function numberAsPercentWhole(x) {
+    if(x.toString().length > 0 && !isNaN (x * 1))
+        x = Math.round(x*10000);
+    x = Math.round(x / 100);
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "%";
 }
 function formatTrend (x, scale) {

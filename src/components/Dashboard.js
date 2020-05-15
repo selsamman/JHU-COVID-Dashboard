@@ -11,7 +11,7 @@ const gridScaleBaseMin = .8;
 const gridScaleBaseMax = 1.2;
 
 export const Dashboard = ({mode}) => {
-    const {widgetRows, widgets} = widgetsAPI({});
+    const {widgetRows, widgets} = widgetsAPI({}, Dashboard);
     if (mode === 'lg'  || mode  === 'xl' )
         return (
             <Col>
@@ -53,20 +53,14 @@ export const Dashboard = ({mode}) => {
 }
 
 const WidgetRow = ({row, mode})=> {
-    const {widgetCols, anyConfiguring, editWidget} = widgetsAPI({row: row});
+    const {widgetCols, anyConfiguring, editWidget} = widgetsAPI({row: row}, WidgetRow);
     return (
         <Row xl={2} lg={2} md={1} sm={1} xs={1}>
             {
                 widgetCols.map((widget, ix) => {
-                    const config =  widgetConfig[widget.type];
-                    const WidgetComponent = config.component;
                     return (
-                        <Col key={ix}
-                             onClick={()=>{anyConfiguring && editWidget(widget.id)}}
-                        >
-                            <WidgetConfig id={widget.id} mode={mode} scale={mobileScale}>
-                                <WidgetComponent {...config} mode={mode} key={widget.id} id={widget.id} ix={ix}  scale={mobileScale}/>
-                             </WidgetConfig>
+                        <Col key={ix} onClick={()=>{anyConfiguring && editWidget(widget.id)}}>
+                            <Widget widget={widget} mode={mode} scale={mobileScale} ix={ix} />
                         </Col>
                     )
                 })
@@ -75,22 +69,18 @@ const WidgetRow = ({row, mode})=> {
     )
 }
 const WidgetTableRow = ({row, mode})=> {
-    const {widgetCols, anyConfiguring, editWidget} = widgetsAPI({row: row});
+    const {widgetCols, anyConfiguring, editWidget} = widgetsAPI({row: row}, WidgetTableRow);
     const scale = (widget) => Math.max(gridScaleBaseMin,(Math.min(gridScaleBaseMax, widget.cols * gridScaleBase / 6)));
     return (
         <tr >
             {
                 widgetCols.map((widget, ix) => {
-                    const config =  widgetConfig[widget.type];
-                    const WidgetComponent = config.component;
                     return (
                         <td key={ix} rowSpan={widget.rows} colSpan={widget.cols} width={(widget.cols * 100 / 12) + "%"}
                             onClick={()=>{anyConfiguring && editWidget(widget.id)}}
                             style={{borderWidth: anyConfiguring ? 1: 0, borderStyle: "dotted", borderColor:  "#808080"}}
                         >
-                            <WidgetConfig id={widget.id} mode={mode} scale={scale(widget)}>
-                                <WidgetComponent {...config} key={widget.id} id={widget.id} ix={ix}  mode={mode} scale={scale(widget)}/>
-                            </WidgetConfig>
+                            <Widget widget={widget} mode={mode} scale={scale(widget)} ix={ix} />
                         </td>
                     )
                 }
@@ -98,5 +88,14 @@ const WidgetTableRow = ({row, mode})=> {
         </tr>
     )
 }
+const Widget = React.memo(({widget, mode, scale, ix}) => {
+    const config =  widgetConfig[widget.type];
+    const WidgetComponent = config.component;
+    return (
+        <WidgetConfig id={widget.id} mode={mode} scale={scale}>
+            <WidgetComponent {...config} key={widget.id} id={widget.id} ix={ix}  mode={mode} scale={scale}/>
+        </WidgetConfig>
+    )
+});
 
 

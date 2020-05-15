@@ -77,12 +77,6 @@ export default {
                 assign: () => data
             }
         }),
-        setDashboardSelectedLocation: (location) => ({
-            dashboards: {
-                where: (state, item, ix) => ix === state.currentDashboardIx,
-                assign: () => ({selectedLocation: location})
-            }
-        }),
         setLocationStatus: (status) => ({
             locationStatus: {
                 set: () => status
@@ -119,6 +113,8 @@ export default {
         startupSequence: state => state.startupSequence,
         newDashboards: state => state.newDashboards,
         dashboardSelectedLocation: (state, {dashboard}) => dashboard.selectedLocation,
+        dashboardSelectedCountry: (state, {dashboard}) => dashboard.selectedCountry,
+        dashboardSelectedState: (state, {dashboard}) => dashboard.selectedState,
         currentDashboardIx: state => state.currentDashboardIx,
     },
     thunks: {
@@ -179,10 +175,12 @@ export default {
             const sequence = ["dashboard", "edit"];
             await (new Promise((r) => setTimeout(r, 2000)));
             for (let ix = 0; ix < sequence.length; ++ix) {
+                console.log(sequence[ix]);
                 setStartupSequence(sequence[ix]);
                 await (new Promise((r) => setTimeout(r, 4000)));
             }
             setStartupSequence("done");
+            console.log("done");
         },
         setLocationDenied: ({setLocationStatus, doOverlays}) => () => {
             setLocationStatus("denied");
@@ -194,6 +192,15 @@ export default {
         },
         setLocationNeeded: ({setLocationStatus}) => () => {
             setLocationStatus("ask");
+        },
+        setDashboardSelectedLocation: ({dataSet, setDashboardData}) => (location) => {
+            const country = dataSet.country[location];
+            setDashboardData({selectedLocation: location})
+            if (country && country.type === 'state')
+                setDashboardData({selectedState: location})
+            if (country && country.type === 'country')
+                setDashboardData({selectedCountry: location})
+
         },
     }
 }

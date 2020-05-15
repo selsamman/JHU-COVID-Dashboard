@@ -3,7 +3,7 @@ import {widgetsAPI} from "../capi";
 import {Row, Col} from 'react-bootstrap';
 
 export const DataPointsForCountry = ({id, scale, dataPointsDisplay, dataPointsRender}) => {
-    const {isConfiguring, getCountryData, widgetCountries, widgetProps, widget} = widgetsAPI({id: id});
+    const {isConfiguring, getCountryData, widgetCountries, widgetProps, widget} = widgetsAPI({id: id}, DataPointsForCountry);
     const country = widgetCountries[0];
     const cpl = widget.cols >= 4 ? 4 : 2;
     return (

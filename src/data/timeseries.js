@@ -58,9 +58,16 @@ function processJHUFile(file) {
         first: dataSet.dates[0],
         last: dataSet.dates[dataSet.dates.length - 1]
     }
+    dataSet.benchmarks = {
+        mortality: ["USA - Overall Mortality", 8657],
+        heartDisease: ["USA - Heart Desease", 1992],
+        cancer: ["USA - Cancer", 1843],
+        flu: ["USA - Flu & Pneumonia", 171]
+    }
     processJHUCountries(dataSet);
+    dataSet.codes = {};
     Object.getOwnPropertyNames(dataSet.country)
-        .map(c => dataSet.countries.push(c));
+        .map(c => {dataSet.countries.push(c);dataSet.codes[dataSet.country[c].code] = dataSet.country[c]});
     Object.getOwnPropertyNames(dataSet.country)
         .filter(c => c === "My Country" || dataSet.country[c].type === 'country')
         .map(c => dataSet.justCountries.push(c));
@@ -70,12 +77,23 @@ function processJHUFile(file) {
     Object.getOwnPropertyNames(dataSet.country)
         .filter(c=>c === "My State" || dataSet.country[c].type === 'state' || dataSet.country[c].type === 'province')
         .map(c => dataSet.justStates.push(c));
+    dataSet.justCounties.map(c => {
+        const state = dataSet.country[c.replace(/(.*), /, '')];
+        if (state)
+            state.counties.push(c)
+    });
+    dataSet.justStates.map(c => {
+        const country = dataSet.country[c] && dataSet.codes[dataSet.country[c].code];
+        if (country)
+            country.states.push(c);
+    });
     console.log(`${dataSet.justCountries.length} countries`);
     console.log(`${dataSet.justStates.length} states`);
     console.log(`${dataSet.justCounties.length} counties`);
     let status = "loaded";
     return status;
 }
+
 function processJHUCountries (dataSet) {
     dataSet.country["The Whole World"] = dataSet.country["Total"];
     delete dataSet.country["Total"];
@@ -126,6 +144,11 @@ function processJHUCountries (dataSet) {
             name: countryName,
             type: country.type,
             code: country.code,
+            population: country.population,
+            deathsAsPercentOfFlu: deathsPerM / 171,
+            deathsAsPercentOfOverall: deathsPerM / 8657,
+            states: [],
+            counties: [],
             deaths, cases,
             mortalitySeverity, caseSeverity,
             mortalitySeverityOverTime: mortalitySeveritySeries,

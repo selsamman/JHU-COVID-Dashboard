@@ -20,7 +20,7 @@ const Map = React.memo(({cols, dataSet, dataPoint, mode, replay, isAnimated}) =>
 });
 
 export const WorldMap = ({id, scale, dataPointsDisplay, severityThresholds, mode}) => {
-    const {widget, widgetProps, dataSet, isConfiguring} = widgetsAPI({id: id});
+    const {widget, widgetProps, dataSet, isConfiguring} = widgetsAPI({id: id}, WorldMap);
     const isAnimated = !!widgetProps[0].match(/OverTime/i);
     const [replay, setReplay] = useState(0);
     const dates = dataSet.dates.slice(dataSet.dates.length - dataSet.country["United States"].caseSeverityOverTime.length);

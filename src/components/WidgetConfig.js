@@ -6,8 +6,8 @@ import {widgetsAPI} from "../capi";
 import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronBarDown, ChevronBarUp, CaretDownFill, CaretUpFill} from "react-bootstrap-icons";
 const debug = false && document.location.origin.match(/localhost/);
 
-export default ({id, children, scale, mode}) => {
-    const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries, widgetProps} = widgetsAPI({id: id});
+const WidgetConfig = ({id, children, scale, mode}) => {
+    const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries, widgetProps} = widgetsAPI({id: id}, WidgetConfig);
     const config = widgetConfig[widget.type];
 
     return (
@@ -32,9 +32,9 @@ export default ({id, children, scale, mode}) => {
         </>
     );
 };
-
+export default WidgetConfig;
 const WidgetConfigElement = ({id, config, scale}) => {
-    const {widget} = widgetsAPI({id: id});
+    const {widget} = widgetsAPI({id: id}, WidgetConfigElement);
     return (
         <div  className="WidgetConfigElement">
             <config.component {...widgetConfig[widget.type]} countries={dataSet.countries} id={id} scale={scale} />
@@ -47,7 +47,7 @@ const WidgetConfigSize = ({id, scale}) => {
     const {canContractWidgetHeight, canExpandWidgetHeight, canContractWidgetWidth, canExpandWidgetWidth,
            contractWidgetHeight, expandWidgetHeight, contractWidgetWidth, expandWidgetWidth,
              canMoveWidgetLeft, canMoveWidgetRight, moveWidgetLeft,  moveWidgetRight,
-             canMoveWidgetDown, canMoveWidgetUp, moveWidgetDown, moveWidgetUp, widget} =  widgetsAPI({id: id});
+             canMoveWidgetDown, canMoveWidgetUp, moveWidgetDown, moveWidgetUp, widget} =  widgetsAPI({id: id}, WidgetConfigSize);
     const narrow = widget.cols < 2 ? 12 : 2;
     const wide = widget.cols < 2 ? 12 : 4;
 

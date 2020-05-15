@@ -5,8 +5,8 @@ import { CircleFill } from 'react-bootstrap-icons';
 import {colors} from "../config/colors";
 import {widgetsAPI} from "../capi";
 
-export default ({id, scale, countries}) => {
-    const {isConfiguring} = widgetsAPI({id: id});
+const Countries = ({id, scale, countries}) => {
+    const {isConfiguring} = widgetsAPI({id: id}, Countries);
     return (
         <>
             {!isConfiguring &&
@@ -23,4 +23,5 @@ export default ({id, scale, countries}) => {
         </>
     );
 };
+export default Countries;
 

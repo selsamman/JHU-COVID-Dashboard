@@ -3,8 +3,8 @@ import {widgetsAPI} from "../capi";
 import {widgetConfig, widgetNames} from "../config/widgets";
 import {Dropdown} from "react-bootstrap";
 
-export default ({id, scale}) => {
-    const {doneEditing, deleteWidget, setLayoutMode} = widgetsAPI({id: id});
+const WidgetSelect = ({id, scale}) => {
+    const {doneEditing, deleteWidget, setLayoutMode} = widgetsAPI({id: id}, WidgetSelect);
         return (
             <div className="WidgetSelector">
                 <SelectType id={id} scale={scale}/>
@@ -12,7 +12,7 @@ export default ({id, scale}) => {
     )
 };
 const SelectType = ({id, scale}) => {
-    const {widget, setWidgetData} = widgetsAPI({id: id});
+    const {widget, setWidgetData} = widgetsAPI({id: id}, SelectType);
     return (
         <Dropdown size="lg">
             <Dropdown.Toggle variant="secondary" size="sm" style={{fontSize: 14 * scale, padding: 4}}>
@@ -30,3 +30,4 @@ const SelectType = ({id, scale}) => {
         </Dropdown>
     )
 }
+export default WidgetSelect;

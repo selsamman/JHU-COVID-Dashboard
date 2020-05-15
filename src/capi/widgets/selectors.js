@@ -35,14 +35,27 @@ export default {
         (widgets, id) => widgets ? widgets.find(w => (w.id === id)) : undefined
     ],
     widgetCountries: [
-        (select, {widget, substitutionCountries, dataSet, dashboardSelectedLocation}) =>
-            select(widget, substitutionCountries, dataSet, dashboardSelectedLocation),
-        (widget, substitutionCountries, dataSet, dashboardSelectedLocation) => !widget ? [] :
-            [...new Set(widget.countries
-                .map( c => (c === "Selected Location"
-                    ? dashboardSelectedLocation || "United States" : substitutionCountries[c] || c))
-                .filter( c => !!dataSet.country[c] ))].sort()
-
+        (select, {widget, substitutionCountries, dataSet, dashboardSelectedLocation, dashboardSelectedState, dashboardSelectedCountry}) =>
+            select(widget, substitutionCountries, dataSet, dashboardSelectedLocation, dashboardSelectedState, dashboardSelectedCountry),
+        (widget, substitutionCountries, dataSet, dashboardSelectedLocation, dashboardSelectedState, dashboardSelectedCountry) => {
+            return widget ? [...new Set(widget.countries.map(map).flat().filter(c => !!dataSet.country[c]))].sort() : []
+            function map (c) {
+                let country = c;
+                if (country === "Selected Location") {
+                    country = dashboardSelectedLocation ? dashboardSelectedLocation : "My Country";
+                    if (widget.includeCounties && dataSet.country[country].type === 'county' && dashboardSelectedState)
+                        country = dashboardSelectedState
+                    if (widget.includeStates && dataSet.country[country].type === 'state' && dashboardSelectedCountry)
+                        country = dashboardSelectedCountry;
+                } else
+                    country = substitutionCountries[c] || c;
+                if (widget.includeStates && dataSet.country[country] && dataSet.country[country].states.length > 0)
+                    country = dataSet.country[country].states;
+                if (widget.includeCounties && dataSet.country[country] && dataSet.country[country].counties.length > 0)
+                    country = dataSet.country[country].counties;
+                return country;
+            }
+        }
     ],
     widgetProps: [
         (select, {widget, dataSet}) => select(widget, dataSet),
