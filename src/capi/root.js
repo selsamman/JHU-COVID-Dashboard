@@ -1,8 +1,7 @@
-import {initialDashboard, initialWidget} from "./initialState";
+import {initialDashboard} from "./initialState";
 import {save} from "../config/localstorage";
-import {updateLocation, manageLocation} from "../config/locationData";
+import {updateLocation} from "../config/locationData";
 import {dataSet} from "../data/timeseries";
-import {widgetsAPI} from "./index";
 
 export default {
     redactions: {

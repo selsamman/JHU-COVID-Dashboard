@@ -1,5 +1,5 @@
 import {widgetsAPI} from "../index";
-import {widgetConfig} from "../../config/widgets";
+import {widgetConfig, widgetNotes} from "../../config/widgets";
 
 export default {
     widgets: state => state.widgets,
@@ -42,7 +42,7 @@ export default {
             function map (c) {
                 let country = c;
                 if (country === "Selected Location") {
-                    country = dashboardSelectedLocation ? dashboardSelectedLocation : "My Country";
+                    country = dashboardSelectedLocation ? dashboardSelectedLocation : substitutionCountries["My Country"];
                     if (widget.includeCounties && dataSet.country[country].type === 'county' && dashboardSelectedState)
                         country = dashboardSelectedState
                     if (widget.includeStates && dataSet.country[country].type === 'state' && dashboardSelectedCountry)
@@ -57,20 +57,14 @@ export default {
             }
         }
     ],
+    widgetNotes: [
+        (select, {widgets}) => select(widgets),
+        (widgets) => [...new Set(
+            widgets.map( widget => getWidgetPropsAsArray(widget).map(p => widgetNotes[p] || "")).flat().filter(n => n))]
+    ],
     widgetProps: [
         (select, {widget, dataSet}) => select(widget, dataSet),
-        (widget) => {
-            if (!widget)
-                return [];
-            const config = widgetConfig[widget.type]
-            if (config.dataPoint)
-                return config.dataPoint;
-            if (config.dataPoints) {
-                const points = widget.props.filter(p => Object.getOwnPropertyNames(config.dataPoints).includes(p))
-                return points.length > 0 ? points : (config.defaultDataPoint ? [config.defaultDataPoint] : [])
-            }
-            return [];
-        }
+        (widget) => getWidgetProps(widget)
     ],
     widgetConfigCountries: [
         (select, {widget, substitutionCountries}) => select(widget, substitutionCountries),
@@ -139,4 +133,20 @@ export default {
     ],
     canExpandWidgetWidth: (state, {widgetBlankOrContractableNeighbor}) => !!widgetBlankOrContractableNeighbor
 
+}
+function getWidgetProps(widget) {
+    if (!widget)
+        return [];
+    const config = widgetConfig[widget.type]
+    if (config.dataPoint)
+        return config.dataPoint;
+    if (config.dataPoints) {
+        const points = widget.props.filter(p => Object.getOwnPropertyNames(config.dataPoints).includes(p))
+        return points.length > 0 ? points : (config.defaultDataPoint ? [config.defaultDataPoint] : [])
+    }
+    return [];
+}
+function getWidgetPropsAsArray(widget) {
+    const propOrProps = getWidgetProps(widget);
+    return propOrProps instanceof Array ? propOrProps : [propOrProps]
 }

@@ -8,6 +8,12 @@ import React from "react";
 import SinglePropSelect from "../components/SinglePropSelect";
 import {casesSeverityThresholds, deathSeverityThresholds, flu} from "../data/timeseries";
 
+export const widgetNotes = {
+    deathsAsPercentOfFlu: ["Death vs Flu is COVID deaths compared to the 149 US deaths per 1M from flu and pneumonia as per NCHS Data Brief 355."],
+    deathsAsPercentOfOverall: ["Death vs All is COVID deaths compared to the US annual mortality of 7236 per 1M as per NCHS Data Brief 355."],
+    deathTrend: "Deaths Weekly Trend is the number of new deaths in the last 7 days vs the prior 7 seven days.",
+    caseTrend: "Cases Weekly Trend is the number of new confirmed cases in the last 7 days vs the prior 7 seven days.",
+}
 
 const dataPoints = {
     deaths: "Total Deaths",
@@ -26,18 +32,18 @@ const dataPoints = {
 }
 const dataPointsDisplay = {
     deaths: ["Deaths", "Total"],
-    deathsPerM: ["Deaths", "per million"],
+    deathsPerM: ["Deaths", "per 1M"],
     cases: ["Cases", "Total"],
-    casesPerM: ["Cases", "per million"],
+    casesPerM: ["Cases", "per 1M"],
     deathTrend: ["Deaths", "weekly trend"],
     caseTrend: ["Cases", "weekly trend"],
     caseMortality: ["Deaths", "per Case"],
-    newCases: ["Cases", "recently added"],
-    newDeaths: ["Deaths", "recently added"],
+    newCases: ["Cases", "recent"],
+    newDeaths: ["Deaths", "recent"],
     newDeathsPerPopulation: ["Deaths", "new per 1M"],
     newCasesPerPopulation: ["Cases", "new per 1M"],
-    deathsAsPercentOfFlu: ["Deaths", "COVID vs Flu"],
-    deathsAsPercentOfOverall: ["Deaths", "COVID vs All"]
+    deathsAsPercentOfFlu: ["Deaths", "vs Flu"],
+    deathsAsPercentOfOverall: ["Deaths", "vs All"]
 
 };
 const dataPointsRender = {

@@ -7,7 +7,7 @@ import {colors} from "../config/colors";
 import { XCircleFill, PlusCircleFill } from 'react-bootstrap-icons';
 
 const CountrySelect = ({id, countries, maxCountries, scale}) => {
-    const {widget, addCountryToWidget, deleteCountryFromWidget, dataSet, getCountryData} = widgetsAPI({id: id}, CountrySelect);
+    const {widget, addCountryToWidget, deleteCountryFromWidget, getCountryData} = widgetsAPI({id: id}, CountrySelect);
     const [addingCounties, setAddingCountries] = useState(false);
     return (
         <div>

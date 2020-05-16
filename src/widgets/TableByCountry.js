@@ -5,17 +5,23 @@ import ChartTitle from "../components/ChartTitle";
 import styled, {css}from "styled-components";
 import {ReactComponent as World} from "./world.svg";
 import ScrollingTable, {scrollIntoView} from "../components/ScrollingTable";
+import {numberWithCommas} from "../config/widgets";
+const populationThreshold = 1000000;
 
 export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPointsRender, allCountries}) => {
     const {widgetCountries, getCountryData, widgetProps, dataSet, widget, name,
-           dashboardSelectedLocation, setDashboardSelectedLocation} = widgetsAPI({id: id}, TableByCountry);
-    const title = (widget.includeStates ? "State " : "") + (widget.includeCounties ? "County " : "") +
-                (allCountries ? `Top ${widget.displayCount || 5} ` : '') + dataPoints[widgetProps[0]];
+           dashboardSelectedLocation, setDashboardSelectedLocation, persistState} = widgetsAPI({id: id}, TableByCountry);
+    const title = dataPoints[widgetProps[0]];
+    const subTitle = allCountries && (`Top ${widget.displayCount || 5} ` +
+        (!widget.allData ? `, population > ${numberWithCommas(populationThreshold)}` : "") +
+        (widget.includeStates ? ", including states " : "") +
+        (widget.includeCounties ? ", including counties " : ""))
+
     const scrollId = name + "-" + widget.id;
     return (
         <>
-            <ChartTitle name={title} scale={scale}  id={id} />
-            <ScrollingTable height={widget.rows * 350} headerHeight={50} enable={!!widget.scroll} id={scrollId}>
+            <ChartTitle name={title} subTitle={subTitle} scale={scale}  id={id} />
+            <ScrollingTable height={Math.min(2, widget.rows) * 350} headerHeight={50} enable={!!widget.scroll} id={scrollId}>
             <Table  striped bordered hover size="sm" responsive="sm" className="TableByCountry">
                 <thead>
                     <tr>
@@ -36,7 +42,7 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
                             <td style={{fontSize: 12 * scale}} id={getId(widget.id, country)}>
                                 {widget.selectCountry &&
                                     <Form.Check type="radio"
-                                        onChange={()=>{setDashboardSelectedLocation(country)}}
+                                        onChange={()=>{setDashboardSelectedLocation(country);persistState()}}
                                         label={country}
                                         checked={dashboardSelectedLocation === country}
                                     />
@@ -47,7 +53,9 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
                             </td>
                             {widgetProps.map(prop => (
                                     <td key={prop} style={{fontSize: 12 * scale, textAlign: 'right'}}>
+                                        <span style={{whiteSpace: "nowrap"}}>
                                         {dataPointsRender[prop](getCountryData(country)[prop])}
+                                        </span>
                                     </td>
                             ))}
                         </tr>
@@ -62,7 +70,7 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
             ? Object.getOwnPropertyNames(dataSet.country).filter(c => c !== "The Whole World" )
                 .filter(c => {
                     const data = getCountryData(c);
-                    if (!(widget.allData || (data.population > 1000000 && data.deathsPerM > 10 && data.casesPerM > 1000)))
+                    if (!(widget.allData || (data.population > 1000000)))
                         return false;
                     return widget.includeCounties && data.type === "county" ||
                            widget.includeStates && data.type === "state" ||

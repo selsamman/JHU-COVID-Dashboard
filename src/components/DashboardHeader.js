@@ -164,15 +164,13 @@ const EditDropdown = ({setMode}) => {
                             <div className="menuDashboardItemBottom">Remove this dashboard from list</div>
                         </Dropdown.Item>
                     }
-                    {isDashboardCustom &&
-                        <Dropdown.Item onSelect={() => setMode("link")}>
-                            <div className="menuDashboardItemTop">
-                                <Link size={16} style={{marginTop: -4, marginRight: 3}}/>
-                                Share Dashboard
-                            </div>
-                            <div className="menuDashboardItemBottom">Create a link you can share</div>
-                        </Dropdown.Item>
-                    }
+                    <Dropdown.Item onSelect={() => setMode("link")}>
+                        <div className="menuDashboardItemTop">
+                            <Link size={16} style={{marginTop: -4, marginRight: 3}}/>
+                            Share Dashboard
+                        </div>
+                        <div className="menuDashboardItemBottom">Create a link you can share</div>
+                    </Dropdown.Item>
                     {document.location.origin.match(/localhost/) &&
                         <Dropdown.Item onSelect={() => {setShow(false);setMode("json")}}>
                             <div className="menuDashboardItemTop">

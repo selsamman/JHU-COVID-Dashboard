@@ -1,9 +1,9 @@
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import { widgetsAPI} from "../capi";
 import {ReactComponent as World} from "./world.svg";
 import styled, {keyframes, css} from 'styled-components'
 import {Col, Row} from "react-bootstrap";
-import {CaretRightFill, PencilSquare} from "react-bootstrap-icons";
+import {CaretRightFill} from "react-bootstrap-icons";
 import {IconWrapperHeader} from "../components/IconWrapper";
 import {AnimateRange} from "./AnimateRange";
 import ChartTitle from "../components/ChartTitle";
@@ -83,10 +83,6 @@ export const WorldMap = ({id, scale, dataPointsDisplay, severityThresholds, mode
 const Color = ({color}) => (
     <span style={{backgroundColor: color, display: "inline-block",  width: 12, fontSize: 7, border: "1px solid black"}}>&nbsp;</span>
 )
-
-const FormatDate = ({date}) => {
-
-}
 
 function getStyledWorldAnimated (cols, countries, dataPoint, mode) {
     const styles = countries.filter(c => c && c.type === 'country').map( data => {

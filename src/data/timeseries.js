@@ -7,8 +7,8 @@ export let dataSet = {
     justStates: ["My State"],
 }
 
-export const flu= 168 // Based on mortality rate of the flu;
-export const deathSeverityThresholds = [0, 1, flu / 8, flu / 4, flu];
+export const flu= 149 // Based on mortality rate of the flu;
+export const deathSeverityThresholds = [0, 1, Math.round(flu / 8), Math.round(flu / 4), flu];
 export const casesSeverityThresholds = [0, 50, 1000, 2000, 4000];
 let importState = 'none';
 export const importJHUData = async ({manageStartupSequence}) => {
@@ -58,11 +58,12 @@ function processJHUFile(file) {
         first: dataSet.dates[0],
         last: dataSet.dates[dataSet.dates.length - 1]
     }
+    // https://www.cdc.gov/nchs/products/databriefs/db355.htm
     dataSet.benchmarks = {
-        mortality: ["USA - Overall Mortality", 8657],
-        heartDisease: ["USA - Heart Desease", 1992],
-        cancer: ["USA - Cancer", 1843],
-        flu: ["USA - Flu & Pneumonia", 171]
+        mortality: ["USA - Overall Mortality", 7236],
+        heartDisease: ["USA - Heart Desease", 1636],
+        cancer: ["USA - Cancer", 1491],
+        flu: ["USA - Flu & Pneumonia", 149]
     }
     processJHUCountries(dataSet);
     dataSet.codes = {};
@@ -97,6 +98,7 @@ function processJHUFile(file) {
 function processJHUCountries (dataSet) {
     dataSet.country["The Whole World"] = dataSet.country["Total"];
     delete dataSet.country["Total"];
+    const time = new Date();
     for (let countryName in  dataSet.country) {
 
         const country = dataSet.country[countryName];
@@ -118,8 +120,8 @@ function processJHUCountries (dataSet) {
         const lastFirst = priorFirst + 7;
         const lastLast = priorLast + 7;
 
-        let prior3 =  newCaseSeries.reduce((a,v,x)=>x >= priorFirst && x <= priorLast ? a + v : a);
-        let last3 =  newCaseSeries.reduce((a,v,x)=>x >= lastFirst && x <= lastLast ? a + v : a);
+        let prior3 =  newCaseSeries.reduce((a,v,x)=> (x >= priorFirst && x <= priorLast) ? a + v : a);
+        let last3 =  newCaseSeries.reduce((a,v,x)=> (x >= lastFirst && x <= lastLast) ? a + v : a);
         const caseTrend = prior3 ? Math.round((last3 - prior3) * 100 / prior3) + "%" : '';
 
         prior3 =  newDeathSeries.reduce((a,v,x)=>x >= priorFirst && x <= priorLast ? a + v : a);
@@ -166,12 +168,21 @@ function processJHUCountries (dataSet) {
             deathsOverTime: country.deaths,
             newCasesOverTime: newCaseSeries,
             newDeathsOverTime: newDeathSeries,
+            get  newCasesOverTime14DMA() {
+                return movingAverage(newCaseSeries, 14)
+            },
+            get newDeathsOverTime14DMA() {
+                return movingAverage(newDeathSeries, 14)
+            },
             newCasesPerPopulationOverTime: newCasePerPopulationSeries,
             newDeathsPerPopulationOverTime: newDeathPerPopulationSeries,
             casesPerPopulationOverTime: casePerPopulationSeries,
             deathsPerPopulationOverTime: deathPerPopulationSeries,
         };
     };
+    console.log("Preprocessing took " + ((new Date()).getTime() - time.getTime()));
 }
-
+function movingAverage(series, period) {
+    return series.map((n, ix) => series.slice(Math.max(0, ix - period + 1), ix + 1).reduce((a,n)=>a + n, 0) / Math.min(ix + 1, period))
+}
 

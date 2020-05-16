@@ -1,4 +1,4 @@
-import {getDashboardFromURL} from "./urlParameters";
+import {getDashboardFromURL, getDashboardNameURL} from "./urlParameters";
 import {adjustName} from "../capi/dashboard";
 import {upgrade} from "../capi/initialState";
 
@@ -44,6 +44,15 @@ export function getInitialState(initialState) {
     }
     state.editMode = "none";
     state.startupSequence = startSchemaVersion !== state.schemaVersion || state.newDashboards ? "init" : "done";
+    const selectDashboard = getDashboardNameURL()
+    if (selectDashboard) {
+        const selectedDashboardIx = state.dashboards.findIndex(d => d.name === selectDashboard)
+        if (selectedDashboardIx >= 0) {
+            state.currentDashboardIx = selectedDashboardIx;
+            state.currentDashboardName = state.dashboards[state.currentDashboardIx].name;
+        }
+    }
+
     save(state);
     console.log("state = " + JSON.stringify(state, null, 5));
     return state;

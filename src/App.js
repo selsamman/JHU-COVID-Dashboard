@@ -16,7 +16,7 @@ function App({currentBreakpoint}) {
   importData(widgetsAPI({})).then( (state) => setLoadingState(state));
   return (
       <>
-          <Container>
+          <Container fluid="xl">
               {loadingState === 'loaded' && <DashboardHeader />}
               <Row style={{marginTop: 48}}>
                   {loadingState === 'loading' &&

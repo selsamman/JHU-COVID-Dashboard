@@ -132,7 +132,7 @@ const PropsSelect = ({dataPoints, id, maxProps, scale, sortDirection, scrollable
                                     show {widget.displayCount || 5}
                                 </Dropdown.Toggle>
                                 <Dropdown.Menu>
-                                    {[5, 10, 15, 20, 25, 30, 40, 50].map(count =>
+                                    {[5, 10, 15, 20, 25, 30, 40, 50, 75, 100].map(count =>
                                         <Dropdown.Item onSelect={() => {setWidgetData({displayCount:count})}} key={count}>
                                             show {count}
                                         </Dropdown.Item>

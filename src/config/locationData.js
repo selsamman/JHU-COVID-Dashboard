@@ -88,22 +88,8 @@ export async function updateLocation(api, geo) {
 
 function adjustDataSetForLocation(location, api) {
 
-    const {substitutionCountries, setCountrySubstitution, persistState} = api;
+    const {substitutionCountries, setCountrySubstitution} = api;
 
-        const countrySub = {
-        "Taiwan Province of China" : "Taiwan",
-        "United States of America" : "United States",
-        "United States Virgin Islands" : "Virgin Islands",
-        "Bolivia (Plurinational State of)" : "Bolivia",
-        "Iran (Islamic Republic of)" : "Iran",
-        "Republic of Korea" : "South Korea",
-        "Republic of Moldova": "Moldova",
-        "Russian Federation" : "Russia",
-        "United Republic of Tanzania": "Tanzania",
-        "Venezuela (Bolivarian Republic of)": "Venezuela",
-        "Syrian Arab Republic": "Syria",
-        "Lao People's Democratic Republic": "Laos"
-    }
     console.log("Adjusting for location " + JSON.stringify(location));
     location.country = substitutionCountries[location.country] || location.country;
 

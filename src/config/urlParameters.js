@@ -2,23 +2,29 @@ import {upgrade} from "../capi/initialState";
 
 
 export function getURL(state) {
+    if (state.dashboardType == 'custom')
+        return prepareURL(state, "dash");
+    else
+        return prepareURL(state.name, "dname")
 
-    const configParam = compressState(state);
-    if (JSON.stringify(state) !== JSON.stringify(uncompressState(configParam))) {
-        console.log("Error reviving state");
-        console.log("original=" + JSON.stringify(state));
-        console.log("revived=" +JSON.stringify(uncompressState(configParam)));
-        return;
+    function prepareURL(state, key) {
+        const configParam = compressState(state);
+        if (JSON.stringify(state) !== JSON.stringify(uncompressState(configParam))) {
+            console.log("Error reviving state");
+            console.log("original=" + JSON.stringify(state));
+            console.log("revived=" +JSON.stringify(uncompressState(configParam)));
+            return;
+        }
+        const url = window.location.origin + "?" + key + "=" + configParam;
+        const urlSize = url.length;
+        const percentOver = Math.ceil((urlSize - 2048) * 100 / 2048);
+        if (urlSize > 2048) {
+            console.log(`${urlSize} ${JSON.stringify(state).length} ${url} = ${JSON.stringify(state)}`);
+            alert(`This URL is ${percentOver}% too large. Dashboard is too complex`);
+            return null;
+        }
+        return url;
     }
-    const url = window.location.origin + "?dash=" + configParam;
-    const urlSize = url.length;
-    const percentOver = Math.ceil((urlSize - 2048) * 100 / 2048);
-    if (urlSize > 2048) {
-        console.log(`${urlSize} ${JSON.stringify(state).length} ${url} = ${JSON.stringify(state)}`);
-        alert(`This URL is ${percentOver}% too large. Dashboard is too complex`);
-        return null;
-    }
-    return url;
 }
 export function getDashboardFromURL() {
 
@@ -35,12 +41,23 @@ export function getDashboardFromURL() {
         }
         return state;
     } catch (e) {
-        alert('Hmm there is a problem with config= in this URL ' + e.toString());
+        alert('Hmm there is a problem with dash= in this URL ' + e.toString());
         return null;
     }
 
 }
+export function getDashboardNameURL() {
 
+    const config  = (new URLSearchParams(document.location.search)).get("dname");
+    if (!config)
+        return undefined
+    try {
+        return uncompressState(config);
+    } catch (e) {
+        alert('Hmm there is a problem with dname= in this URL ' + e.toString());
+        return null;
+    }
+}
 
 export function compressState (state) {
     let dictionaryHash = {};

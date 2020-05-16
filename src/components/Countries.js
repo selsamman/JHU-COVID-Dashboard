@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Row, Col} from 'react-bootstrap';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { CircleFill } from 'react-bootstrap-icons';

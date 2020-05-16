@@ -48,58 +48,60 @@ const initialState = {
     },
     "dashboards": [
         {
-            "nextWidgetId": 112,
+            "nextWidgetId": 115,
             "dashboardType": "stock",
             "name": "COVID Dashboard",
             "widgets": [{
                 "id": 1,
                 "type": "DataForCountry",
-                "countries": ["My Country"],
+                "countries": ["Selected Location"],
                 "row": 0,
                 "col": 0,
                 "rows": 1,
-                "cols": 5,
+                "cols": 6,
                 "props": ["cases", "deaths", "caseTrend", "deathTrend"]
             }, {
                 "id": 3,
                 "type": "DataByCountry",
-                "countries": ["My County", "My Country", "My State", "The Whole World", "Spain", "Italy", "France", "Germany", "United Kingdom", "Belgium", "Turkey", "United States", "South Korea", "Iran", "Sweden", "Ireland"],
+                "countries": ["My County", "My Country", "My State", "The Whole World", "Spain", "Italy", "France", "Germany", "United Kingdom", "Belgium", "United States", "South Korea", "Sweden", "Ireland"],
                 "row": 0,
-                "col": 5,
+                "col": 6,
                 "rows": 2,
-                "cols": 7,
+                "cols": 6,
                 "props": ["casesPerM", "deathsPerM", "deathTrend", "caseTrend"],
                 "displayCount": 10,
                 "sortUp": false,
-                "allData": false
+                "allData": false,
+                "selectCountry": true
             }, {
                 "id": 4,
                 "type": "NewCasesOverTime",
-                "countries": ["My Country"],
+                "countries": ["Selected Location"],
                 "row": 1,
                 "col": 0,
                 "rows": 1,
-                "cols": 5,
+                "cols": 6,
                 "props": ["mortalitySeverityOverTime"]
             }, {
                 "id": 5,
                 "type": "NewDeathsOverTime",
-                "countries": ["My Country"],
+                "countries": ["Selected Location"],
                 "row": 2,
                 "col": 0,
                 "rows": 1,
-                "cols": 5,
+                "cols": 6,
                 "props": []
             }, {
                 "id": 6,
                 "type": "DataAllCountries",
                 "countries": ["My County", "My Country", "My State", "The Whole World"],
                 "row": 2,
-                "col": 5,
-                "rows": 2,
-                "cols": 7,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
                 "props": ["deathsPerM", "casesPerM", "newDeaths", "newCases"],
-                "displayCount": 15
+                "displayCount": 50,
+                "scroll": true
             }, {
                 "id": 105,
                 "type": "Blank",
@@ -109,7 +111,16 @@ const initialState = {
                 "cols": 5,
                 "props": ["cases", "deaths", "caseTrend", "deathTrend"],
                 "countries": ["The Whole World"]
-            }]
+            }, {
+                "id": 113,
+                "type": "Blank",
+                "row": 3,
+                "col": 5,
+                "rows": 1,
+                "cols": 7,
+                "props": ["cases", "deaths"],
+                "countries": ["My Country"]
+            }],
         },
         {
             "nextWidgetId": 8,
@@ -444,11 +455,12 @@ const initialState = {
                 "countries": ["United States"],
                 "includeCounties": false,
                 "includeStates": true,
-                "selectCountry": true
+                "selectCountry": true,
+                "scroll": true
             }, {
                 "id": 3,
                 "type": "NewCasesOverTime",
-                "row": 1,
+                "row": 0,
                 "col": 6,
                 "rows": 1,
                 "cols": 6,
@@ -457,26 +469,81 @@ const initialState = {
             }, {
                 "id": 4,
                 "type": "DataByCountry",
-                "row": 0,
-                "col": 6,
+                "row": 1,
+                "col": 0,
                 "rows": 1,
                 "cols": 6,
                 "props": ["caseTrend", "deathTrend", "cases", "deaths"],
                 "countries": ["Selected Location"],
                 "includeCounties": true,
-                "selectCountry": true
+                "selectCountry": true,
+                "scroll": true
             }, {
                 "id": 6,
                 "type": "NewDeathsOverTime",
                 "row": 1,
-                "col": 0,
+                "col": 6,
                 "rows": 1,
                 "cols": 6,
                 "props": ["cases", "deaths"],
                 "countries": ["Selected Location"]
             }],
-            "selectedLocation": "Alabama",
-            "selectedState": "Alabama"
+        },
+        {
+            "nextWidgetId": 13,
+            "dashboardType": "stock",
+            "name": "COVID Mortality vs Other Causes",
+            "widgets": [{
+                "id": 1,
+                "type": "DataAllCountries",
+                "row": 0,
+                "col": 0,
+                "rows": 4,
+                "cols": 6,
+                "props": ["deathsPerM", "deaths", "deathsAsPercentOfFlu", "deathsAsPercentOfOverall"],
+                "countries": ["My Country"],
+                "includeCounties": true,
+                "includeStates": true,
+                "selectCountry": false,
+                "displayCount": 100,
+                "scroll": true
+            }, {
+                "id": 3,
+                "type": "DataForCountry",
+                "row": 0,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["deathsPerM", "deaths", "deathsAsPercentOfOverall", "deathsAsPercentOfFlu"],
+                "countries": ["The Whole World"]
+            }, {
+                "id": 4,
+                "type": "DataForCountry",
+                "row": 3,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["deathsPerM", "deaths", "deathsAsPercentOfFlu", "deathsAsPercentOfOverall"],
+                "countries": ["My County"]
+            }, {
+                "id": 8,
+                "type": "DataForCountry",
+                "row": 1,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["deathsPerM", "deaths", "deathsAsPercentOfFlu", "deathsAsPercentOfOverall"],
+                "countries": ["My Country"]
+            }, {
+                "id": 11,
+                "type": "DataForCountry",
+                "row": 2,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["deathsPerM", "deaths", "deathsAsPercentOfFlu", "deathsAsPercentOfOverall"],
+                "countries": ["My State"]
+            }]
         }
     ],
 }
