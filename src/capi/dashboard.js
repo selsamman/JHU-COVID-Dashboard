@@ -1,5 +1,6 @@
 import {getURL} from "../config/urlParameters";
 import {save} from "../config/localstorage";
+import {dateSelect} from "../config/widgets";
 
 export default {
     redactions: {
@@ -13,6 +14,11 @@ export default {
                 set: () => "custom"
             }
         }),
+        setToDate: (date) => ({
+            toDate: {
+                set: () => date
+            }
+        })
     },
     selectors: {
         dashboard: state => state,

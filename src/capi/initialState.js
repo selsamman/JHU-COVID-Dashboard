@@ -15,6 +15,11 @@ export function upgrade(state) {  // DONT FORGET TO UPDATE THIS!!!
         state.schemaVersion = 6;
         console.log("Upgrading to schema version " + 6);
     }
+    if (state.schemaVersion < 7) {
+        state.dashboards.map(d => {d.toDate = 0});
+        state.schemaVersion = 7;
+        console.log("Upgrading to schema version " + 6);
+    }
     return state;
 }
 export const defaultDashboardName = "COVID Dashboard";
@@ -51,6 +56,7 @@ const initialState = {
             "nextWidgetId": 115,
             "dashboardType": "stock",
             "name": "COVID Dashboard",
+            "toDate": 0,
             "widgets": [{
                 "id": 1,
                 "type": "DataForCountry",
@@ -63,7 +69,7 @@ const initialState = {
             }, {
                 "id": 3,
                 "type": "DataByCountry",
-                "countries": ["My County", "My Country", "My State", "The Whole World", "Spain", "Italy", "France", "Germany", "United Kingdom", "Belgium", "United States", "South Korea", "Sweden", "Ireland"],
+                "countries": ["My County", "My Country", "My State", "The Whole World", "Spain", "Italy", "France", "Chile", "United Kingdom", "Belgium", "United States", "Brazil", "Sweden", "Ireland", "Peru"],
                 "row": 0,
                 "col": 6,
                 "rows": 2,
@@ -81,7 +87,8 @@ const initialState = {
                 "col": 0,
                 "rows": 1,
                 "cols": 6,
-                "props": ["mortalitySeverityOverTime"]
+                "props": ["mortalitySeverityOverTime"],
+                "granularity": "weekly"
             }, {
                 "id": 5,
                 "type": "NewDeathsOverTime",
@@ -90,7 +97,8 @@ const initialState = {
                 "col": 0,
                 "rows": 1,
                 "cols": 6,
-                "props": []
+                "props": [],
+                "granularity": "weekly"
             }, {
                 "id": 6,
                 "type": "DataAllCountries",
@@ -120,12 +128,13 @@ const initialState = {
                 "cols": 7,
                 "props": ["cases", "deaths"],
                 "countries": ["My Country"]
-            }],
+            }]
         },
         {
             "nextWidgetId": 8,
             "dashboardType": "stock",
             "name": "New Cases",
+            toDate: 0,
             "widgets": [
                 {
                     "id": 1,
@@ -208,6 +217,7 @@ const initialState = {
             "nextWidgetId": 8,
             "dashboardType": "stock",
             "name": "New Deaths",
+            toDate: 0,
             "widgets": [
                 {
                     "id": 1,
@@ -286,6 +296,7 @@ const initialState = {
             "nextWidgetId": 10,
             "dashboardType": "stock",
             "name": "Animation Over Time",
+            toDate: 0,
             "widgets": [
                 {
                     "id": 1,
@@ -379,71 +390,59 @@ const initialState = {
             ]
         },
         {
-            "nextWidgetId": 6,
+            "nextWidgetId": 8,
             "dashboardType": "stock",
             "name": "Case Mortality",
-            "widgets": [
-                {
-                    "id": 1,
-                    "type": "DataAllCountries",
-                    "row": 0,
-                    "col": 0,
-                    "rows": 2,
-                    "cols": 6,
-                    "props": [
-                        "caseMortality",
-                        "deaths",
-                        "cases"
-                    ],
-                    "countries": [
-                        "My Country"
-                    ],
-                    "displayCount": 20,
-                    "selectCountry": true
-                },
-                {
-                    "id": 3,
-                    "type": "DataForCountry",
-                    "row": 0,
-                    "col": 6,
-                    "rows": 1,
-                    "cols": 6,
-                    "props": [
-                        "deaths",
-                        "cases",
-                        "deathsPerM",
-                        "casesPerM",
-                        "newDeaths",
-                        "newCases",
-                        "deathTrend",
-                        "caseTrend"
-                    ],
-                    "countries": [
-                        "Selected Location"
-                    ]
-                },
-                {
-                    "id": 4,
-                    "type": "CaseMortalityOverTime",
-                    "row": 1,
-                    "col": 6,
-                    "rows": 1,
-                    "cols": 6,
-                    "props": [
-                        "cases",
-                        "deaths"
-                    ],
-                    "countries": [
-                        "My Country",
-                        "Selected Location"
-                    ]
-                }
-            ],
+            "toDate": 0,
+            "widgets": [{
+                "id": 1,
+                "type": "DataAllCountries",
+                "row": 0,
+                "col": 0,
+                "rows": 3,
+                "cols": 6,
+                "props": ["caseMortality", "deaths", "cases"],
+                "countries": ["My Country"],
+                "displayCount": 30,
+                "selectCountry": true
+            }, {
+                "id": 3,
+                "type": "DataForCountry",
+                "row": 0,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["deaths", "cases", "deathsPerM", "casesPerM", "newDeaths", "newCases", "deathTrend", "caseTrend"],
+                "countries": ["Selected Location"]
+            }, {
+                "id": 4,
+                "type": "CaseMortalityOverTime",
+                "row": 1,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["Selected Location"],
+                "granularity": "weekly"
+            }, {
+                "id": 7,
+                "type": "NewCaseMortalityOverTime",
+                "row": 2,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["Selected Location"],
+                "granularity": "weekly"
+            }],
+            "selectedLocation": "United States",
+            "selectedCountry": "United States"
         },
         {
             "nextWidgetId": 7,
             "dashboardType": "stock",
             "name": "US State and Counties",
+            toDate: 0,
             "widgets": [{
                 "id": 1,
                 "type": "DataByCountry",
@@ -493,6 +492,7 @@ const initialState = {
             "nextWidgetId": 13,
             "dashboardType": "stock",
             "name": "COVID Mortality vs Other Causes",
+            toDate: 0,
             "widgets": [{
                 "id": 1,
                 "type": "DataAllCountries",
@@ -544,7 +544,203 @@ const initialState = {
                 "props": ["deathsPerM", "deaths", "deathsAsPercentOfFlu", "deathsAsPercentOfOverall"],
                 "countries": ["My State"]
             }]
-        }
-    ],
+        },
+        {
+            "nextWidgetId": 113,
+            "dashboardType": "stock",
+            "name": "Select a Time Period",
+            toDate: 0,
+            "widgets": [{
+                "id": 1,
+                "type": "DataForCountry",
+                "countries": ["Selected Location"],
+                "row": 0,
+                "col": 0,
+                "rows": 1,
+                "cols": 5,
+                "props": ["cases", "deaths", "caseTrend", "deathTrend"],
+                "dateSelect": "dateSlider"
+            }, {
+                "id": 3,
+                "type": "DataByCountry",
+                "countries": ["My County", "My Country", "My State", "The Whole World", "Spain", "Italy", "France", "Germany", "United Kingdom", "Belgium", "United States", "South Korea", "Sweden", "Ireland"],
+                "row": 0,
+                "col": 5,
+                "rows": 2,
+                "cols": 7,
+                "props": ["casesPerM", "caseTrend", "cases", "newCases"],
+                "displayCount": 50,
+                "sortUp": false,
+                "allData": false,
+                "selectCountry": true,
+                "dateSelect": "dateSlider",
+                "includeCounties": false,
+                "includeStates": false,
+                "scroll": false
+            }, {
+                "id": 4,
+                "type": "NewCasesOverTime",
+                "countries": ["Selected Location"],
+                "row": 1,
+                "col": 0,
+                "rows": 1,
+                "cols": 5,
+                "props": ["mortalitySeverityOverTime"],
+                "dateSelect": "dateSlider"
+            }, {
+                "id": 5,
+                "type": "NewDeathsOverTime",
+                "countries": ["Selected Location"],
+                "row": 2,
+                "col": 0,
+                "rows": 1,
+                "cols": 5,
+                "props": [],
+                "dateSelect": "dateSlider"
+            }, {
+                "id": 6,
+                "type": "DataAllCountries",
+                "countries": ["My County", "My Country", "My State", "The Whole World"],
+                "row": 2,
+                "col": 5,
+                "rows": 1,
+                "cols": 7,
+                "props": ["deathsPerM", "deathTrend", "deaths", "newDeaths"],
+                "displayCount": 50,
+                "includeCounties": true,
+                "includeStates": true,
+                "scroll": true,
+                "dateSelect": "dateSlider"
+            }, {
+                "id": 105,
+                "type": "Blank",
+                "row": 3,
+                "col": 0,
+                "rows": 1,
+                "cols": 5,
+                "props": ["cases", "deaths", "caseTrend", "deathTrend"],
+                "countries": ["The Whole World"]
+            }, {
+                "id": 112,
+                "type": "Blank",
+                "row": 3,
+                "col": 5,
+                "rows": 1,
+                "cols": 7,
+                "props": ["cases", "deaths"],
+                "countries": ["My Country"]
+            }],
+            "selectedLocation": "The Whole World",
+            "selectedCountry": "The Whole World",
+            "selectedState": "New York"
+        },
+        {
+            "nextWidgetId": 8,
+            "dashboardType": "stock",
+            "name": "United States Testing",
+            "widgets": [{
+                "id": 1,
+                "type": "DataByCountry",
+                "row": 0,
+                "col": 0,
+                "rows": 3,
+                "cols": 6,
+                "props": ["caseTrend", "testTrend", "casesPerM", "testsPerM"],
+                "countries": ["My Country"],
+                "displayCount": 100,
+                "scroll": true,
+                "selectCountry": true,
+                "includeStates": true,
+                "includeCounties": false,
+                "newPerWeek": true
+            }, {
+                "id": 3,
+                "type": "NewTestsOverTime",
+                "row": 0,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["Selected Location"],
+                "granularity": "weekly"
+            }, {
+                "id": 5,
+                "type": "PositiveTestsOverTime",
+                "row": 1,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["Selected Location"],
+                "granularity": "weekly"
+            }, {
+                "id": 7,
+                "type": "Blank",
+                "row": 2,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["My Country"]
+            }],
+            "selectedLocation": "United States",
+            "selectedCountry": "United States",
+            "selectedState": "United States"
+        },
+        {
+            "nextWidgetId": 8,
+            "dashboardType": "stock",
+            "name": "Global Testing",
+            "widgets": [{
+                "id": 1,
+                "type": "DataAllCountries",
+                "row": 0,
+                "col": 0,
+                "rows": 3,
+                "cols": 6,
+                "props": ["newTests", "newTestsPerPopulation", "testsPerM", "caseTrend"],
+                "countries": ["My Country", "United States", "Russia", "United Kingdom", "Germany", "South Korea", "Sweden", "Peru", "Canada", "Belgium", "Spain", "Italy", "Singapore", "France"],
+                "displayCount": 100,
+                "scroll": true,
+                "selectCountry": true,
+                "includeStates": false,
+                "includeCounties": false,
+                "newPerWeek": true
+            }, {
+                "id": 3,
+                "type": "NewTestsOverTime",
+                "row": 1,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["Selected Location"],
+                "granularity": "weekly"
+            }, {
+                "id": 5,
+                "type": "DataForCountry",
+                "row": 0,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths", "tests", "caseMortality", "newCasesPerPopulation", "newDeathsPerPopulation", "newTestsPerPopulation", "deathTrend"],
+                "countries": ["Selected Location"],
+                "granularity": "weekly",
+                "newPerWeek": true
+            }, {
+                "id": 7,
+                "type": "PositiveTestsOverTime",
+                "row": 2,
+                "col": 6,
+                "rows": 1,
+                "cols": 6,
+                "props": ["cases", "deaths"],
+                "countries": ["Selected Location"],
+                "granularity": "weekly"
+            }],
+            "selectedLocation": "United States",
+            "selectedCountry": "United States",
+            "selectedState": "Guam"
+        }],
 }
 export default initialState;

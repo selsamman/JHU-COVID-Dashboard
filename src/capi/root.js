@@ -1,7 +1,8 @@
 import {initialDashboard} from "./initialState";
 import {save} from "../config/localstorage";
 import {updateLocation} from "../config/locationData";
-import {dataSet} from "../data/timeseries";
+import {dataSet, dateToIx} from "../data/timeseries";
+import dashboard from "./dashboard";
 
 export default {
     redactions: {
@@ -122,6 +123,64 @@ export default {
                     ? dataSet.country[dashboard.selectedLocation || "United States"]
                     : dataSet.country[substituteCountry(country)]
         ),
+
+        getCountryDataPoint: ({dataSet, getCountryData, widget}) => (country, dataPoint, toDate) => {
+            return dataSet.getDataPoint(getCountryData(country), toDate, dataPoint, widget ? !!widget.newPerWeek : false);
+        },
+
+        getCountryDataPoints: ({dataSet, getCountryData}) => (country, dataPoint, fromDate, toDate, granularity, isStacked) => {
+
+            const data = dataSet.getDataPoints(getCountryData(country), fromDate, toDate, dataPoint, granularity, isStacked ? 2 : 1);
+            //console.log(JSON.stringify(`getCountryDataPoints ${dataPoint} = ${JSON.stringify(data)}`));
+            const fix = dateToIx(fromDate);
+            if (!data)
+                return undefined;
+            else if (!isStacked)
+                return getStack(data)
+            else
+                return data.map((d, ix) => getStack(data[ix]));
+
+            function getStack(data) {
+                return data.map((c, ix) => (
+                    {
+                        x: dataSet.dates[fix + (ix * (granularity === 'weekly' ? 7 : 1))].replace(/\/20/,'').replace(/\//, '-'),
+                        y: c
+                    }
+                ));
+            }
+        },
+        getCountryDataPointsOld: ({dataSet, getCountryData}) => (country, dataPoint, fromDate, toDate, granularity, isStacked) => {
+
+            const data = dataSet.getDataPoints(getCountryData(country), fromDate, toDate, dataPoint);
+            const fix = dateToIx(fromDate);
+            if (!isStacked)
+                return getStack(data)
+            else
+                return data.map((d, ix) => getStack(data[ix]));
+
+            function getStack(data) {
+                let acc = 0;
+                const res = data ? (
+                    granularity === 'weekly'
+                        ? data
+                            .map((c, ix) => {
+                                let res = null;
+                                if ((ix % 7) === 0) {
+                                    res = {
+                                        x: dataSet.dates[fix + ix].replace(/\/20/,'').replace(/\//, '-'),
+                                        y: (c + acc) / ((dataPoint.match(/Per/) || dataPoint.match(/Ratio/)) ? 7 : 1)}
+                                    acc = 0;
+                                } else
+                                    acc += c;
+                                return res;
+                            })
+                            .filter(d => !!d)
+                        : data
+                            .map((c, ix) => ({x: dataSet.dates[fix + ix].replace(/\/20/,'').replace(/\//, '-'), y: c}))
+                ) : undefined
+                return res;
+            }
+        },
         substituteCountry: ({substitutionCountries}) => (country) => substitutionCountries[country] || country,
         makeDashboardCustom: ({name, dashboard, addDashboard, setDashboardByName, setCustom, adjustDashboardName}) => () => {
             let newName = adjustDashboardName("My " + name);

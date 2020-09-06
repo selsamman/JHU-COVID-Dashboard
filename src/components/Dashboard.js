@@ -1,21 +1,50 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { widgetsAPI } from "../capi";
-import {scale, widgetConfig} from '../config/widgets';
+import {scale, widgetConfig, formatDate} from '../config/widgets';
 import {Row, Col, Table} from 'react-bootstrap';
-import {DashboardHeader} from "./DashboardHeader";
+import RangeSlider from 'react-bootstrap-range-slider';
 import WidgetConfig from "./WidgetConfig";
+import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
+import {dateToIx} from "../data/timeseries";
 
 const mobileScale = .9;
 const gridScaleBase = 1.5;
 const gridScaleBaseMin = .8;
 const gridScaleBaseMax = 1.2;
-
+let timeout;
 export const Dashboard = ({mode}) => {
-    const {widgetRows, widgets} = widgetsAPI({}, Dashboard);
+    const {widgetRows, widgets, hasDateSlider, setToDate, dataSet, dashboard} = widgetsAPI({}, Dashboard);
+    const [localDate, setLocalDate] = useState(dashboard.toDate || dataSet.dateRange.to)
+
+
+    const dix = dateToIx(localDate);
+
+    const setDate = value => {
+        const date = new Date(dataSet.dateRange.from)
+        date.setDate(date.getDate() + value)
+        setLocalDate(date.getTime())
+        if (timeout)
+            clearTimeout(timeout);
+        timeout = setTimeout( () => {
+            setToDate(date.getTime())
+            timeout = undefined;
+        }, 250)
+    };
     if (mode === 'lg'  || mode  === 'xl' )
         return (
             <Col>
-
+                {hasDateSlider &&
+                    <Row>
+                        <Col xs="2">
+                            {formatDate(new Date(localDate))}
+                        </Col>
+                        <Col xs={10}>
+                            <RangeSlider value={dix} min={0} max={dataSet.dates.length - 1}
+                                         onChange={e => {setDate(Number(e.target.value))}} tooltip="off"
+                            />
+                        </Col>
+                    </Row>
+                }
                 <Row><Col>
                     <Table borderless style={{tableLayout: "fixed", width: '100%'}}>
                         <colgroup>
@@ -44,7 +73,20 @@ export const Dashboard = ({mode}) => {
     else
         return (
             <Col>
-                    {widgetRows.map((widgetRow, row) =>
+                {hasDateSlider &&
+                <Row>
+                    <Col xs="2" style={{fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center"}}>
+                        {formatDate(new Date(localDate))}
+                    </Col>
+                    <Col xs={10}>
+                        <RangeSlider value={dix} min={0} max={dataSet.dates.length - 1}
+                                     onChange={e => {setDate(Number(e.target.value))}} tooltip="off"
+                        />
+                    </Col>
+                </Row>
+                }
+
+                {widgetRows.map((widgetRow, row) =>
                         <WidgetRow key={row} row={row} mode={mode}/>
                     )}
                   {false && <Row><Col>{JSON.stringify(widgets)}</Col></Row>}

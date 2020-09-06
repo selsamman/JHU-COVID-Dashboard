@@ -9,7 +9,7 @@ import {numberWithCommas} from "../config/widgets";
 const populationThreshold = 1000000;
 
 export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPointsRender, allCountries}) => {
-    const {widgetCountries, getCountryData, widgetProps, dataSet, widget, name,
+    const {widgetCountries, getCountryData, getCountryDataPoint, widgetProps, dataSet, widget, name, toDate,
            dashboardSelectedLocation, setDashboardSelectedLocation, persistState} = widgetsAPI({id: id}, TableByCountry);
     const title = dataPoints[widgetProps[0]];
     const subTitle = allCountries && (`Top ${widget.displayCount || 5} ` +
@@ -30,7 +30,8 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
                         </th>
                         {widgetProps.map((prop, ix) => (
                             <th key={prop}>
-                                <DataPoint description={dataPointsDisplay[prop]} scale={scale} />
+                                <DataPoint description={dataPointsDisplay[prop]} scale={scale}
+                                           newPerWeek={widget.newPerWeek} />
                             </th>
                         ))}
                     </tr>
@@ -54,7 +55,7 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
                             {widgetProps.map(prop => (
                                     <td key={prop} style={{fontSize: 12 * scale, textAlign: 'right'}}>
                                         <span style={{whiteSpace: "nowrap"}}>
-                                        {dataPointsRender[prop](getCountryData(country)[prop])}
+                                            {dataPointsRender[prop](getCountryDataPoint(country, prop, toDate))}
                                         </span>
                                     </td>
                             ))}
@@ -79,8 +80,10 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
             : widgetCountries
         const sortedCountries = countries
             .sort((c1, c2) => !widget.sortUp
-                ? adjust(getCountryData(c2)[widgetProps[0]]) - adjust(getCountryData(c1)[widgetProps[0]])
-                : adjust(getCountryData(c1)[widgetProps[0]]) - adjust(getCountryData(c2)[widgetProps[0]])
+                ? adjust(getCountryDataPoint(c2, widgetProps[0], toDate)) -
+                  adjust(getCountryDataPoint(c1, widgetProps[0], toDate))
+                : adjust(getCountryDataPoint(c1, widgetProps[0], toDate)) -
+                  adjust(getCountryDataPoint(c2, widgetProps[0], toDate))
             )
         return allCountries ? sortedCountries.slice(0, widget.displayCount || 5) : sortedCountries;
         function adjust(data) {
@@ -91,13 +94,15 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
 function getId(id, country) {
     return `country-${id}-${country.replace(/[^A-Za-z]/g, '_')}`;
 }
-const DataPoint = ({description, scale}) => (
+const DataPoint = ({description, scale, newPerWeek}) => (
     <div >
         <div style={{fontSize: 11 * scale, textAlign: 'right'}} >
             {description[0]}
         </div>
         <div style={{fontSize: 8 * scale, textAlign: 'right'}} >
-            {description[1]}
+            {newPerWeek
+                ? description[1].replace(/recent/, 'new weekly')
+                : description[1].replace(/recent/, 'new daily')}
         </div>
     </div>
 )

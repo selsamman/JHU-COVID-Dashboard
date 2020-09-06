@@ -1,6 +1,6 @@
 import React  from 'react';
 import {widgetsAPI} from "../capi";
-import {Form, Col, InputGroup, FormControl, Dropdown} from 'react-bootstrap';
+import {Form, Row, Col, InputGroup, FormControl, Dropdown} from 'react-bootstrap';
 import {IconWrapperToolbar} from "./IconWrapper";
 import {CaretLeftFill, CaretRightFill} from "react-bootstrap-icons";
 import {MoveTool} from "./WidgetConfig";
@@ -13,7 +13,7 @@ const PropsSelect = ({dataPoints, id, maxProps, scale, sortDirection, scrollable
     const isDisabled = prop => widgetProps.length >= maxProps && !widget.props.includes(prop);
     return (
         <Form>
-            <Form.Row>
+            <Row md={3}>
                 {Object.getOwnPropertyNames(dataPoints).map(prop => (
                     <Form.Group as={Col} key={prop}>
                         <Form.Check
@@ -25,7 +25,7 @@ const PropsSelect = ({dataPoints, id, maxProps, scale, sortDirection, scrollable
                         />
                     </Form.Group>
                 ))}
-            </Form.Row>
+            </Row>
             {widgetProps.length > 1 &&
                 <Form.Row>
                     {widgetProps.map((prop, ix) => (
@@ -125,6 +125,7 @@ const PropsSelect = ({dataPoints, id, maxProps, scale, sortDirection, scrollable
                             />
                         </Form.Group>
                     }
+
                     {allCountries &&
                         <Form.Group as={Col}>
                             <Dropdown size="sm">

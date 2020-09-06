@@ -43,7 +43,8 @@ export function getInitialState(initialState) {
 
     }
     state.editMode = "none";
-    state.startupSequence = startSchemaVersion !== state.schemaVersion || state.newDashboards ? "init" : "done";
+    console.log(`startSchemaVersion=${startSchemaVersion} state.schemaVersion=${state.schemaVersion} ${state.newDashboards}`);
+    state.startupSequence = (startSchemaVersion !== state.schemaVersion || state.newDashboards) ? "init" : "done";
     const selectDashboard = getDashboardNameURL()
     if (selectDashboard) {
         const selectedDashboardIx = state.dashboards.findIndex(d => d.name === selectDashboard)

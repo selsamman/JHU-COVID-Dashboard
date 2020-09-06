@@ -52,12 +52,18 @@ async function readJSFile(filePrefix) {
 
 function processJHUFile(file) {
     const json = JSON.parse(file.substr(file.indexOf("{")));
+
     dataSet.country = json.data;
     dataSet.dates = json.dates;
+    const fromDate = dataSet.dates[0];
+    const toDate = dataSet.dates[dataSet.dates.length - 1];
     dataSet.dateRange = {
-        first: dataSet.dates[0],
-        last: dataSet.dates[dataSet.dates.length - 1]
+        first: fromDate,
+        last: toDate,
+        from: new Date("20" + fromDate.split("/")[2], fromDate.split("/")[0]-1,  fromDate.split("/")[1]).getTime(),
+        to: new Date("20" + toDate.split("/")[2], toDate.split("/")[0]-1,  toDate.split("/")[1]).getTime(),
     }
+
     // https://www.cdc.gov/nchs/products/databriefs/db355.htm
     dataSet.benchmarks = {
         mortality: ["USA - Overall Mortality", 7236],
@@ -102,87 +108,222 @@ function processJHUCountries (dataSet) {
     for (let countryName in  dataSet.country) {
 
         const country = dataSet.country[countryName];
+        const countryTests = country.tests ? country.tests : (new Array(country.cases.length)).fill(0);
 
         const cases = country.cases[country.cases.length - 1];
         const deaths = country.deaths[country.deaths.length - 1];
+        const tests = countryTests[countryTests.length - 1];
 
         const casePerPopulationSeries = country.cases.map( c => c * 1000000 / country.population);
         const deathPerPopulationSeries = country.deaths.map( c => c * 1000000 / country.population);
+        //const testPerPopulationSeries = country.tests.map( c => c * 1000000 / country.population);
 
         const newCaseSeries = country.cases.map((c, ix) => ix === 0 ? 0 : c - country.cases[ix -1]);
         const newDeathSeries = country.deaths.map((c, ix) => ix === 0 ? 0 : c - country.deaths[ix -1]);
-
-        const newCasePerPopulationSeries = newCaseSeries.map( c => c * 1000000 / country.population);
-        const newDeathPerPopulationSeries = newDeathSeries.map( c => c * 1000000 / country.population);
-
-        const priorFirst = newCaseSeries.length - 14
-        const priorLast =  newCaseSeries.length - 7;
-        const lastFirst = priorFirst + 7;
-        const lastLast = priorLast + 7;
-
-        let prior3 =  newCaseSeries.reduce((a,v,x)=> (x >= priorFirst && x <= priorLast) ? a + v : a);
-        let last3 =  newCaseSeries.reduce((a,v,x)=> (x >= lastFirst && x <= lastLast) ? a + v : a);
-        const caseTrend = prior3 ? Math.round((last3 - prior3) * 100 / prior3) + "%" : '';
-
-        prior3 =  newDeathSeries.reduce((a,v,x)=>x >= priorFirst && x <= priorLast ? a + v : a);
-        last3 =  newDeathSeries.reduce((a,v,x)=>x >= lastFirst && x <= lastLast ? a + v : a);
-        const deathTrend = prior3 ? Math.round((last3 - prior3) * 100 / prior3) + "%" : '';
-
-        const deathsPerM = deaths * 1000000 / country.population;
-        const casesPerM =  cases * 1000000 / country.population;
+        const newTestSeries = countryTests.map((c, ix) => ix === 0 ? 0 : c - countryTests[ix -1] * 1);
 
         const mortalitySeveritySeries = deathPerPopulationSeries.map(deathsPerM => (
         deathSeverityThresholds.reduce((accum, threshold, ix) => (
             deathsPerM >= threshold ? ix : accum), 0)));
-        const mortalitySeverity = mortalitySeveritySeries[mortalitySeveritySeries.length - 1];
 
         const caseSeveritySeries = casePerPopulationSeries.map(deathsPerM => (
             casesSeverityThresholds.reduce((accum, threshold, ix) => (
                 deathsPerM >= threshold ? ix : accum), 0)));
-        const caseSeverity = caseSeveritySeries[caseSeveritySeries.length - 1];
-        const caseMortalitySeries = country.deaths.map((d, ix) => d && country.cases[ix] ? d / country.cases[ix] : "");
+
 
             dataSet.country[countryName] = {
             name: countryName,
             type: country.type,
             code: country.code,
             population: country.population,
-            deathsAsPercentOfFlu: deathsPerM / 171,
-            deathsAsPercentOfOverall: deathsPerM / 8657,
             states: [],
             counties: [],
-            deaths, cases,
-            mortalitySeverity, caseSeverity,
             mortalitySeverityOverTime: mortalitySeveritySeries,
             caseSeverityOverTime: caseSeveritySeries,
-            deathsPerM,
-            casesPerM,
-            caseTrend, deathTrend,
-            caseMortality: deaths / cases,
-            caseMortalityOverTime: caseMortalitySeries,
-            newDeaths: newDeathSeries[newDeathSeries.length - 1],
-            newCases: newCaseSeries[newDeathSeries.length - 1],
-            newDeathsPerPopulation: newDeathSeries[newDeathSeries.length - 1] * 1000000 / country.population,
-            newCasesPerPopulation: newDeathSeries[newDeathSeries.length - 1] * 1000000 / country.population,
             casesOverTime: country.cases,
             deathsOverTime: country.deaths,
             newCasesOverTime: newCaseSeries,
             newDeathsOverTime: newDeathSeries,
-            get  newCasesOverTime14DMA() {
-                return movingAverage(newCaseSeries, 14)
-            },
-            get newDeathsOverTime14DMA() {
-                return movingAverage(newDeathSeries, 14)
-            },
-            newCasesPerPopulationOverTime: newCasePerPopulationSeries,
-            newDeathsPerPopulationOverTime: newDeathPerPopulationSeries,
-            casesPerPopulationOverTime: casePerPopulationSeries,
-            deathsPerPopulationOverTime: deathPerPopulationSeries,
+            testsOverTime: countryTests,
+            newTestsOverTime: newTestSeries,
+
         };
     };
     console.log("Preprocessing took " + ((new Date()).getTime() - time.getTime()));
 }
-function movingAverage(series, period) {
-    return series.map((n, ix) => series.slice(Math.max(0, ix - period + 1), ix + 1).reduce((a,n)=>a + n, 0) / Math.min(ix + 1, period))
+dataSet.getDataPoint = (cdata, date, dataPoint, byWeek) => {
+    dataPoint = dataPoint.replace(/PerM/, "PerPopulation"); // Temp hack until schema fixed
+    let dataPoints;
+    if (byWeek && (dataPoint.match(/new/i) || dataPoint.match(/expected/i))) {
+        dataPoints = dataSet.getDataPoints(cdata, date - (6 * 24 * 1000 * 60 * 60),
+            date, dataPoint.replace(/PerM/, "PerPopulation"));
+        if(dataPoints[0] instanceof Array)
+            return dataPoints[0].reduce((a, v, i) => a + v + dataPoints[1][i], 0);
+        else
+            return dataPoints.reduce((a, v) => a + v);
+    } else {
+        dataPoints = dataSet.getDataPoints(cdata, date, date, dataPoint);
+        if(dataPoints[0] instanceof Array)
+            return dataPoints[0][0] + dataPoints[1][0];
+        else
+            return dataPoints[0]
+    }
 }
+export const dateToIx = (date) => {
+    return Math.min(dataSet.dates.length - 1, Math.max(0, Math.round((date - dataSet.dateRange.from) / (24 * 60 * 60 * 1000))))
+}
+dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) => {
+    dataPoint = dataPoint.replace(/OverTime/, '');
+    //console.log(`dataSet.getDataPoints ${dataPoint}`);
+    const d1 = dateToIx(from);
+    const d2 =  dateToIx(to) + 1;
+    switch (dataPoint) {
+
+        case 'deaths':
+            return structureData([cdata.deathsOverTime.slice(d1, d2)], last);
+
+        case 'cases':
+            return structureData([cdata.casesOverTime.slice(d1, d2)], last);
+
+        case 'tests':
+            return structureData([cdata.testsOverTime.slice(d1, d2)], last);
+
+        case 'positiveRatio':
+            return  structureData([cdata.newCasesOverTime.slice(d1, d2), cdata.newTestsOverTime.slice(d1, d2)],
+                data => Math.min(1, data[1] > 0 ? data[0] / data[1] : 0));
+
+        case 'casePerTest':
+            return stacked([cdata.casesOverTime.slice(d1, d2), cdata.testsOverTime.slice(d1, d2)], sum);
+
+        case 'deathsPerPopulation':
+            return structureData([cdata.deathsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], last);
+
+        case 'casesPerPopulation':
+            return structureData([cdata.casesOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], last);
+
+        case 'testsPerPopulation':
+            return structureData([cdata.testsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], last);
+
+        case 'casePerTestPerPopulation':
+            return stacked([cdata.casesOverTime.slice(d1, d2).map(d => d / cdata.population),
+                           cdata.testsOverTime.slice(d1, d2).map(d => d / cdata.population)], last);
+
+        case 'deathsAsPercentOfFlu':
+            return structureData([cdata.deathsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population / 171)], last);
+
+        case 'deathsAsPercentOfOverall':
+            return structureData([cdata.deathsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population / 8657)], last);
+
+        case 'newDeaths':
+            return structureData([cdata.newDeathsOverTime.slice(d1, d2)], sum);
+
+        case 'newCases':
+            return structureData([cdata.newCasesOverTime.slice(d1, d2)], sum);
+
+        case 'newTests':
+            return stacked([cdata.newCasesOverTime.slice(d1, d2), cdata.newTestsOverTime.slice(d1, d2)], sum);
+
+        case 'newDeathsPerPopulation':
+            return structureData([cdata.newDeathsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
+
+        case 'newCasesPerPopulation':
+            return structureData([cdata.newCasesOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
+
+        case 'newTestsPerPopulation':
+            return stacked([
+                cdata.newCasesOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population),
+                cdata.newTestsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
+
+        case 'caseTrend':
+            return getTrend(d1, d2, cdata.newCasesOverTime);
+
+        case 'deathTrend':
+             return getTrend(d1, d2, cdata.newDeathsOverTime);
+
+        case 'testTrend':
+            return getTrend(d1, d2, cdata.newTestsOverTime);
+
+        case  'newCases14DMA':
+            return structureData([movingAverage(cdata.newCasesOverTime, 14).slice(d1, d2)], sum);
+
+        case  'newDeaths14DMA':
+            return structureData([movingAverage(cdata.newDeathsOverTime, 14).slice(d1, d2)], sum);
+
+        case  'newTests14DMA':
+            return structureData([movingAverage(cdata.newTestsOverTime, 14).slice(d1, d2)], sum);
+
+        case  'mortalitySeverity':
+            return structureData([cdata.mortalitySeverityOverTime.slice(d1, d2)], average);
+
+        case  'caseSeverity':
+            return structureData([cdata.caseSeverityOverTime.slice(d1, d1)], average);
+
+        case 'caseMortality':
+            return structureData([cdata.deathsOverTime.slice(d1, d2),cdata.casesOverTime.slice(d1, d2)],
+                    data => Math.min(1, data[1] > 0 ? data[0] / data[1] : 0 ));
+
+        case 'newCaseMortality':
+            return structureData([cdata.newDeathsOverTime.slice(d1, d2),cdata.newCasesOverTime.slice(d1, d2)],
+                data => Math.min(1, data[1] > 0 ? data[0] / data[1] : 0 ));
+
+
+        default:
+            console.log("No data for " + dataPoint);
+            return undefined;
+
+    }
+
+     function getTrend(d1, d2, data) {
+        //console.log(`Weekly trend ${dataSet.dates[d1]} ${d1} to ${dataSet.dates[d2 - 1]} ${d2 - 1}`);
+        const res = []
+        for(let d = d1; d < d2; ++d) {
+            if (d1 - 14 < 0)
+                return 0;
+            const prior3 =  data.slice(d - 13, d - 6).reduce((a,v)=> a + v);
+            const last3 =  data.slice(d - 6, d + 1).reduce((a,v) => a + v);
+            //console.log(`${d} prior3 = ${prior3} last3 = ${last3}`);
+            res.push(prior3 ? Math.round((last3 - prior3) * 100 / prior3) + "%" : '');
+        }
+        return res;
+    }
+    function sum(sum) {
+        return sum[0];
+    }
+    function average(sum) {
+        return sum[0] / (granularity === 'weekly' ? 7 : 1);
+    }
+    function last(sum, data, ix) {
+        return data[0][ix];
+    }
+    function stacked (dataSets, process) {
+        return dataSets.map( dataSet => structureData([dataSet], process));
+    }
+    function structureData (dataSets, process) {
+        if (!(dataSets[0] instanceof Array))
+            throw `dataPoint ${dataPoint} invalid data`;
+
+        if (granularity === 'weekly') {
+            let acc = new Array(dataSets.length).fill(0);
+            return dataSets[0].map((c, ix) => {
+                let res = undefined;
+                acc = acc.map( (a, dx) => a + dataSets[dx][ix] * 1);
+                if ((ix % 7) === 6) {
+                    res = process(acc, dataSets, ix);
+                    acc.fill(0);
+                }
+
+
+                return res;
+            }).filter(d => d !== undefined);
+        } else {
+            return  dataSets[0].map((c, ix) => (process(dataSets.map((na, dx) =>  dataSets[dx][ix]), dataSets, ix)));
+        }
+    }
+    function movingAverage(series, period) {
+        return series.map((n, ix) => series.slice(Math.max(0, ix - period + 1), ix + 1)
+                                            .reduce((a,n)=>a + n, 0) / Math.min(ix + 1, period));
+    }
+}
+
+
 

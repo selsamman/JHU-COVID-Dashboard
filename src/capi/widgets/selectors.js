@@ -50,17 +50,48 @@ export default {
                 } else
                     country = substitutionCountries[c] || c;
                 if (widget.includeStates && dataSet.country[country] && dataSet.country[country].states.length > 0)
-                    country = dataSet.country[country].states;
+                    country = [country, dataSet.country[country].states].flat();
                 if (widget.includeCounties && dataSet.country[country] && dataSet.country[country].counties.length > 0)
                     country = dataSet.country[country].counties;
                 return country;
             }
         }
     ],
+    toDate: (state, {dashboard, widget, dataSet}) => {
+        widget = widget || {};
+        switch (widget.dateSelect) {
+            case 'chooseDate':
+                return widget.toDate || dataSet.dateRange.to
+            case 'dateSlider':
+                return dashboard.toDate || dataSet.dateRange.to;
+            default:
+                return dataSet.dateRange.to;
+        }
+    },
+    fromDate: (state, {toDate, widget, dataSet}) => {
+        widget = widget || {};
+        if (widget.dateSelect === 'chooseDate')
+                return Math.max(dataSet.dateRange.from, widget.fromDate);
+        else {
+            const date = new Date(toDate)
+            if (widget.granularity === 'weekly') {
+                const weeks = Math.floor((date.getTime() - dataSet.dateRange.from)/ (24 * 60 * 60 * 1000 * 7));
+                date.setDate(date.getDate() - Math.min(30 * 7, weeks * 7) + 1);
+            } else
+              date.setDate(date.getDate() - 30);
+
+            return Math.max(dataSet.dateRange.from, date.getTime());
+        }
+    },
+    granularity: (state, {widget}) => widget ? widget.granularity : "daily",
     widgetNotes: [
         (select, {widgets}) => select(widgets),
         (widgets) => [...new Set(
             widgets.map( widget => getWidgetPropsAsArray(widget).map(p => widgetNotes[p] || "")).flat().filter(n => n))]
+    ],
+    hasDateSlider: [
+        (select, {widgets}) => select(widgets),
+        (widgets) => widgets.find(w => w.dateSelect === 'dateSlider')
     ],
     widgetProps: [
         (select, {widget, dataSet}) => select(widget, dataSet),

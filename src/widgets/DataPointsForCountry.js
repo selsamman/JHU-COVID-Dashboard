@@ -3,7 +3,7 @@ import {widgetsAPI} from "../capi";
 import {Row, Col} from 'react-bootstrap';
 
 export const DataPointsForCountry = ({id, scale, dataPointsDisplay, dataPointsRender}) => {
-    const {isConfiguring, getCountryData, widgetCountries, widgetProps, widget} = widgetsAPI({id: id}, DataPointsForCountry);
+    const {isConfiguring, getCountryDataPoint, widgetCountries, widgetProps, widget, toDate} = widgetsAPI({id: id}, DataPointsForCountry);
     const country = widgetCountries[0];
     const cpl = widget.cols >= 4 ? 4 : 2;
     return (
@@ -23,14 +23,15 @@ export const DataPointsForCountry = ({id, scale, dataPointsDisplay, dataPointsRe
                             key={prop}
                             prop={prop}
                             description={dataPointsDisplay[prop]}
-                            data={getCountryData(country)[prop]}
+                            newPerWeek={widget.newPerWeek}
+                            data={getCountryDataPoint(country, prop, toDate)}
                         />
                     </Col>
                 ))}
             </Row>
         </>
     );
-    function DataPoint ({description, data, scale, prop}) {
+    function DataPoint ({description, data, scale, prop, newPerWeek}) {
         return (
             <div style={{backgroundColor: "#f4f4f4", padding: 4, border: "1px solid #d8d8d8"}}>
                 <div style={{fontSize: 11 * scale, textAlign: 'center', color: "#404040", textTransform: "uppercase", fontWeight: 'bold'}} >
@@ -40,7 +41,9 @@ export const DataPointsForCountry = ({id, scale, dataPointsDisplay, dataPointsRe
                     {dataPointsRender[prop](data, scale)}
                 </div>
                 <div style={{fontSize: 9 * scale, textAlign: 'center', color: "#404040"}} >
-                    {description[1]}
+                    {newPerWeek
+                        ? description[1].replace(/recent/, 'new weekly')
+                        : description[1].replace(/recent/, 'new daily')}
                 </div>
             </div>
         );

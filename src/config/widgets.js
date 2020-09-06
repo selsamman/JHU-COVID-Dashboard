@@ -7,6 +7,7 @@ import {ForwardFill} from 'react-bootstrap-icons';
 import React from "react";
 import SinglePropSelect from "../components/SinglePropSelect";
 import {casesSeverityThresholds, deathSeverityThresholds, flu} from "../data/timeseries";
+import TimeSelect from "../components/TimeSelect";
 
 export const widgetNotes = {
     deathsAsPercentOfFlu: ["Death vs Flu is COVID deaths compared to the 149 US deaths per 1M from flu and pneumonia as per NCHS Data Brief 355."],
@@ -15,33 +16,55 @@ export const widgetNotes = {
     caseTrend: "Cases Weekly Trend is the number of new confirmed cases in the last 7 days vs the prior 7 seven days.",
 }
 
+export const dateSelect = {
+    toPresent: "Latest Data",
+    chooseDate: "Select Date",
+    dateSlider: "Date Slider",
+}
 const dataPoints = {
-    deaths: "Total Deaths",
     cases: "Total Cases",
-    deathsPerM: "Deaths per 1M",
+    deaths: "Total Deaths",
+    tests: "Total Tests",
+
     casesPerM: "Cases per 1M",
-    deathTrend: "Deaths Weekly Trend",
-    caseTrend: "Cases Weekly Trend",
+    deathsPerM: "Deaths per 1M",
+    testsPerM: "Tests per 1M",
+
+    caseTrend: "Cases Trend",
+    deathTrend: "Deaths Trend",
+    testTrend: "Testing Trend",
+
+
     newCases: "New Cases",
     newDeaths: "New Deaths",
-    caseMortality: "Deaths per Case",
+    newTests: "New Tests",
+
     newDeathsPerPopulation: "New Deaths per 1M",
     newCasesPerPopulation: "New Cases per 1M",
+    newTestsPerPopulation: "New Tests per 1M",
+
+    caseMortality: "Deaths per Case",
     deathsAsPercentOfFlu: ["Deaths as % of Flu"],
     deathsAsPercentOfOverall: ["Deaths as % of Total"]
+
 }
 const dataPointsDisplay = {
     deaths: ["Deaths", "Total"],
     deathsPerM: ["Deaths", "per 1M"],
     cases: ["Cases", "Total"],
     casesPerM: ["Cases", "per 1M"],
+    tests: ["Tests", "Total"],
+    testsPerM: ["Tests", "per 1M"],
     deathTrend: ["Deaths", "weekly trend"],
     caseTrend: ["Cases", "weekly trend"],
+    testTrend: ["Tests", "weekly trend"],
     caseMortality: ["Deaths", "per Case"],
     newCases: ["Cases", "recent"],
     newDeaths: ["Deaths", "recent"],
-    newDeathsPerPopulation: ["Deaths", "new per 1M"],
-    newCasesPerPopulation: ["Cases", "new per 1M"],
+    newTests: ["Tests", "recent"],
+    newDeathsPerPopulation: ["Deaths", "recent / 1M"],
+    newCasesPerPopulation: ["Cases", "recent / 1M"],
+    newTestsPerPopulation: ["Tests", "recent / 1M"],
     deathsAsPercentOfFlu: ["Deaths", "vs Flu"],
     deathsAsPercentOfOverall: ["Deaths", "vs All"]
 
@@ -49,15 +72,27 @@ const dataPointsDisplay = {
 const dataPointsRender = {
     deaths: numberWithCommas,
     deathsPerM: numberWithCommas,
+    deathsPerPopulation: numberWithCommas,
     cases: numberWithCommas,
     casesPerM: numberWithCommas,
+    casesPerPopulation: numberWithCommas,
+    tests: numberWithCommas,
+    casePerTest: numberWithCommas,
+    testsPerM: numberWithCommas,
+    testsPerPopulation: numberWithCommas,
     deathTrend: formatTrend,
     caseTrend: formatTrend,
+    testTrend: formatTrendReverse,
     caseMortality: numberAsPercent,
+    newCaseMortality: numberAsPercent,
     newCases: numberWithCommas,
     newDeaths: numberWithCommas,
+    newTests: numberWithCommas,
+    casePerTestPerPopulation: numberAsPercent,
+    positiveRatio: numberAsPercent,
     newDeathsPerPopulation: numberWithCommas,
     newCasesPerPopulation: numberWithCommas,
+    newTestsPerPopulation: numberWithCommas,
     deathsAsPercentOfFlu: numberAsPercentWhole,
     deathsAsPercentOfOverall: numberAsPercentWhole
 };
@@ -79,15 +114,28 @@ export const widgetConfig = {
     DataByCountry: TableByCountry("Table - Data by Country"),
     DataAllCountries: TableAllCountries("Table - All Countries"),
     DataForCountry: DataForCountry("Data Points"),
+
     CasesOverTime: LineGraphByCountry( "Graph - Total Cases ", 'casesOverTime'),
     DeathsOverTime: LineGraphByCountry("Graph - Total Deaths", 'deathsOverTime'),
+
+    CasePerTestOverTime: LineGraphByCountry("Graph - Total Tests", 'testsOverTime', false),
+    CasePerTestPerPopulationOverTime: LineGraphByCountry("Graph - Test Coverage", 'casePerTestPerPopulationOverTime', true),
+    PositiveTestsOverTime: LineGraphByCountry("Graph - Positive Tests", 'positiveRatioOverTime'),
+
     CasesPerPopulationOverTime: LineGraphByCountry( "Graph - Cases per 1M", 'casesPerPopulationOverTime'),
     DeathsPerPopulationOverTime: LineGraphByCountry("Graph - Deaths per 1M", 'deathsPerPopulationOverTime'),
+    TestsPerPopulationOverTime: LineGraphByCountry("Graph - Tests per 1M", 'testsPerPopulationOverTime'),
+
     NewCasesOverTime: LineGraphByCountry( "Graph - New Cases",'newCasesOverTime'),
     NewDeathsOverTime: LineGraphByCountry("Graph - New Deaths",'newDeathsOverTime'),
+    NewTestsOverTime: LineGraphByCountry("Graph - New Tests",'newTestsOverTime', true),
+
     NewCasesPerPopulationOverTime: LineGraphByCountry( "Graph - New Cases per 1M",'newCasesPerPopulationOverTime'),
     NewDeathsPerPopulationOverTime: LineGraphByCountry("Graph - New Deaths per 1M",'newDeathsPerPopulationOverTime'),
+    NewTestsPerPopulationOverTime: LineGraphByCountry("Graph - New Tests per 1M",'newTestsPerPopulationOverTime', true),
+
     CaseMortalityOverTime: LineGraphByCountry("Graph - Deaths per Case",'caseMortalityOverTime'),
+    NewCaseMortalityOverTime: LineGraphByCountry("Graph - New Deaths per New Cases",'newCaseMortalityOverTime'),
     Blank: {name: "Blank Space", component: Widgets.BlankWidget, config: [{component: WidgetSelect, props: {}}]},
     WorldMap: WorldMapForCountry("World Map")
 }
@@ -123,7 +171,8 @@ function TableByCountry (name, props)  {
         config: [
             {component: WidgetSelect},
             {component: CountrySelect},
-            {component: PropsSelect}
+            {component: PropsSelect},
+            {component: TimeSelect},
         ],
     }
 }
@@ -141,7 +190,8 @@ function TableAllCountries (name, props)  {
         scrollable: true,
         config: [
             {component: WidgetSelect},
-            {component: PropsSelect}
+            {component: PropsSelect},
+            {component: TimeSelect},
         ],
     }
 }
@@ -156,21 +206,26 @@ function DataForCountry(name, props)  {
         config: [
             {component: WidgetSelect},
             {component: SingleCountrySelect},
-            {component: PropsSelect}
+            {component: PropsSelect},
+            {component: TimeSelect},
         ],
     }
 }
 
-function LineGraphByCountry (name, prop) {
+function LineGraphByCountry (name, prop, isStacked) {
      return {
-        name: name,
-        component: Widgets.LineGraph,
+         name: name,
+         component: Widgets.LineGraph,
          maxCountries: 6,
          config: [
             {component: WidgetSelect},
             {component: CountrySelect},
-        ],
-        dataPoint: prop
+            {component: TimeSelect},
+         ],
+         dataPoint: prop,
+         dataPointsRender,
+         weeklyTimeSelection: true,
+         isStacked: !!isStacked
     }
 };
 
@@ -193,7 +248,13 @@ export function numberAsPercentWhole(x) {
     x = Math.round(x / 100);
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "%";
 }
-function formatTrend (x, scale) {
+export function formatDate(date) {
+    return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate()
+}
+function formatTrendReverse(x, scale) {
+    return formatTrend(x, scale, true)
+}
+function formatTrend (x, scale, reverse) {
     return (
         <>
             {x}
@@ -206,7 +267,7 @@ function formatTrend (x, scale) {
         </>
     );
     function color(x) {
-        const colors = ["#ff2a26", "#606060", "#4cbd43"];
+        const colors = reverse ? ["#4cbd43", "#606060", "#ff2a26"] : ["#ff2a26", "#606060", "#4cbd43"];
         x = x.replace(/%/,'');
         if (x <= 0) return colors[2];
         else return colors[0];
