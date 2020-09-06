@@ -39,8 +39,8 @@ const dataPoints = {
     newDeaths: "New Deaths",
     newTests: "New Tests",
 
-    newDeathsPerPopulation: "New Deaths per 1M",
     newCasesPerPopulation: "New Cases per 1M",
+    newDeathsPerPopulation: "New Deaths per 1M",
     newTestsPerPopulation: "New Tests per 1M",
 
     caseMortality: "Deaths per Case",
