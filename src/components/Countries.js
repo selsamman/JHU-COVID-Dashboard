@@ -10,12 +10,12 @@ const Countries = ({id, scale, countries}) => {
     return (
         <>
             {!isConfiguring &&
-                <Row style={{paddingLeft: 20 * scale}}>
+                <Row style={{paddingLeft: 20 * scale, paddingBottom: 10 * scale}}>
                     {countries.map( (c, ix) =>
                         <Col key={ix} md={4} xs={4} lg={4} style={{padding: 0, lineHeight: 1.2 * scale}}>
-                            <CircleFill size={10 * scale} color={colors[ix % colors.length]} />
+                            <CircleFill size={11 * scale} color={colors[ix % colors.length]} />
                             &nbsp;
-                            <span style={{fontSize: 11 * scale, color: "black"}}>{c}</span>
+                            <span style={{fontSize: 12 * scale, color: "black"}}>{c}</span>
                         </Col>
                     )}
                 </Row>
