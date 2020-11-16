@@ -3,6 +3,7 @@ import {save} from "../config/localstorage";
 import {updateLocation} from "../config/locationData";
 import {dataSet, dateToIx} from "../data/timeseries";
 import dashboard from "./dashboard";
+import {weeklyDays} from "../components/WidgetConfig";
 
 export default {
     redactions: {
@@ -143,7 +144,7 @@ export default {
             function getStack(data) {
                 return data.map((c, ix) => (
                     {
-                        x: dataSet.dates[fix + (ix * (granularity === 'weekly' ? 7 : 1))].replace(/\/20/,'').replace(/\//, '-'),
+                        x: dataSet.dates[fix + (ix * (granularity === 'weekly' ? weeklyDays : 1))].replace(/\/20/,'').replace(/\//, '-'),
                         y: c
                     }
                 ));
@@ -165,10 +166,10 @@ export default {
                         ? data
                             .map((c, ix) => {
                                 let res = null;
-                                if ((ix % 7) === 0) {
+                                if ((ix % weeklyDays) === 0) {
                                     res = {
                                         x: dataSet.dates[fix + ix].replace(/\/20/,'').replace(/\//, '-'),
-                                        y: (c + acc) / ((dataPoint.match(/Per/) || dataPoint.match(/Ratio/)) ? 7 : 1)}
+                                        y: (c + acc) / ((dataPoint.match(/Per/) || dataPoint.match(/Ratio/)) ? weeklyDays : 1)}
                                     acc = 0;
                                 } else
                                     acc += c;

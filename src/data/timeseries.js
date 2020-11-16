@@ -1,4 +1,5 @@
 import bent from 'bent';
+import {weeklyDays} from "../components/WidgetConfig";
 
 export let dataSet = {
     countries: ["My Country", "My State", "My County", "Selected Location"],
@@ -290,7 +291,7 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
         return sum[0];
     }
     function average(sum) {
-        return sum[0] / (granularity === 'weekly' ? 7 : 1);
+        return sum[0] / (granularity === 'weekly' ? weeklyDays : 1);
     }
     function last(sum, data, ix) {
         return data[0][ix];
@@ -307,7 +308,7 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
             return dataSets[0].map((c, ix) => {
                 let res = undefined;
                 acc = acc.map( (a, dx) => a + dataSets[dx][ix] * 1);
-                if ((ix % 7) === 6) {
+                if ((ix % weeklyDays) === (weeklyDays - 1)) {
                     res = process(acc, dataSets, ix);
                     acc.fill(0);
                 }

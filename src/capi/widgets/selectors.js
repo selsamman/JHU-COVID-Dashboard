@@ -1,5 +1,6 @@
 import {widgetsAPI} from "../index";
 import {widgetConfig, widgetNotes} from "../../config/widgets";
+import {weeklyDays} from "../../components/WidgetConfig";
 
 export default {
     widgets: state => state.widgets,
@@ -75,8 +76,8 @@ export default {
         else {
             const date = new Date(toDate)
             if (widget.granularity === 'weekly') {
-                const weeks = Math.floor((date.getTime() - dataSet.dateRange.from)/ (24 * 60 * 60 * 1000 * 7));
-                date.setDate(date.getDate() - Math.min(30 * 7, weeks * 7) + 1);
+                const weeks = Math.floor((date.getTime() - dataSet.dateRange.from)/ (24 * 60 * 60 * 1000 * weeklyDays));
+                date.setDate(date.getDate() - Math.min(30 * weeklyDays, weeks * weeklyDays) + 1);
             } else
               date.setDate(date.getDate() - 30);
 

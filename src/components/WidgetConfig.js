@@ -6,6 +6,8 @@ import {widgetsAPI} from "../capi";
 import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronBarDown, ChevronBarUp, CaretDownFill, CaretUpFill} from "react-bootstrap-icons";
 const debug = false && document.location.origin.match(/localhost/);
 
+export const weeklyDays = 7;
+
 const WidgetConfig = ({id, children, scale, mode}) => {
     const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries, widgetProps} = widgetsAPI({id: id}, WidgetConfig);
     const config = widgetConfig[widget.type];
