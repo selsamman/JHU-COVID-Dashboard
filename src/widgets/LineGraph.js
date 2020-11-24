@@ -50,10 +50,10 @@ export const LineGraph = (props) => {
                 <ChartTitle name={name}  scale={scale} id={id}/>
             </>}
             <VictoryChart {...parentProps}>
-                <VictoryAxis tickCount={8}
+                <VictoryAxis tickCount={8} fixLabelOverlap={true}
                              dependentAxis style={{tickLabels: {fontSize: 10}}}
                              tickFormat={(t) => formatFunction(t)}/>
-                <VictoryAxis style={{tickLabels: {angle: 90, fontSize: 8}}} />
+                <VictoryAxis tickCount={15} style={{tickLabels: {angle: 90, fontSize: 8}}} />
                 {!isStacked && widgetCountries.map( (country, ix) => (
                     <VictoryBarLine key={ix} {...childProps(data[ix],ix)}
                                     labels={({ datum }) => `${formatFunction(datum.y)}`}

@@ -7,7 +7,8 @@ import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronB
 const debug = false && document.location.origin.match(/localhost/);
 
 export const weeklyDays = 7;
-
+export const sampleSize = Math.floor(((new Date()).getTime() - (new Date("03/01/2020")).getTime()) / (1000 * 60 * 60 * 24 * 7));
+console.log(sampleSize);
 const WidgetConfig = ({id, children, scale, mode}) => {
     const {widget, isConfiguringData, isConfiguringLayout,anyConfiguring, widgetCountries, widgetProps} = widgetsAPI({id: id}, WidgetConfig);
     const config = widgetConfig[widget.type];

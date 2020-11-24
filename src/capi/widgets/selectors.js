@@ -1,6 +1,6 @@
 import {widgetsAPI} from "../index";
 import {widgetConfig, widgetNotes} from "../../config/widgets";
-import {weeklyDays} from "../../components/WidgetConfig";
+import {sampleSize, weeklyDays} from "../../components/WidgetConfig";
 
 export default {
     widgets: state => state.widgets,
@@ -77,9 +77,9 @@ export default {
             const date = new Date(toDate)
             if (widget.granularity === 'weekly') {
                 const weeks = Math.floor((date.getTime() - dataSet.dateRange.from)/ (24 * 60 * 60 * 1000 * weeklyDays));
-                date.setDate(date.getDate() - Math.min(30 * weeklyDays, weeks * weeklyDays) + 1);
+                date.setDate(date.getDate() - Math.min(sampleSize * weeklyDays, weeks * weeklyDays) + 1);
             } else
-              date.setDate(date.getDate() - 30);
+              date.setDate(date.getDate() - sampleSize);
 
             return Math.max(dataSet.dateRange.from, date.getTime());
         }
