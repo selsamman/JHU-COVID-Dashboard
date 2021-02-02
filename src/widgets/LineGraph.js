@@ -20,7 +20,7 @@ export const LineGraph = (props) => {
         domainPadding: 20,
         theme: VictoryTheme.material,
         padding: {
-            left: getPadding(16, 12) * scale,
+            left: getPadding(16, 17) * scale,
             top:  10 * scale,
             right: 4,
             bottom: 25 * scale
