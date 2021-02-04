@@ -6,7 +6,7 @@ import {widgetsAPI} from "../capi";
 import {CaretLeftFill, CaretRightFill, ChevronBarLeft, ChevronBarRight, ChevronBarDown, ChevronBarUp, CaretDownFill, CaretUpFill} from "react-bootstrap-icons";
 const debug = false && document.location.origin.match(/localhost/);
 
-export const weeklyDays = 7;
+const weeklyDays = 7;
 export const sampleSize = Math.floor(((new Date()).getTime() - (new Date("03/01/2020")).getTime()) / (1000 * 60 * 60 * 24 * 7));
 console.log(sampleSize);
 const WidgetConfig = ({id, children, scale, mode}) => {

@@ -43,6 +43,11 @@ const dataPoints = {
     newDeathsPerPopulation: "New Deaths per 1M",
     newTestsPerPopulation: "New Tests per 1M",
 
+    vaccinationsPerM: "Vaccinations per 1M",
+
+    vaccinations: "Total Vaccinations",
+    newVaccinations: "New Vaccinations",
+
     caseMortality: "Deaths per Case",
     deathsAsPercentOfFlu: ["Deaths as % of Flu"],
     deathsAsPercentOfOverall: ["Deaths as % of Total"]
@@ -55,6 +60,8 @@ const dataPointsDisplay = {
     casesPerM: ["Cases", "per 1M"],
     tests: ["Tests", "Total"],
     testsPerM: ["Tests", "per 1M"],
+    vaccinations: ["Vaccinations", "Total"],
+    vaccinationsPerM: ["Vaccinated", "Percent"],
     deathTrend: ["Deaths", "weekly trend"],
     caseTrend: ["Cases", "weekly trend"],
     testTrend: ["Tests", "weekly trend"],
@@ -62,9 +69,11 @@ const dataPointsDisplay = {
     newCases: ["Cases", "recent"],
     newDeaths: ["Deaths", "recent"],
     newTests: ["Tests", "recent"],
+    newVaccinations: ["Vaccinations", "recent"],
     newDeathsPerPopulation: ["Deaths", "recent / 1M"],
     newCasesPerPopulation: ["Cases", "recent / 1M"],
     newTestsPerPopulation: ["Tests", "recent / 1M"],
+    newVaccinationsPerPopulation: ["Vaccinations", "recent /1M"],
     deathsAsPercentOfFlu: ["Deaths", "vs Flu"],
     deathsAsPercentOfOverall: ["Deaths", "vs All"]
 
@@ -73,21 +82,34 @@ const dataPointsRender = {
     deaths: numberWithCommas,
     deathsPerM: numberWithCommas,
     deathsPerPopulation: numberWithCommas,
+
     cases: numberWithCommas,
     casesPerM: numberWithCommas,
     casesPerPopulation: numberWithCommas,
+
     tests: numberWithCommas,
+
     casePerTest: numberWithCommas,
     testsPerM: numberWithCommas,
     testsPerPopulation: numberWithCommas,
+
+    vaccinations: numberWithCommas,
+    vaccinationsPerM: numberAsPercent,
+    vaccinationsPerPopulation: numberWithCommas,
+
     deathTrend: formatTrend,
     caseTrend: formatTrend,
     testTrend: formatTrendReverse,
+
     caseMortality: numberAsPercent,
     newCaseMortality: numberAsPercent,
+
     newCases: numberWithCommas,
     newDeaths: numberWithCommas,
     newTests: numberWithCommas,
+    newVaccinations: numberWithCommas,
+    newVaccinationsPerPopulation: numberWithCommas,
+
     casePerTestPerPopulation: numberAsPercent,
     positiveRatio: numberAsPercent,
     newDeathsPerPopulation: numberWithCommas,
@@ -117,6 +139,7 @@ export const widgetConfig = {
 
     CasesOverTime: LineGraphByCountry( "Graph - Total Cases ", 'casesOverTime'),
     DeathsOverTime: LineGraphByCountry("Graph - Total Deaths", 'deathsOverTime'),
+    VaccinationsOverTime: LineGraphByCountry("Graph - Total Vaccinations", 'vaccinationsOverTime'),
 
     CasePerTestOverTime: LineGraphByCountry("Graph - Total Tests", 'testsOverTime', false),
     CasePerTestPerPopulationOverTime: LineGraphByCountry("Graph - Test Coverage", 'casePerTestPerPopulationOverTime', true),
@@ -125,6 +148,7 @@ export const widgetConfig = {
     CasesPerPopulationOverTime: LineGraphByCountry( "Graph - Cases per 1M", 'casesPerPopulationOverTime'),
     DeathsPerPopulationOverTime: LineGraphByCountry("Graph - Deaths per 1M", 'deathsPerPopulationOverTime'),
     TestsPerPopulationOverTime: LineGraphByCountry("Graph - Tests per 1M", 'testsPerPopulationOverTime'),
+    VaccinationsPerPopulationOverTime: LineGraphByCountry("Graph - Percent Vaccinated", 'vaccinationsPerPopulationOverTime', false, true),
 
     NewCasesOverTime: LineGraphByCountry( "Graph - New Cases",'newCasesOverTime'),
     NewDeathsOverTime: LineGraphByCountry("Graph - New Deaths",'newDeathsOverTime'),
@@ -212,7 +236,7 @@ function DataForCountry(name, props)  {
     }
 }
 
-function LineGraphByCountry (name, prop, isStacked) {
+function LineGraphByCountry (name, prop, isStacked, isPercent) {
      return {
          name: name,
          component: Widgets.LineGraph,
@@ -225,7 +249,8 @@ function LineGraphByCountry (name, prop, isStacked) {
          dataPoint: prop,
          dataPointsRender,
          weeklyTimeSelection: true,
-         isStacked: !!isStacked
+         isStacked: !!isStacked,
+         isPercent: !!isPercent
     }
 };
 

@@ -7,9 +7,9 @@ import ChartTitle from "../components/ChartTitle";
 import Countries from "../components/Countries";
 
 export const LineGraph = (props) => {
-    const {id, scale, dataPoint, dataPointsRender, name, isStacked} = props;
+    const {id, scale, dataPoint, dataPointsRender, name, isStacked, isPercent} = props;
     const {widgetCountries, getCountryDataPoints, fromDate, toDate, granularity} = widgetsAPI({id: id}, LineGraph);
-    const data = widgetCountries.map(country => getCountryDataPoints(country, dataPoint, fromDate, toDate, granularity, isStacked));
+    const data = widgetCountries.map(country => getCountryDataPoints(country, dataPoint, fromDate, toDate, granularity, isStacked, isPercent));
     const isBar = widgetCountries.length === 1;
     const data14DMA = isBar ? getCountryDataPoints(widgetCountries[0], dataPoint + "14DMA", fromDate, toDate, granularity) : undefined;
     const VictoryBarLine = isBar ? VictoryBar : VictoryLine;

@@ -1,5 +1,5 @@
 import bent from 'bent';
-import {weeklyDays} from "../components/WidgetConfig";
+const weeklyDays = 7;
 
 export let dataSet = {
     countries: ["My Country", "My State", "My County", "Selected Location"],
@@ -110,10 +110,12 @@ function processJHUCountries (dataSet) {
 
         const country = dataSet.country[countryName];
         const countryTests = country.tests ? country.tests : (new Array(country.cases.length)).fill(0);
+        const countryVaccinations = country.vaccinations ? country.vaccinations : (new Array(country.cases.length)).fill(0);
 
         const cases = country.cases[country.cases.length - 1];
         const deaths = country.deaths[country.deaths.length - 1];
         const tests = countryTests[countryTests.length - 1];
+        const vaccinations = countryVaccinations[countryVaccinations.length - 1];
 
         const casePerPopulationSeries = country.cases.map( c => c * 1000000 / country.population);
         const deathPerPopulationSeries = country.deaths.map( c => c * 1000000 / country.population);
@@ -122,6 +124,7 @@ function processJHUCountries (dataSet) {
         const newCaseSeries = country.cases.map((c, ix) => ix === 0 ? 0 : c - country.cases[ix -1]);
         const newDeathSeries = country.deaths.map((c, ix) => ix === 0 ? 0 : c - country.deaths[ix -1]);
         const newTestSeries = countryTests.map((c, ix) => ix === 0 ? 0 : c - countryTests[ix -1] * 1);
+        const newVaccinationsSeries = countryVaccinations.map((c, ix) => ix === 0 ? 0 : c - countryVaccinations[ix -1] * 1);
 
         const mortalitySeveritySeries = deathPerPopulationSeries.map(deathsPerM => (
         deathSeverityThresholds.reduce((accum, threshold, ix) => (
@@ -147,6 +150,8 @@ function processJHUCountries (dataSet) {
             newDeathsOverTime: newDeathSeries,
             testsOverTime: countryTests,
             newTestsOverTime: newTestSeries,
+            vaccinationsOverTime: country.vaccinations,
+            newVaccinationsOverTime: newVaccinationsSeries
 
         };
     };
@@ -189,6 +194,9 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
         case 'tests':
             return structureData([cdata.testsOverTime.slice(d1, d2)], last);
 
+        case 'vaccinations':
+            return structureData([cdata.vaccinationsOverTime.slice(d1, d2)], last);
+
         case 'positiveRatio':
             return  structureData([cdata.newCasesOverTime.slice(d1, d2), cdata.newTestsOverTime.slice(d1, d2)],
                 data => Math.min(1, data[1] > 0 ? data[0] / data[1] : 0));
@@ -204,6 +212,9 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
 
         case 'testsPerPopulation':
             return structureData([cdata.testsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], last);
+
+        case 'vaccinationsPerPopulation':
+            return structureData([cdata.vaccinationsOverTime.slice(d1, d2).map(d => d  / cdata.population)], last);
 
         case 'casePerTestPerPopulation':
             return stacked([cdata.casesOverTime.slice(d1, d2).map(d => d / cdata.population),
@@ -224,6 +235,9 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
         case 'newTests':
             return stacked([cdata.newCasesOverTime.slice(d1, d2), cdata.newTestsOverTime.slice(d1, d2)], sum);
 
+        case 'newVaccinations':
+            return stacked([cdata.newVaccinationsOverTime.slice(d1, d2), cdata.newVaccinationsOverTime.slice(d1, d2)], sum);
+
         case 'newDeathsPerPopulation':
             return structureData([cdata.newDeathsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
 
@@ -234,6 +248,11 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
             return stacked([
                 cdata.newCasesOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population),
                 cdata.newTestsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
+
+        case 'newVaccinationsPerPopulation':
+            return stacked([
+                cdata.newVaccinationsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population),
+                cdata.newVaccinationsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
 
         case 'caseTrend':
             return getTrend(d1, d2, cdata.newCasesOverTime);

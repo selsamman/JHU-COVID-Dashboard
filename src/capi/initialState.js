@@ -109,7 +109,8 @@ const initialState = {
                 "cols": 6,
                 "props": ["deathsPerM", "casesPerM", "newDeaths", "newCases"],
                 "displayCount": 50,
-                "scroll": true
+                "scroll": true,
+                "newPerWeek": true
             }, {
                 "id": 105,
                 "type": "Blank",
@@ -741,6 +742,9 @@ const initialState = {
             "selectedLocation": "United States",
             "selectedCountry": "United States",
             "selectedState": "Guam"
-        }],
+        },
+        {"nextWidgetId":8,"dashboardType":"stock","name":"Global Vaccinations ","widgets":[{"id":1,"type":"DataAllCountries","row":0,"col":0,"rows":3,"cols":6,"props":["vaccinationsPerM","newVaccinationsPerPopulation","vaccinations","newVaccinations"],"countries":["My Country","United States","Russia","United Kingdom","Germany","South Korea","Sweden","Peru","Canada","Belgium","Spain","Italy","Singapore","France"],"displayCount":100,"scroll":true,"selectCountry":true,"includeStates":false,"includeCounties":false,"newPerWeek":true},{"id":3,"type":"VaccinationsOverTime","row":1,"col":6,"rows":1,"cols":6,"props":["cases","deaths"],"countries":["Selected Location"],"granularity":"weekly"},{"id":5,"type":"DataForCountry","row":0,"col":6,"rows":1,"cols":6,"props":["cases","deaths","vaccinations","caseMortality","newCasesPerPopulation","newDeathsPerPopulation","vaccinationsPerM","deathTrend"],"countries":["Selected Location"],"granularity":"weekly","newPerWeek":true},{"id":7,"type":"VaccinationsPerPopulationOverTime","row":2,"col":6,"rows":1,"cols":6,"props":["cases","deaths"],"countries":["Selected Location","My Country","My State","The Whole World"],"granularity":"weekly"}],"selectedLocation":"United Kingdom","selectedCountry":"United Kingdom","selectedState":"Guam"},
+        {"nextWidgetId":8,"dashboardType":"stock","name":"United States Vaccinations","widgets":[{"id":1,"type":"DataByCountry","row":0,"col":0,"rows":3,"cols":6,"props":["newVaccinationsPerPopulation","vaccinationsPerM","newVaccinations","vaccinations"],"countries":["My Country"],"displayCount":100,"scroll":true,"selectCountry":true,"includeStates":true,"includeCounties":false,"newPerWeek":true},{"id":3,"type":"VaccinationsOverTime","row":0,"col":6,"rows":1,"cols":6,"props":["cases","deaths"],"countries":["Selected Location"],"granularity":"daily"},{"id":5,"type":"VaccinationsPerPopulationOverTime","row":1,"col":6,"rows":1,"cols":6,"props":["cases","deaths"],"countries":["Selected Location","United States","The Whole World","My State","My Country"],"granularity":"daily"},{"id":7,"type":"Blank","row":2,"col":6,"rows":1,"cols":6,"props":["cases","deaths"],"countries":["My Country"]}],"selectedLocation":"Puerto Rico","selectedCountry":"United States","selectedState":"Puerto Rico"}
+    ],
 }
 export default initialState;

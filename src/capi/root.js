@@ -3,7 +3,7 @@ import {save} from "../config/localstorage";
 import {updateLocation} from "../config/locationData";
 import {dataSet, dateToIx} from "../data/timeseries";
 import dashboard from "./dashboard";
-import {weeklyDays} from "../components/WidgetConfig";
+const weeklyDays = 7;
 
 export default {
     redactions: {
@@ -129,7 +129,7 @@ export default {
             return dataSet.getDataPoint(getCountryData(country), toDate, dataPoint, widget ? !!widget.newPerWeek : false);
         },
 
-        getCountryDataPoints: ({dataSet, getCountryData}) => (country, dataPoint, fromDate, toDate, granularity, isStacked) => {
+        getCountryDataPoints: ({dataSet, getCountryData}) => (country, dataPoint, fromDate, toDate, granularity, isStacked, isPercent) => {
 
             const data = dataSet.getDataPoints(getCountryData(country), fromDate, toDate, dataPoint, granularity, isStacked ? 2 : 1);
             //console.log(JSON.stringify(`getCountryDataPoints ${dataPoint} = ${JSON.stringify(data)}`));
@@ -145,7 +145,7 @@ export default {
                 return data.map((c, ix) => (
                     {
                         x: dataSet.dates[fix + (ix * (granularity === 'weekly' ? weeklyDays : 1))].replace(/\/20/,'').replace(/\//, '-'),
-                        y: c
+                        y: c * (isPercent ? 100 : 1)
                     }
                 ));
             }

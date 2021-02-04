@@ -1,7 +1,7 @@
 import {widgetsAPI} from "../index";
 import {widgetConfig, widgetNotes} from "../../config/widgets";
-import {sampleSize, weeklyDays} from "../../components/WidgetConfig";
-
+import {sampleSize} from "../../components/WidgetConfig";
+const weeklyDays = 7;
 export default {
     widgets: state => state.widgets,
 

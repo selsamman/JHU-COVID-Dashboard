@@ -18,10 +18,11 @@ export const TableByCountry = ({scale, id, dataPointsDisplay, dataPoints, dataPo
         (widget.includeCounties ? ", including counties " : ""))
 
     const scrollId = name + "-" + widget.id;
+    const height = Math.min(2, widget.rows) * (!!widget.scroll ? 350 : 350);
     return (
         <>
             <ChartTitle name={title} subTitle={subTitle} scale={scale}  id={id} />
-            <ScrollingTable height={Math.min(2, widget.rows) * 350} headerHeight={50} enable={!!widget.scroll} id={scrollId}>
+            <ScrollingTable height={height} headerHeight={50} enable={!!widget.scroll} id={scrollId}>
             <Table  striped bordered hover size="sm" responsive="sm" className="TableByCountry">
                 <thead>
                     <tr>
