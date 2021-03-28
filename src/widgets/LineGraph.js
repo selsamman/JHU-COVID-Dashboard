@@ -23,9 +23,9 @@ export const LineGraph = (props) => {
             left: getPadding(16, 17) * scale,
             top:  10 * scale,
             right: 4,
-            bottom: 25 * scale
+            bottom: 55 * scale
         },
-        height: 150 * scale,
+        height: 170 * scale,
         samples: 4,
         interpolation: "natural",
     };
@@ -51,9 +51,9 @@ export const LineGraph = (props) => {
             </>}
             <VictoryChart {...parentProps}>
                 <VictoryAxis tickCount={8} fixLabelOverlap={true}
-                             dependentAxis style={{tickLabels: {fontSize: 10}}}
+                             dependentAxis style={{tickLabels: {fontSize: 9}}}
                              tickFormat={(t) => formatFunction(t)}/>
-                <VictoryAxis tickCount={15} style={{tickLabels: {angle: 90, fontSize: 8}}} />
+                <VictoryAxis tickCount={15} style={{tickLabels: {marginLeft: 5, angle: 90, fontSize: 8, padding: 22}}} />
                 {!isStacked && widgetCountries.map( (country, ix) => (
                     <VictoryBarLine key={ix} {...childProps(data[ix],ix)}
                                     labels={({ datum }) => `${formatFunction(datum.y)}`}

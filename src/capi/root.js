@@ -144,10 +144,15 @@ export default {
             function getStack(data) {
                 return data.map((c, ix) => (
                     {
-                        x: dataSet.dates[fix + (ix * (granularity === 'weekly' ? weeklyDays : 1))].replace(/\/20/,'').replace(/\//, '-'),
+                        x: fixDate(dataSet.dates[fix + (ix * (granularity === 'weekly' ? weeklyDays : 1))]),
                         y: c * (isPercent ? 100 : 1)
                     }
                 ));
+            }
+            function fixDate(d) {
+                const parts =  d.split("/");
+                return parts[2] + "-" + f(parts[0]) + "-" + f(parts[1]);
+                function f(d) { return d < 10 ? "0" + d : d}
             }
         },
         getCountryDataPointsOld: ({dataSet, getCountryData}) => (country, dataPoint, fromDate, toDate, granularity, isStacked) => {

@@ -101,14 +101,18 @@ function processJHUFile(file) {
     let status = "loaded";
     return status;
 }
-
+function expand(data, size) {
+    for (const p in data)
+        if (data[p] instanceof Array)
+            data[p] = [...(new Array(size - data[p].length)).fill(0), ...data[p]];
+    return data;
+}
 function processJHUCountries (dataSet) {
     dataSet.country["The Whole World"] = dataSet.country["Total"];
     delete dataSet.country["Total"];
     const time = new Date();
     for (let countryName in  dataSet.country) {
-
-        const country = dataSet.country[countryName];
+        const country = expand(dataSet.country[countryName], dataSet.dates.length);
         const countryTests = country.tests ? country.tests : (new Array(country.cases.length)).fill(0);
         const countryVaccinations = country.vaccinations ? country.vaccinations : (new Array(country.cases.length)).fill(0);
 
@@ -182,7 +186,7 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
     dataPoint = dataPoint.replace(/OverTime/, '');
     //console.log(`dataSet.getDataPoints ${dataPoint}`);
     const d1 = dateToIx(from);
-    const d2 =  dateToIx(to) + 1;
+    let d2 =  dateToIx(to) + 1;
     switch (dataPoint) {
 
         case 'deaths':
@@ -197,7 +201,15 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
         case 'vaccinations':
             return structureData([cdata.vaccinationsOverTime.slice(d1, d2)], last);
 
+        case 'daysToHerd':
+            const lastChangeDay = getLastChanged(cdata.newVaccinationsOverTime);
+            const ave = movingAverage(cdata.newVaccinationsOverTime, 7).slice(lastChangeDay, lastChangeDay + 1);
+            return structureData([cdata.vaccinationsOverTime.slice(d1, d2)],
+                (data, na, ix) => ave[ix] ? ((cdata.population * 0.7 - data[0]) / ave[ix]) / 7: NaN);
+
         case 'positiveRatio':
+            if (granularity === 'weekly')
+                d2 -= 7;
             return  structureData([cdata.newCasesOverTime.slice(d1, d2), cdata.newTestsOverTime.slice(d1, d2)],
                 data => Math.min(1, data[1] > 0 ? data[0] / data[1] : 0));
 
@@ -233,10 +245,12 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
             return structureData([cdata.newCasesOverTime.slice(d1, d2)], sum);
 
         case 'newTests':
+            if (granularity === 'weekly')
+                d2 -= 7;
             return stacked([cdata.newCasesOverTime.slice(d1, d2), cdata.newTestsOverTime.slice(d1, d2)], sum);
 
         case 'newVaccinations':
-            return stacked([cdata.newVaccinationsOverTime.slice(d1, d2), cdata.newVaccinationsOverTime.slice(d1, d2)], sum);
+            return structureData([cdata.newVaccinationsOverTime.slice(d1, d2)], sum);
 
         case 'newDeathsPerPopulation':
             return structureData([cdata.newDeathsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
@@ -245,6 +259,8 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
             return structureData([cdata.newCasesOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
 
         case 'newTestsPerPopulation':
+            if (granularity === 'weekly')
+                d2 -= 7;
             return stacked([
                 cdata.newCasesOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population),
                 cdata.newTestsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], sum);
@@ -263,6 +279,9 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
         case 'testTrend':
             return getTrend(d1, d2, cdata.newTestsOverTime);
 
+        case 'vaccinationTrend':
+            return getTrend(d1, d2, cdata.newVaccinationsOverTime);
+
         case  'newCases14DMA':
             return structureData([movingAverage(cdata.newCasesOverTime, 14).slice(d1, d2)], sum);
 
@@ -270,6 +289,8 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
             return structureData([movingAverage(cdata.newDeathsOverTime, 14).slice(d1, d2)], sum);
 
         case  'newTests14DMA':
+            if (granularity === 'weekly')
+                d2 -= 7;
             return structureData([movingAverage(cdata.newTestsOverTime, 14).slice(d1, d2)], sum);
 
         case  'mortalitySeverity':
@@ -292,7 +313,11 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
             return undefined;
 
     }
-
+    function getLastChanged(series) {
+        let day = 0;
+        series.map((d, ix) => day = Math.max(day, d !== 0 ? ix : 0));
+        return day;
+    }
      function getTrend(d1, d2, data) {
         //console.log(`Weekly trend ${dataSet.dates[d1]} ${d1} to ${dataSet.dates[d2 - 1]} ${d2 - 1}`);
         const res = []

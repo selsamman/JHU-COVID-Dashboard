@@ -45,12 +45,14 @@ const dataPoints = {
 
     vaccinationsPerM: "Vaccinations per 1M",
 
-    vaccinations: "Total Vaccinations",
-    newVaccinations: "New Vaccinations",
+    vaccinations: "Total Vaccinated",
+    newVaccinations: "New Vaccinated",
 
     caseMortality: "Deaths per Case",
     deathsAsPercentOfFlu: ["Deaths as % of Flu"],
-    deathsAsPercentOfOverall: ["Deaths as % of Total"]
+    deathsAsPercentOfOverall: ["Deaths as % of Total"],
+    daysToHerd: ["Days until 70%"],
+    vaccinationTrend: ["Vaccintation Trend"]
 
 }
 const dataPointsDisplay = {
@@ -60,22 +62,24 @@ const dataPointsDisplay = {
     casesPerM: ["Cases", "per 1M"],
     tests: ["Tests", "Total"],
     testsPerM: ["Tests", "per 1M"],
-    vaccinations: ["Vaccinations", "Total"],
+    vaccinations: ["Vaccinated", "Total"],
     vaccinationsPerM: ["Vaccinated", "Percent"],
     deathTrend: ["Deaths", "weekly trend"],
     caseTrend: ["Cases", "weekly trend"],
     testTrend: ["Tests", "weekly trend"],
+    vaccinationTrend: ["Vaccinations", "weekly trend"],
     caseMortality: ["Deaths", "per Case"],
     newCases: ["Cases", "recent"],
     newDeaths: ["Deaths", "recent"],
     newTests: ["Tests", "recent"],
-    newVaccinations: ["Vaccinations", "recent"],
+    newVaccinations: ["Vaccinated", "recent"],
     newDeathsPerPopulation: ["Deaths", "recent / 1M"],
     newCasesPerPopulation: ["Cases", "recent / 1M"],
     newTestsPerPopulation: ["Tests", "recent / 1M"],
     newVaccinationsPerPopulation: ["Vaccinations", "recent /1M"],
     deathsAsPercentOfFlu: ["Deaths", "vs Flu"],
-    deathsAsPercentOfOverall: ["Deaths", "vs All"]
+    deathsAsPercentOfOverall: ["Deaths", "vs All"],
+    daysToHerd: ["Until\u00A070%", "weeks"]
 
 };
 const dataPointsRender = {
@@ -100,6 +104,7 @@ const dataPointsRender = {
     deathTrend: formatTrend,
     caseTrend: formatTrend,
     testTrend: formatTrendReverse,
+    vaccinationTrend: formatTrendReverse,
 
     caseMortality: numberAsPercent,
     newCaseMortality: numberAsPercent,
@@ -116,7 +121,8 @@ const dataPointsRender = {
     newCasesPerPopulation: numberWithCommas,
     newTestsPerPopulation: numberWithCommas,
     deathsAsPercentOfFlu: numberAsPercentWhole,
-    deathsAsPercentOfOverall: numberAsPercentWhole
+    deathsAsPercentOfOverall: numberAsPercentWhole,
+    daysToHerd: numberWithCommas
 };
 const severityDataPoints = {
     mortalitySeverity: "Deaths",
@@ -153,6 +159,7 @@ export const widgetConfig = {
     NewCasesOverTime: LineGraphByCountry( "Graph - New Cases",'newCasesOverTime'),
     NewDeathsOverTime: LineGraphByCountry("Graph - New Deaths",'newDeathsOverTime'),
     NewTestsOverTime: LineGraphByCountry("Graph - New Tests",'newTestsOverTime', true),
+    NewVaccinationsOverTime: LineGraphByCountry("Graph - New Vaccinations",'newVaccinationsOverTime', true),
 
     NewCasesPerPopulationOverTime: LineGraphByCountry( "Graph - New Cases per 1M",'newCasesPerPopulationOverTime'),
     NewDeathsPerPopulationOverTime: LineGraphByCountry("Graph - New Deaths per 1M",'newDeathsPerPopulationOverTime'),
@@ -257,6 +264,8 @@ function LineGraphByCountry (name, prop, isStacked, isPercent) {
 export const widgetNames = Object.getOwnPropertyNames(widgetConfig);
 
 export function numberWithCommas(x) {
+    if (x.toString() === 'NaN')
+        return "   ";
     if(x.toString().length > 0 && !isNaN (x * 1))
         x = Math.round(x);
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
