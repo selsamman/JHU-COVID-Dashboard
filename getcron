@@ -1,1 +1,2 @@
-cp ../JHU-COVID-cron/jhu.js public/jhu_test.js
+cp ../JHU-COVID-cron/jhu1.js public/jhu1_test.js
+cp ../JHU-COVID-cron/jhu2.js public/jhu2_test.js

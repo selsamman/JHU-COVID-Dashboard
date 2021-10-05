@@ -13,14 +13,21 @@ export const deathSeverityThresholds = [0, 1, Math.round(flu / 8), Math.round(fl
 export const casesSeverityThresholds = [0, 50, 1000, 2000, 4000];
 let importState = 'none';
 export const importJHUData = async ({manageStartupSequence}) => {
-    let file;
+    let file = "";
 
     switch (importState) {
 
         case "none":
             try {
                 importState = "loading";
-                file = await readJSFile("jhu");
+                let count = 1;
+                let max;
+                do {
+                    const thisFile = await readJSFile("jhu" + count);
+                    max = thisFile.match(/([0-9]) of ([0-9])/)[2];
+                    file = file + thisFile.substr(thisFile.indexOf("\n") + 1);
+                    count++;
+                } while (count <= max)
             } catch (e) {
                 console.log("error loading data" + e + e.stack);
                 importState = "error";
@@ -52,7 +59,7 @@ async function readJSFile(filePrefix) {
 }
 
 function processJHUFile(file) {
-    const json = JSON.parse(file.substr(file.indexOf("{")));
+    const json = JSON.parse(file);
 
     dataSet.country = json.data;
     dataSet.dates = json.dates;
@@ -187,6 +194,7 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
     //console.log(`dataSet.getDataPoints ${dataPoint}`);
     const d1 = dateToIx(from);
     let d2 =  dateToIx(to) + 1;
+    let deathsInLastYear;
     switch (dataPoint) {
 
         case 'deaths':
@@ -226,6 +234,7 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
             return structureData([cdata.testsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population)], last);
 
         case 'vaccinationsPerPopulation':
+
             return structureData([cdata.vaccinationsOverTime.slice(d1, d2).map(d => d  / cdata.population)], last);
 
         case 'casePerTestPerPopulation':
@@ -233,10 +242,12 @@ dataSet.getDataPoints = (cdata, from, to, dataPoint, granularity, dimensions) =>
                            cdata.testsOverTime.slice(d1, d2).map(d => d / cdata.population)], last);
 
         case 'deathsAsPercentOfFlu':
-            return structureData([cdata.deathsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population / 171)], last);
+            deathsInLastYear = cdata.deathsOverTime[d2 - 1] -  cdata.deathsOverTime[Math.max(d2 - 365, 0)];
+            return structureData([[deathsInLastYear].map(d => d * 1000000 / cdata.population / 171)], last);
 
         case 'deathsAsPercentOfOverall':
-            return structureData([cdata.deathsOverTime.slice(d1, d2).map(d => d * 1000000 / cdata.population / 8657)], last);
+            deathsInLastYear = cdata.deathsOverTime[d2 - 1] -  cdata.deathsOverTime[Math.max(d2 - 365, 0)];
+            return structureData([[deathsInLastYear].map(d => d * 1000000 / cdata.population / 8657)], last);
 
         case 'newDeaths':
             return structureData([cdata.newDeathsOverTime.slice(d1, d2)], sum);

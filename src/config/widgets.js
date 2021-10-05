@@ -49,10 +49,10 @@ const dataPoints = {
     newVaccinations: "New Vaccinated",
 
     caseMortality: "Deaths per Case",
-    deathsAsPercentOfFlu: ["Deaths as % of Flu"],
-    deathsAsPercentOfOverall: ["Deaths as % of Total"],
-    daysToHerd: ["Days until 70%"],
-    vaccinationTrend: ["Vaccintation Trend"]
+    deathsAsPercentOfFlu: "Deaths as % of Flu",
+    deathsAsPercentOfOverall: "Deaths as % of Total",
+    daysToHerd: "Days until 70%",
+    vaccinationTrend: "Vaccination Trend"
 
 }
 const dataPointsDisplay = {

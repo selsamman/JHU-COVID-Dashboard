@@ -20,7 +20,8 @@ ReactGA.pageview(window.location.pathname + window.location.search);
 
 //trace.log = t => console.log(t);
 
-const store = createStore(reducer, getInitialState(initialState), applyMiddleware(ReduxThunk))
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+const store = createStore(reducer, getInitialState(initialState), composeEnhancers(applyMiddleware(ReduxThunk)))
 widgetsAPI.mount(store);
 const AppWithBreakPoints = withBreakpoints(App);
 
