@@ -98,7 +98,7 @@ const dataPointsRender = {
     testsPerPopulation: numberWithCommas,
 
     vaccinations: numberWithCommas,
-    vaccinationsPerM: numberAsPercent,
+    vaccinationsPerM: numberAsPercentWhole,
     vaccinationsPerPopulation: numberWithCommas,
 
     deathTrend: formatTrend,

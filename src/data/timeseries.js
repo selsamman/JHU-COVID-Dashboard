@@ -161,7 +161,7 @@ function processJHUCountries (dataSet) {
             newDeathsOverTime: newDeathSeries,
             testsOverTime: countryTests,
             newTestsOverTime: newTestSeries,
-            vaccinationsOverTime: country.vaccinations || [],
+            vaccinationsOverTime: countryVaccinations,
             newVaccinationsOverTime: newVaccinationsSeries
 
         };
